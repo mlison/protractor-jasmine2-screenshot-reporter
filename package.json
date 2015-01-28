@@ -1,0 +1,29 @@
+{
+  "name": "protractor-jasmine2-screenshot-reporter",
+  "version": "0.0.1",
+  "description": "Use the screenshot reporter to capture screenshots after each executed Protractor test case.",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mlison/protractor-jasmine2-screenshot-reporter"
+  },
+  "dependencies": {
+    "lodash": "^3.0.0",
+    "mkdirp": "^0.5.0"
+  },
+  "keywords": [
+    "screenshot",
+    "jasmine",
+    "jasmine2",
+    "protractor",
+    "selenium",
+    "reporter",
+    "html"
+  ],
+  "author": "michal.lison@nitor.fi",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mlison/protractor-jasmine2-screenshot-reporter/issues"
+  },
+  "homepage": "https://github.com/mlison/protractor-jasmine2-screenshot-reporter"
+}
