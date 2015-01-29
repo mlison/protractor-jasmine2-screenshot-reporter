@@ -23,7 +23,11 @@ function Jasmine2ScreenShotReporter(opts) {
     }
 
     Reporter.jasmineStarted = function(summary) {
-        // TODO: stuff here?
+        mkdirp(opts.dest, function(err) {
+            if(err) {
+                throw new Error('Could not create directory ' + opts.dest);
+            }
+        });
     }
 
     Reporter.suiteStarted = function(suite) {
