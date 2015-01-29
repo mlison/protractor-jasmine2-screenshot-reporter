@@ -1,20 +1,22 @@
 // Screenshot reporter that works with jasmine2
 // TODO: the whole thing.
 
-var fs = require('fs'),
+var fs     = require('fs'),
     mkdirp = require('mkdirp'),
-    _ = require('lodash');
+    _      = require('lodash');
 
-function Jasmine2ScreenShotReporter() {
+function Jasmine2ScreenShotReporter(opts) {
     var Reporter = {};
 
-    var cache = [];
+    var suites = [],
+        runningSuite = null;
 
     // TODO: options
-    var path  = 'target/screenshots/';
+    opts = opts || {};
+    opts.directory = 'target/screenshots/';
 
     var writeScreenshot = function (data, filename) {
-        var stream = fs.createWriteStream(path + filename);
+        var stream = fs.createWriteStream(opts.directory + filename);
         stream.write(new Buffer(data, 'base64'));
         stream.end();
     }
@@ -25,14 +27,27 @@ function Jasmine2ScreenShotReporter() {
 
     Reporter.suiteStarted = function(suite) {
         // TODO: metadata
-        if (suite.fullName === 'Jasmine__TopLevel__Suite') return; // TODO: option?
-        suite.specs = [];
-        cache.push(suite); // TODO: suite nesting
+        suite._suites = [];
+        suite._specs = [];
+        suite._parent = runningSuite;
+
+        if (!runningSuite) {
+            suites.push(suite);
+        } else {
+            runningSuite._suites.push(suite);
+        }
+
+        runningSuite = suite;
+    };
+
+    Reporter.suiteDone = function(suite) {
+        runningSuite = suite._parent;
     };
 
     Reporter.specStarted = function(spec) {
         // TODO: metadata
-        _.last(cache).specs.push(spec);
+        spec._suite = runningSuite;
+        runningSuite._specs.push(spec);
     }
 
     Reporter.specDone = function(spec) {
@@ -42,13 +57,13 @@ function Jasmine2ScreenShotReporter() {
 
         browser.takeScreenshot().then(function (png) {
             browser.getCapabilities().then(function (capabilities) {
-                mkdirp(directory, function(err) {
+                mkdirp(opts.directory, function(err) {
                     if(err) {
-                        throw new Error('Could not create directory ' + directory);
+                        throw new Error('Could not create directory ' + opts.directory);
                     } else {
                         writeScreenshot(png, spec.filename);
                     }
-              });
+                });
             });
         });
     };
