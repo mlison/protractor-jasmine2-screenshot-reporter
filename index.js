@@ -12,11 +12,12 @@ function Jasmine2ScreenShotReporter(opts) {
         runningSuite = null;
 
     // TODO: options
-    opts = opts || {};
-    opts.directory = 'target/screenshots/';
+    opts          = opts || {};
+    opts.dest     = (opts.dest || 'target/screenshots') + '/';
+    opts.filename = opts.filename || 'report.html';
 
     var writeScreenshot = function (data, filename) {
-        var stream = fs.createWriteStream(opts.directory + filename);
+        var stream = fs.createWriteStream(opts.dest + opts.filename);
         stream.write(new Buffer(data, 'base64'));
         stream.end();
     }
