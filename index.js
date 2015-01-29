@@ -62,13 +62,7 @@ function Jasmine2ScreenShotReporter(opts) {
 
         browser.takeScreenshot().then(function (png) {
             browser.getCapabilities().then(function (capabilities) {
-                mkdirp(opts.directory, function(err) {
-                    if(err) {
-                        throw new Error('Could not create directory ' + opts.directory);
-                    } else {
-                        writeScreenshot(png, spec.filename);
-                    }
-                });
+                writeScreenshot(png, spec.filename);
             });
         });
     };
