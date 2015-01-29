@@ -68,20 +68,33 @@ function Jasmine2ScreenShotReporter(opts) {
     };
 
     Reporter.jasmineDone = function(x) {
-        // TODO: better report
+        var htmlReport = fs.openSync(opts.dest + opts.filename, 'w');
         var output = '';
-        _.each(cache, function(suite) {
-            output = output + "<h4>" + suite.fullName + "</h4>";
-            _.each(suite.specs, function(spec) {
-                var mark = (spec.failedExpectations.length ? '&#10007;' : '&#10003;');
-                output = output + (spec.status === 'pending' ? '&#10052;' : mark) + ' <a href="' + spec.filename + '">' + spec.fullName + '</a><br />';
-            });
-        })
-
-        var htmlReport = fs.openSync(path+'report.html', 'w');
+        _.each(suites, function(suite) {
+            output += printResults(suite);
+        });
         fs.writeSync(htmlReport, output, 0);
         fs.closeSync(htmlReport);
     };
+
+    function printResults(suite) {
+        var output = '';
+
+        output += "<h4>" + suite.fullName + "</h4>";
+
+        if (suite._suites.length) {
+            _.each(suite._suites, function(childSuite) {
+                output += printResults(childSuite);
+            });
+        } else {
+            _.each(suite._specs, function(spec) {
+                var mark = (spec.failedExpectations.length ? '&#10007;' : '&#10003;');
+                output += (spec.status === 'pending' ? '&#10052;' : mark) + ' <a href="' + spec.filename + '">' + spec.fullName.replace(suite.fullName, '') + '</a><br />';
+            });
+        }
+
+        return output;
+    }
 
     return Reporter;
 }
