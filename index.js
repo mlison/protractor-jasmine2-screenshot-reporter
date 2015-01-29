@@ -17,7 +17,7 @@ function Jasmine2ScreenShotReporter(opts) {
     opts.filename = opts.filename || 'report.html';
 
     var writeScreenshot = function (data, filename) {
-        var stream = fs.createWriteStream(opts.dest + opts.filename);
+        var stream = fs.createWriteStream(opts.dest + filename);
         stream.write(new Buffer(data, 'base64'));
         stream.end();
     }
