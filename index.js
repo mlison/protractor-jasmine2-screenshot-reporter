@@ -8,7 +8,8 @@ var fs     = require('fs'),
 function Jasmine2ScreenShotReporter(opts) {
     var Reporter = {};
 
-    var suites = [],
+    var suites = {},
+        specs = {},
         runningSuite = null;
 
     // TODO: options
@@ -20,6 +21,20 @@ function Jasmine2ScreenShotReporter(opts) {
         var stream = fs.createWriteStream(opts.dest + filename);
         stream.write(new Buffer(data, 'base64'));
         stream.end();
+    }
+
+    var getSuiteClone = function(suite) {
+      suites[suite.id] = _.extend((suites[suite.id] || {}), suite);
+      return suites[suite.id];
+    }
+
+    var getSpecClone = function(spec) {
+      specs[spec.id] = _.extend((suites[spec.id] || {}), spec);
+
+      // some basic meta, TODO: more
+      specs[spec.id].mark = (specs[spec.id].failedExpectations.length ? '&#10007;' : '&#10003;');
+      specs[spec.id].filename = (specs[spec.id].failedExpectations.length ? 'failed' : 'passed') + '-' + specs[spec.id].fullName + '.png';
+      return specs[spec.id];
     }
 
     Reporter.jasmineStarted = function(summary) {
@@ -43,13 +58,12 @@ function Jasmine2ScreenShotReporter(opts) {
 
     Reporter.suiteStarted = function(suite) {
         // TODO: metadata
+        suite = getSuiteClone(suite);
         suite._suites = [];
         suite._specs = [];
         suite._parent = runningSuite;
 
-        if (!runningSuite) {
-            suites.push(suite);
-        } else {
+        if (runningSuite) {
             runningSuite._suites.push(suite);
         }
 
@@ -57,19 +71,20 @@ function Jasmine2ScreenShotReporter(opts) {
     };
 
     Reporter.suiteDone = function(suite) {
+        suite = getSuiteClone(suite);
         runningSuite = suite._parent;
     };
 
     Reporter.specStarted = function(spec) {
-        // TODO: metadata
+        spec = getSpecClone(spec);
         spec._suite = runningSuite;
         runningSuite._specs.push(spec);
     }
 
     Reporter.specDone = function(spec) {
-        var passFail = (spec.failedExpectations.length) ? 'FAIL' : 'pass';
         // TODO: handle pending specs
-        spec.filename = (spec.status || passFail) + '-' + spec.fullName + '.png';
+
+        spec = getSpecClone(spec);
 
         browser.takeScreenshot().then(function (png) {
             browser.getCapabilities().then(function (capabilities) {
@@ -78,12 +93,9 @@ function Jasmine2ScreenShotReporter(opts) {
         });
     };
 
-    Reporter.jasmineDone = function(x) {
+    Reporter.jasmineDone = function() {
         var htmlReport = fs.openSync(opts.dest + opts.filename, 'w');
-        var output = '';
-        _.each(suites, function(suite) {
-            output += printResults(suite);
-        });
+        var output = printResults(suites['suite0']);
         fs.writeSync(htmlReport, output, 0);
         fs.closeSync(htmlReport);
     };
