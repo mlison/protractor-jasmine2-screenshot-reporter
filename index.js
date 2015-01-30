@@ -24,9 +24,20 @@ function Jasmine2ScreenShotReporter(opts) {
 
     Reporter.jasmineStarted = function(summary) {
         mkdirp(opts.dest, function(err) {
+            var files;
+
             if(err) {
                 throw new Error('Could not create directory ' + opts.dest);
             }
+
+            files = fs.readdirSync(opts.dest);
+
+            _.each(files, function(file) {
+              var filepath = opts.dest + file;
+              if (fs.statSync(filepath).isFile()) {
+                fs.unlinkSync(filepath);
+              }
+            });
         });
     }
 
