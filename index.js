@@ -12,6 +12,12 @@ function Jasmine2ScreenShotReporter(opts) {
         specs = {},
         runningSuite = null;
 
+    var marks = {
+      pending:'<span style="padding:0 1em;color:orange;">~</span>',
+      failed: '<span style="padding:0 1em;color:red;">&#10007;</span>',
+      passed: '<span style="padding:0 1em;color:green;">&#10003;</span>'
+    }
+
     // TODO: options
     opts          = opts || {};
     opts.dest     = (opts.dest || 'target/screenshots') + '/';
@@ -32,8 +38,8 @@ function Jasmine2ScreenShotReporter(opts) {
       specs[spec.id] = _.extend((suites[spec.id] || {}), spec);
 
       // some basic meta, TODO: more
-      specs[spec.id].mark = (specs[spec.id].failedExpectations.length ? '&#10007;' : '&#10003;');
-      specs[spec.id].filename = (specs[spec.id].failedExpectations.length ? 'failed' : 'passed') + '-' + specs[spec.id].fullName + '.png';
+      specs[spec.id].filename = specs[spec.id].status + '-' + specs[spec.id].fullName + '.png';
+
       return specs[spec.id];
     }
 
@@ -112,8 +118,8 @@ function Jasmine2ScreenShotReporter(opts) {
             });
         } else {
             _.each(suite._specs, function(spec) {
-                spec = getSpecClone(spec);
-                output += '<li>' + (spec.status === 'pending' ? '&#10052;' : spec.mark) + ' <a href="' + spec.filename + '">' + spec.fullName.replace(suite.fullName, '') + '</a></li>';
+                spec = specs[spec.id];
+                output += '<li>' + marks[spec.status] + '<a href="' + spec.filename + '">' + spec.fullName.replace(suite.fullName, '').trim() + '</a></li>';
             });
             output += '</ul>';
         }
