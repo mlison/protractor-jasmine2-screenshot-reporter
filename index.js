@@ -103,6 +103,7 @@ function Jasmine2ScreenShotReporter(opts) {
     function printResults(suite) {
         var output = '';
 
+        output += '<ul style="list-style-type:none">';
         output += "<h4>" + suite.fullName + "</h4>";
 
         if (suite._suites.length) {
@@ -111,9 +112,10 @@ function Jasmine2ScreenShotReporter(opts) {
             });
         } else {
             _.each(suite._specs, function(spec) {
-                var mark = (spec.failedExpectations.length ? '&#10007;' : '&#10003;');
-                output += (spec.status === 'pending' ? '&#10052;' : mark) + ' <a href="' + spec.filename + '">' + spec.fullName.replace(suite.fullName, '') + '</a><br />';
+                spec = getSpecClone(spec);
+                output += '<li>' + (spec.status === 'pending' ? '&#10052;' : spec.mark) + ' <a href="' + spec.filename + '">' + spec.fullName.replace(suite.fullName, '') + '</a></li>';
             });
+            output += '</ul>';
         }
 
         return output;
