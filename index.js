@@ -35,7 +35,7 @@ function Jasmine2ScreenShotReporter(opts) {
     }
 
     var getSpecClone = function(spec) {
-      specs[spec.id] = _.extend((suites[spec.id] || {}), spec);
+      specs[spec.id] = _.extend((specs[spec.id] || {}), spec);
 
       // some basic meta, TODO: more
       specs[spec.id].filename = specs[spec.id].status + '-' + specs[spec.id].fullName + '.png';
