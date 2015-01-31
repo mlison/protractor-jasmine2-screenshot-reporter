@@ -43,6 +43,12 @@ function Jasmine2ScreenShotReporter(opts) {
       return specs[spec.id];
     }
 
+    function getDuration(obj) {
+        if (!obj._started || !obj._finished) return 0;
+        var duration = (obj._finished - obj._started) / 1000;
+        return (duration < 1) ? duration : Math.round(duration);
+    }
+
     Reporter.jasmineStarted = function(summary) {
         mkdirp(opts.dest, function(err) {
             var files;
@@ -67,6 +73,7 @@ function Jasmine2ScreenShotReporter(opts) {
         suite = getSuiteClone(suite);
         suite._suites = [];
         suite._specs = [];
+        suite._started = Date.now();
         suite._parent = runningSuite;
 
         if (runningSuite) {
@@ -78,11 +85,13 @@ function Jasmine2ScreenShotReporter(opts) {
 
     Reporter.suiteDone = function(suite) {
         suite = getSuiteClone(suite);
+        suite._finished = Date.now();
         runningSuite = suite._parent;
     };
 
     Reporter.specStarted = function(spec) {
         spec = getSpecClone(spec);
+        spec._started = Date.now();
         spec._suite = runningSuite;
         runningSuite._specs.push(spec);
     }
@@ -91,6 +100,7 @@ function Jasmine2ScreenShotReporter(opts) {
         // TODO: handle pending specs
 
         spec = getSpecClone(spec);
+        spec._finished = Date.now();
 
         browser.takeScreenshot().then(function (png) {
             browser.getCapabilities().then(function (capabilities) {
@@ -110,7 +120,7 @@ function Jasmine2ScreenShotReporter(opts) {
         var output = '';
 
         output += '<ul style="list-style-type:none">';
-        output += "<h4>" + suite.fullName + "</h4>";
+        output += "<h4>" + suite.fullName + ' (' + getDuration(suite) + " s)</h4>";
 
         if (suite._suites.length) {
             _.each(suite._suites, function(childSuite) {
@@ -119,7 +129,7 @@ function Jasmine2ScreenShotReporter(opts) {
         } else {
             _.each(suite._specs, function(spec) {
                 spec = specs[spec.id];
-                output += '<li>' + marks[spec.status] + '<a href="' + spec.filename + '">' + spec.fullName.replace(suite.fullName, '').trim() + '</a></li>';
+                output += '<li>' + marks[spec.status] + '<a href="' + spec.filename + '">' + spec.fullName.replace(suite.fullName, '').trim() + '</a> (' + getDuration(spec) + ' s)</li>';
             });
             output += '</ul>';
         }
