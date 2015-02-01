@@ -22,6 +22,8 @@ function Jasmine2ScreenShotReporter(opts) {
     opts          = opts || {};
     opts.dest     = (opts.dest || 'target/screenshots') + '/';
     opts.filename = opts.filename || 'report.html';
+    opts.ignoreSkippedSpecs = opts.ignoreSkippedSpecs || false;
+    opts.captureOnlyFailedSpecs = opts.captureOnlyFailedSpecs || false;
 
     var writeScreenshot = function (data, filename) {
         var stream = fs.createWriteStream(opts.dest + filename);
@@ -97,10 +99,18 @@ function Jasmine2ScreenShotReporter(opts) {
     }
 
     Reporter.specDone = function(spec) {
-        // TODO: handle pending specs
-
         spec = getSpecClone(spec);
         spec._finished = Date.now();
+
+        // Don't screenshot skipped specs
+        var isSkipped = opts.ignoreSkippedSpecs && spec.status === 'pending';
+        // Screenshot only for failed specs
+        var isIgnored = opts.captureOnlyFailedSpecs && spec.status !== 'failed';
+
+        if (isSkipped || isIgnored) {
+            _.pull(runningSuite._specs, spec);
+            return;
+        }
 
         browser.takeScreenshot().then(function (png) {
             browser.getCapabilities().then(function (capabilities) {
