@@ -1,57 +1,58 @@
-// Screenshot reporter that works with jasmine2
-// TODO: the whole thing.
-
 var fs     = require('fs'),
     mkdirp = require('mkdirp'),
     _      = require('lodash');
 
 function Jasmine2ScreenShotReporter(opts) {
-    var Reporter = {};
+    'use strict';
 
-    var suites = {},
-        specs = {},
-        runningSuite = null;
+        var suites       = {},   // suite clones
+            specs        = {},   // tes spec clones
+            runningSuite = null, // currently running suite
 
-    var marks = {
-      pending:'<span style="padding:0 1em;color:orange;">~</span>',
-      failed: '<span style="padding:0 1em;color:red;">&#10007;</span>',
-      passed: '<span style="padding:0 1em;color:green;">&#10003;</span>'
-    }
+            // report marks
+            marks = {
+                pending:'<span style="padding:0 1em;color:orange;">~</span>',
+                failed: '<span style="padding:0 1em;color:red;">&#10007;</span>',
+                passed: '<span style="padding:0 1em;color:green;">&#10003;</span>'
+            };
 
-    // TODO: options
+    // write data into opts.dest as filename
+    var writeScreenshot = function (data, filename) {
+        var stream = fs.createWriteStream(opts.dest + filename);
+        stream.write(new Buffer(data, 'base64'));
+        stream.end();
+    };
+
+    // returns suite clone or creates one
+    var getSuiteClone = function(suite) {
+      suites[suite.id] = _.extend((suites[suite.id] || {}), suite);
+      return suites[suite.id];
+    };
+
+    // returns spec clone or creates one
+    var getSpecClone = function(spec) {
+      specs[spec.id] = _.extend((specs[spec.id] || {}), spec);
+      return specs[spec.id];
+    };
+
+    // returns duration in seconds
+    var getDuration = function(obj) {
+        if (!obj._started || !obj._finished) {
+            return 0;
+        }
+        var duration = (obj._finished - obj._started) / 1000;
+        return (duration < 1) ? duration : Math.round(duration);
+    };
+
+    // TODO: more options
     opts          = opts || {};
     opts.dest     = (opts.dest || 'target/screenshots') + '/';
     opts.filename = opts.filename || 'report.html';
     opts.ignoreSkippedSpecs = opts.ignoreSkippedSpecs || false;
     opts.captureOnlyFailedSpecs = opts.captureOnlyFailedSpecs || false;
 
-    var writeScreenshot = function (data, filename) {
-        var stream = fs.createWriteStream(opts.dest + filename);
-        stream.write(new Buffer(data, 'base64'));
-        stream.end();
-    }
 
-    var getSuiteClone = function(suite) {
-      suites[suite.id] = _.extend((suites[suite.id] || {}), suite);
-      return suites[suite.id];
-    }
-
-    var getSpecClone = function(spec) {
-      specs[spec.id] = _.extend((specs[spec.id] || {}), spec);
-
-      // some basic meta, TODO: more
-      specs[spec.id].filename = specs[spec.id].status + '-' + specs[spec.id].fullName + '.png';
-
-      return specs[spec.id];
-    }
-
-    function getDuration(obj) {
-        if (!obj._started || !obj._finished) return 0;
-        var duration = (obj._finished - obj._started) / 1000;
-        return (duration < 1) ? duration : Math.round(duration);
-    }
-
-    Reporter.jasmineStarted = function(summary) {
+    this.jasmineStarted = function() {
         mkdirp(opts.dest, function(err) {
             var files;
 
@@ -68,10 +69,9 @@ function Jasmine2ScreenShotReporter(opts) {
               }
             });
         });
-    }
+    };
 
-    Reporter.suiteStarted = function(suite) {
-        // TODO: metadata
+    this.suiteStarted = function(suite) {
         suite = getSuiteClone(suite);
         suite._suites = [];
         suite._specs = [];
@@ -85,20 +85,20 @@ function Jasmine2ScreenShotReporter(opts) {
         runningSuite = suite;
     };
 
-    Reporter.suiteDone = function(suite) {
+    this.suiteDone = function(suite) {
         suite = getSuiteClone(suite);
         suite._finished = Date.now();
         runningSuite = suite._parent;
     };
 
-    Reporter.specStarted = function(spec) {
+    this.specStarted = function(spec) {
         spec = getSpecClone(spec);
         spec._started = Date.now();
         spec._suite = runningSuite;
         runningSuite._specs.push(spec);
-    }
+    };
 
-    Reporter.specDone = function(spec) {
+    this.specDone = function(spec) {
         spec = getSpecClone(spec);
         spec._finished = Date.now();
 
@@ -114,23 +114,26 @@ function Jasmine2ScreenShotReporter(opts) {
 
         browser.takeScreenshot().then(function (png) {
             browser.getCapabilities().then(function (capabilities) {
+                // TODO: capabilities.browserName
+                spec.filename = spec.status + '-' + spec.fullName + '.png';
                 writeScreenshot(png, spec.filename);
             });
         });
     };
 
-    Reporter.jasmineDone = function() {
+    this.jasmineDone = function() {
         var htmlReport = fs.openSync(opts.dest + opts.filename, 'w');
-        var output = printResults(suites['suite0']);
+        var output = printResults(suites.suite0);
         fs.writeSync(htmlReport, output, 0);
         fs.closeSync(htmlReport);
     };
 
+    // TODO: better template
     function printResults(suite) {
         var output = '';
 
         output += '<ul style="list-style-type:none">';
-        output += "<h4>" + suite.fullName + ' (' + getDuration(suite) + " s)</h4>";
+        output += '<h4>' + suite.fullName + ' (' + getDuration(suite) + ' s)</h4>';
 
         if (suite._suites.length) {
             _.each(suite._suites, function(childSuite) {
@@ -147,7 +150,7 @@ function Jasmine2ScreenShotReporter(opts) {
         return output;
     }
 
-    return Reporter;
+    return this;
 }
 
 module.exports = Jasmine2ScreenShotReporter;
