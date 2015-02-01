@@ -25,3 +25,44 @@ exports.config = {
       );
    }
 }</code></pre>
+
+## Options
+### Destination directory
+
+Output directory for created files. All screenshots and reports will be stored here.
+
+If the directory doesn't exist, it will be created automatically or otherwise cleaned before running the test suite.
+
+<pre><code>jasmine.getEnv().addReporter(new ScreenShotReporter({
+   dest: '/project/test/screenshots'
+}));</code></pre>
+
+### Filename (optional)
+
+Filename for html report.
+
+<pre><code>jasmine.getEnv().addReporter(new ScreenShotReporter({
+   filename: 'my-report.html'
+}));</code></pre>
+
+Default is <code>report.html</code>
+
+### Ignore pending specs (optional)
+
+When this option is enabled, reporter will not create screenshots for pending / disabled specs. Only executed specs will be captured.
+
+<pre><code>jasmine.getEnv().addReporter(new ScreenShotReporter({
+   ignoreSkippedSpecs: true
+}));</code></pre>
+
+Default is <code>false</code>
+
+### Capture only failed specs (optional)
+
+When this option is enabled, reporter will create screenshots only for specs that have failed their expectations.
+
+<pre><code>jasmine.getEnv().addReporter(new ScreenShotReporter({
+   captureOnlyFailedSpecs: true
+}));</code></pre>
+
+Default is <code>false</code>
