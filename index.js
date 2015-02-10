@@ -56,7 +56,7 @@ function Jasmine2ScreenShotReporter(opts) {
     opts.filename = opts.filename || 'report.html';
     opts.ignoreSkippedSpecs = opts.ignoreSkippedSpecs || false;
     opts.captureOnlyFailedSpecs = opts.captureOnlyFailedSpecs || false;
-    opts.pathBuilder = pathBuilder || opts.pathBuilder;
+    opts.pathBuilder = opts.pathBuilder || pathBuilder;
 
 
     this.jasmineStarted = function() {
