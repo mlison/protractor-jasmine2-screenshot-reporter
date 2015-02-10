@@ -66,3 +66,16 @@ When this option is enabled, reporter will create screenshots only for specs tha
 }));</code></pre>
 
 Default is <code>false</code>
+
+### Path Builder (optional)
+
+Function used to build custom paths for screenshots. For example:
+
+<pre><code>jasmine.getEnv().addReporter(new ScreenShotReporter({
+   pathBuilder: function(currentSpec, suites, browserCapabilities) {
+      // will return chrome/your-spec-name.png
+      return browserCapabilities.browserName + '/' + spec.fullName);
+   }
+}));</code></pre>
+
+By default, the path builder will generate a random ID for each spec.
