@@ -1,6 +1,8 @@
 var fs     = require('fs'),
     mkdirp = require('mkdirp'),
-    _      = require('lodash');
+    _      = require('lodash'),
+    path   = require('path'),
+    hat    = require('hat');
 
 function Jasmine2ScreenShotReporter(opts) {
     'use strict';
@@ -44,12 +46,17 @@ function Jasmine2ScreenShotReporter(opts) {
         return (duration < 1) ? duration : Math.round(duration);
     };
 
+    var pathBuilder = function(spec, suites, capabilities) {
+      return hat();
+    };
+
     // TODO: more options
     opts          = opts || {};
     opts.dest     = (opts.dest || 'target/screenshots') + '/';
     opts.filename = opts.filename || 'report.html';
     opts.ignoreSkippedSpecs = opts.ignoreSkippedSpecs || false;
     opts.captureOnlyFailedSpecs = opts.captureOnlyFailedSpecs || false;
+    opts.pathBuilder = pathBuilder || opts.pathBuilder;
 
 
     this.jasmineStarted = function() {
@@ -114,9 +121,15 @@ function Jasmine2ScreenShotReporter(opts) {
 
         browser.takeScreenshot().then(function (png) {
             browser.getCapabilities().then(function (capabilities) {
-                // TODO: capabilities.browserName
-                spec.filename = spec.status + '-' + spec.fullName + '.png';
-                writeScreenshot(png, spec.filename);
+                spec.filename = opts.pathBuilder(spec, suites, capabilities) + '.png';
+                var fullpath = path.join(opts.dest, spec.filename);
+
+                mkdirp(path.dirname(fullpath), function(err) {
+                    if(err) {
+                        throw new Error('Could not create directory for ' + fullpath);
+                    }
+                    writeScreenshot(png, spec.filename);
+                });
             });
         });
     };
