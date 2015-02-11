@@ -79,3 +79,16 @@ Function used to build custom paths for screenshots. For example:
 }));</code></pre>
 
 By default, the path builder will generate a random ID for each spec.
+
+### Metadata Builder (optional)
+
+Function used to build custom metadata objects for each spec. Files (json) will use the same filename and path as created by Path Builder.
+For example:
+
+<pre><code>jasmine.getEnv().addReporter(new ScreenShotReporter({
+   metadataBuilder: function(currentSpec, suites, browserCapabilities) {
+      return { id: spec.id, os: browserCapabilities.browserName };
+   }
+}));</code></pre>
+
+By default, the runner builder will not save any metadata except the actual html report.
