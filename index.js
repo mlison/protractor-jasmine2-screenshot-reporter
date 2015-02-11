@@ -25,6 +25,19 @@ function Jasmine2ScreenShotReporter(opts) {
         stream.end();
     };
 
+    var writeMetadata = function(data, filename) {
+        var stream;
+
+        try {
+          stream = fs.createWriteStream(filename);
+          stream.write(JSON.stringify(data, null, '\t'));
+          stream.end();
+        } catch(e) {
+          console.error('Couldn\'t save metadata: ' + filename);
+        }
+
+    };
+
     // returns suite clone or creates one
     var getSuiteClone = function(suite) {
       suites[suite.id] = _.extend((suites[suite.id] || {}), suite);
