@@ -63,6 +63,10 @@ function Jasmine2ScreenShotReporter(opts) {
       return hat();
     };
 
+    var metadataBuilder = function(spec, suites, capabilities) {
+      return false;
+    };
+
     // TODO: more options
     opts          = opts || {};
     opts.dest     = (opts.dest || 'target/screenshots') + '/';
@@ -70,6 +74,7 @@ function Jasmine2ScreenShotReporter(opts) {
     opts.ignoreSkippedSpecs = opts.ignoreSkippedSpecs || false;
     opts.captureOnlyFailedSpecs = opts.captureOnlyFailedSpecs || false;
     opts.pathBuilder = opts.pathBuilder || pathBuilder;
+    opts.metadataBuilder = opts.metadataBuilder || metadataBuilder;
 
 
     this.jasmineStarted = function() {
@@ -134,12 +139,29 @@ function Jasmine2ScreenShotReporter(opts) {
 
         browser.takeScreenshot().then(function (png) {
             browser.getCapabilities().then(function (capabilities) {
-                spec.filename = opts.pathBuilder(spec, suites, capabilities) + '.png';
-                var fullpath = path.join(opts.dest, spec.filename);
+                var screenshotPath,
+                    metadataPath,
+                    metadata,
+                    file;
 
-                mkdirp(path.dirname(fullpath), function(err) {
+                file           = opts.pathBuilder(spec, suites, capabilities);
+                spec.filename  = file + '.png';
+                screenshotPath = path.join(opts.dest, spec.filename);
+                metadata       = opts.metadataBuilder(spec, suites, capabilities);
+
+                if (metadata) {
+                    metadataPath = path.join(opts.dest, file + '.json');
+                    mkdirp(path.dirname(metadataPath), function(err) {
+                        if(err) {
+                            throw new Error('Could not create directory for ' + metadataPath);
+                        }
+                        writeMetadata(metadata, metadataPath);
+                    });
+                }
+
+                mkdirp(path.dirname(screenshotPath), function(err) {
                     if(err) {
-                        throw new Error('Could not create directory for ' + fullpath);
+                        throw new Error('Could not create directory for ' + screenshotPath);
                     }
                     writeScreenshot(png, spec.filename);
                 });
