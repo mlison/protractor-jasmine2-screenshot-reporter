@@ -171,7 +171,7 @@ function Jasmine2ScreenShotReporter(opts) {
 
     this.jasmineDone = function() {
         var htmlReport = fs.openSync(opts.dest + opts.filename, 'w');
-        var output = printResults(suites.suite0);
+        var output = printResults(suites[Object.keys(suites)[0]]);
         fs.writeSync(htmlReport, output, 0);
         fs.closeSync(htmlReport);
     };
