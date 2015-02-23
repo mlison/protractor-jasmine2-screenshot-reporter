@@ -197,8 +197,8 @@ function Jasmine2ScreenShotReporter(opts) {
                 spec = specs[spec.id];
                 output += '<li>' + marks[spec.status] + '<a href="' + spec.filename + '">' + spec.fullName.replace(suite.fullName, '').trim() + '</a> (' + getDuration(spec) + ' s)</li>';
             });
-            output += '</ul>';
         }
+        output += '</ul>';
 
         return output;
     }
