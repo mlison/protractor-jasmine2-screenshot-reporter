@@ -1,11 +1,11 @@
 {
-  "name": "protractor-jasmine2-screenshot-reporter",
+  "name": "protractor-jasmine2-screenshot-report",
   "version": "0.1.2",
   "description": "Use the screenshot reporter to capture screenshots after each executed Protractor test case.",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mlison/protractor-jasmine2-screenshot-reporter"
+    "url": "https://github.com/asnov/protractor-jasmine2-screenshot-report"
   },
   "dependencies": {
     "hat": "0.0.3",
@@ -25,9 +25,9 @@
   "author": "michal.lison@nitor.fi",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/mlison/protractor-jasmine2-screenshot-reporter/issues"
+    "url": "https://github.com/asnov/protractor-jasmine2-screenshot-report/issues"
   },
-  "homepage": "https://github.com/mlison/protractor-jasmine2-screenshot-reporter",
+  "homepage": "https://github.com/asnov/protractor-jasmine2-screenshot-report",
   "contributors": [
     {
       "name": "Alex Novikov",
