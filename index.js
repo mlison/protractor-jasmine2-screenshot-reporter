@@ -1,22 +1,22 @@
-var fs     = require('fs'),
+var fs = require('fs'),
     mkdirp = require('mkdirp'),
-    _      = require('lodash'),
-    path   = require('path'),
-    hat    = require('hat');
+    _ = require('lodash'),
+    path = require('path'),
+    hat = require('hat');
 
 function Jasmine2ScreenShotReporter(opts) {
     'use strict';
 
-        var suites       = {},   // suite clones
-            specs        = {},   // tes spec clones
-            runningSuite = null, // currently running suite
+    var suites = {},   // suite clones
+        specs = {},   // tes spec clones
+        runningSuite = null, // currently running suite
 
-            // report marks
-            marks = {
-                pending:'<span style="padding:0 1em;color:orange;">~</span>',
-                failed: '<span style="padding:0 1em;color:red;">&#10007;</span>',
-                passed: '<span style="padding:0 1em;color:green;">&#10003;</span>'
-            };
+    // report marks
+        marks = {
+            pending: '<span style="padding:0 1em;color:orange;">~</span>',
+            failed: '<span style="padding:0 1em;color:red;">&#10007;</span>',
+            passed: '<span style="padding:0 1em;color:green;">&#10003;</span>'
+        };
 
     // write data into opts.dest as filename
     var writeScreenshot = function (data, filename) {
@@ -25,33 +25,33 @@ function Jasmine2ScreenShotReporter(opts) {
         stream.end();
     };
 
-    var writeMetadata = function(data, filename) {
+    var writeMetadata = function (data, filename) {
         var stream;
 
         try {
-          stream = fs.createWriteStream(filename);
-          stream.write(JSON.stringify(data, null, '\t'));
-          stream.end();
-        } catch(e) {
-          console.error('Couldn\'t save metadata: ' + filename);
+            stream = fs.createWriteStream(filename);
+            stream.write(JSON.stringify(data, null, '\t'));
+            stream.end();
+        } catch (e) {
+            console.error('Couldn\'t save metadata: ' + filename);
         }
 
     };
 
     // returns suite clone or creates one
-    var getSuiteClone = function(suite) {
-      suites[suite.id] = _.extend((suites[suite.id] || {}), suite);
-      return suites[suite.id];
+    var getSuiteClone = function (suite) {
+        suites[suite.id] = _.extend((suites[suite.id] || {}), suite);
+        return suites[suite.id];
     };
 
     // returns spec clone or creates one
-    var getSpecClone = function(spec) {
-      specs[spec.id] = _.extend((specs[spec.id] || {}), spec);
-      return specs[spec.id];
+    var getSpecClone = function (spec) {
+        specs[spec.id] = _.extend((specs[spec.id] || {}), spec);
+        return specs[spec.id];
     };
 
     // returns duration in seconds
-    var getDuration = function(obj) {
+    var getDuration = function (obj) {
         if (!obj._started || !obj._finished) {
             return 0;
         }
@@ -59,17 +59,17 @@ function Jasmine2ScreenShotReporter(opts) {
         return (duration < 1) ? duration : Math.round(duration);
     };
 
-    var pathBuilder = function(spec, suites, capabilities) {
-      return hat();
+    var pathBuilder = function (spec, suites, capabilities) {
+        return hat();
     };
 
-    var metadataBuilder = function(spec, suites, capabilities) {
-      return false;
+    var metadataBuilder = function (spec, suites, capabilities) {
+        return false;
     };
 
     // TODO: more options
-    opts          = opts || {};
-    opts.dest     = (opts.dest || 'target/screenshots') + '/';
+    opts = opts || {};
+    opts.dest = (opts.dest || 'target/screenshots') + '/';
     opts.filename = opts.filename || 'report.html';
     opts.ignoreSkippedSpecs = opts.ignoreSkippedSpecs || false;
     opts.captureOnlyFailedSpecs = opts.captureOnlyFailedSpecs || false;
@@ -77,26 +77,26 @@ function Jasmine2ScreenShotReporter(opts) {
     opts.metadataBuilder = opts.metadataBuilder || metadataBuilder;
 
 
-    this.jasmineStarted = function() {
-        mkdirp(opts.dest, function(err) {
+    this.jasmineStarted = function () {
+        mkdirp(opts.dest, function (err) {
             var files;
 
-            if(err) {
+            if (err) {
                 throw new Error('Could not create directory ' + opts.dest);
             }
 
             files = fs.readdirSync(opts.dest);
 
-            _.each(files, function(file) {
-              var filepath = opts.dest + file;
-              if (fs.statSync(filepath).isFile()) {
-                fs.unlinkSync(filepath);
-              }
+            _.each(files, function (file) {
+                var filepath = opts.dest + file;
+                if (fs.statSync(filepath).isFile()) {
+                    fs.unlinkSync(filepath);
+                }
             });
         });
     };
 
-    this.suiteStarted = function(suite) {
+    this.suiteStarted = function (suite) {
         suite = getSuiteClone(suite);
         suite._suites = [];
         suite._specs = [];
@@ -110,20 +110,20 @@ function Jasmine2ScreenShotReporter(opts) {
         runningSuite = suite;
     };
 
-    this.suiteDone = function(suite) {
+    this.suiteDone = function (suite) {
         suite = getSuiteClone(suite);
         suite._finished = Date.now();
         runningSuite = suite._parent;
     };
 
-    this.specStarted = function(spec) {
+    this.specStarted = function (spec) {
         spec = getSpecClone(spec);
         spec._started = Date.now();
         spec._suite = runningSuite;
         runningSuite._specs.push(spec);
     };
 
-    this.specDone = function(spec) {
+    this.specDone = function (spec) {
         spec = getSpecClone(spec);
         spec._finished = Date.now();
 
@@ -144,23 +144,23 @@ function Jasmine2ScreenShotReporter(opts) {
                     metadata,
                     file;
 
-                file           = opts.pathBuilder(spec, suites, capabilities);
-                spec.filename  = file + '.png';
+                file = opts.pathBuilder(spec, suites, capabilities);
+                spec.filename = file + '.png';
                 screenshotPath = path.join(opts.dest, spec.filename);
-                metadata       = opts.metadataBuilder(spec, suites, capabilities);
+                metadata = opts.metadataBuilder(spec, suites, capabilities);
 
                 if (metadata) {
                     metadataPath = path.join(opts.dest, file + '.json');
-                    mkdirp(path.dirname(metadataPath), function(err) {
-                        if(err) {
+                    mkdirp(path.dirname(metadataPath), function (err) {
+                        if (err) {
                             throw new Error('Could not create directory for ' + metadataPath);
                         }
                         writeMetadata(metadata, metadataPath);
                     });
                 }
 
-                mkdirp(path.dirname(screenshotPath), function(err) {
-                    if(err) {
+                mkdirp(path.dirname(screenshotPath), function (err) {
+                    if (err) {
                         throw new Error('Could not create directory for ' + screenshotPath);
                     }
                     writeScreenshot(png, spec.filename);
@@ -169,9 +169,14 @@ function Jasmine2ScreenShotReporter(opts) {
         });
     };
 
-    this.jasmineDone = function() {
+    this.jasmineDone = function () {
         var htmlReport = fs.openSync(opts.dest + opts.filename, 'w');
-        var output = printResults(suites[Object.keys(suites)[0]]);
+        var output = '';
+        _.each(suites, function (el) {
+            if(!el._parent) {
+                output += printResults(el);
+            }
+        });
         fs.writeSync(htmlReport, output, 0);
         fs.closeSync(htmlReport);
     };
@@ -184,11 +189,11 @@ function Jasmine2ScreenShotReporter(opts) {
         output += '<h4>' + suite.fullName + ' (' + getDuration(suite) + ' s)</h4>';
 
         if (suite._suites.length) {
-            _.each(suite._suites, function(childSuite) {
+            _.each(suite._suites, function (childSuite) {
                 output += printResults(childSuite);
             });
         } else {
-            _.each(suite._specs, function(spec) {
+            _.each(suite._specs, function (spec) {
                 spec = specs[spec.id];
                 output += '<li>' + marks[spec.status] + '<a href="' + spec.filename + '">' + spec.fullName.replace(suite.fullName, '').trim() + '</a> (' + getDuration(spec) + ' s)</li>';
             });
