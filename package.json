@@ -27,5 +27,12 @@
   "bugs": {
     "url": "https://github.com/mlison/protractor-jasmine2-screenshot-reporter/issues"
   },
-  "homepage": "https://github.com/mlison/protractor-jasmine2-screenshot-reporter"
+  "homepage": "https://github.com/mlison/protractor-jasmine2-screenshot-reporter",
+  "contributors": [
+    {
+      "name": "Alex Novikov",
+      "email": "alex@asnovikov.ru",
+      "url": "http://www.asnovikov.ru/"
+    }
+  ]
 }
