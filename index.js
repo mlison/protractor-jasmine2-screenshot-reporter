@@ -4,6 +4,8 @@ var fs     = require('fs'),
     path   = require('path'),
     hat    = require('hat');
 
+require('string.prototype.startsWith');
+
 function Jasmine2ScreenShotReporter(opts) {
     'use strict';
 
@@ -194,6 +196,8 @@ function Jasmine2ScreenShotReporter(opts) {
                 output += printResults(childSuite);
             });
         }
+
+        output += '</ul>';
 
         return output;
     }
