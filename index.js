@@ -184,16 +184,15 @@ function Jasmine2ScreenShotReporter(opts) {
         output += '<ul style="list-style-type:none">';
         output += '<h4>' + suite.fullName + ' (' + getDuration(suite) + ' s)</h4>';
 
+        _.each(suite._specs, function(spec) {
+            spec = specs[spec.id];
+            output += '<li>' + marks[spec.status] + '<a href="' + spec.filename + '">' + spec.fullName.replace(suite.fullName, '').trim() + '</a> (' + getDuration(spec) + ' s)</li>';
+        });
+
         if (suite._suites.length) {
             _.each(suite._suites, function(childSuite) {
                 output += printResults(childSuite);
             });
-        } else {
-            _.each(suite._specs, function(spec) {
-                spec = specs[spec.id];
-                output += '<li>' + marks[spec.status] + '<a href="' + spec.filename + '">' + spec.fullName.replace(suite.fullName, '').trim() + '</a> (' + getDuration(spec) + ' s)</li>';
-            });
-            output += '</ul>';
         }
 
         return output;
