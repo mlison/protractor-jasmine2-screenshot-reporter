@@ -7,16 +7,16 @@ var fs     = require('fs'),
 function Jasmine2ScreenShotReporter(opts) {
     'use strict';
 
-        var suites       = {},   // suite clones
-            specs        = {},   // tes spec clones
-            runningSuite = null, // currently running suite
+    var suites       = {},   // suite clones
+        specs        = {},   // tes spec clones
+        runningSuite = null, // currently running suite
 
-            // report marks
-            marks = {
-                pending:'<span style="padding:0 1em;color:orange;">~</span>',
-                failed: '<span style="padding:0 1em;color:red;">&#10007;</span>',
-                passed: '<span style="padding:0 1em;color:green;">&#10003;</span>'
-            };
+        // report marks
+        marks = {
+            pending:'<span style="padding:0 1em;color:orange;">~</span>',
+            failed: '<span style="padding:0 1em;color:red;">&#10007;</span>',
+            passed: '<span style="padding:0 1em;color:green;">&#10003;</span>'
+        };
 
     // write data into opts.dest as filename
     var writeScreenshot = function (data, filename) {
