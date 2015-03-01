@@ -2,6 +2,7 @@ var fs     = require('fs'),
     mkdirp = require('mkdirp'),
     _      = require('lodash'),
     path   = require('path'),
+    os = require("os"),
     hat    = require('hat');
 
 require('string.prototype.startsWith');
@@ -138,16 +139,16 @@ function Jasmine2ScreenShotReporter(opts) {
         if (isSkipped || isIgnored) {
             _.pull(runningSuite._specs, spec);
             return;
-        }
-
-        file = opts.pathBuilder(spec, suites);
-        spec.filename = file + '.png';
+        }        
 
         browser.takeScreenshot().then(function (png) {
             browser.getCapabilities().then(function (capabilities) {
                 var screenshotPath,
                     metadataPath,
                     metadata;
+
+                file = opts.pathBuilder(spec, suites, capabilities);
+                spec.filename = file + '.png';
 
                 screenshotPath = path.join(opts.dest, spec.filename);
                 metadata       = opts.metadataBuilder(spec, suites, capabilities);
@@ -174,7 +175,15 @@ function Jasmine2ScreenShotReporter(opts) {
 
     this.jasmineDone = function() {
         var htmlReport = fs.openSync(opts.dest + opts.filename, 'w');
-        var output = printResults(suites[Object.keys(suites)[0]]);
+        var output = _.reduce(suites, function(result, suite) {
+            // Rely on printResults to do the nesting
+            // Skip the child suites later to avoid double inclusion
+            if (!suite._parent) {
+                return result + printResults(suite) + os.EOL;
+            } else {
+                return result;
+            }
+        }, '');
         fs.writeSync(htmlReport, output, 0);
         fs.closeSync(htmlReport);
     };
