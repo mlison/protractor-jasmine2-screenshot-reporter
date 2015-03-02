@@ -74,7 +74,7 @@ Function used to build custom paths for screenshots. For example:
 <pre><code>jasmine.getEnv().addReporter(new ScreenShotReporter({
    pathBuilder: function(currentSpec, suites, browserCapabilities) {
       // will return chrome/your-spec-name.png
-      return browserCapabilities.browserName + '/' + spec.fullName);
+      return browserCapabilities.get('browserName') + '/' + currentSpec.fullName);
    }
 }));</code></pre>
 
@@ -87,7 +87,7 @@ For example:
 
 <pre><code>jasmine.getEnv().addReporter(new ScreenShotReporter({
    metadataBuilder: function(currentSpec, suites, browserCapabilities) {
-      return { id: spec.id, os: browserCapabilities.browserName };
+      return { id: currentSpec.id, os: browserCapabilities.get('browserName') };
    }
 }));</code></pre>
 
