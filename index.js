@@ -180,15 +180,34 @@ function Jasmine2ScreenShotReporter(opts) {
     };
 
     // TODO: better template
+
+    var printedSpecs = [];
+    function printSpec(spec) {
+      var suiteName = spec._suite ? spec._suite.fullName : '';
+      if (_.contains(printedSpecs, spec.id)) {
+        return '';
+      }
+
+      printedSpecs.push(spec.id);
+      return '<li>' + marks[spec.status] + '<a href="' + spec.filename + '">' + spec.fullName.replace(suiteName, '').trim() + '</a> (' + getDuration(spec) + ' s)</li>';
+    }
+
+    var printedSuites = [];
     function printResults(suite) {
         var output = '';
+
+        if (_.contains(printedSuites, suite.id)) {
+          return '';
+        }
+
+        printedSuites.push(suite.id);
 
         output += '<ul style="list-style-type:none">';
         output += '<h4>' + suite.fullName + ' (' + getDuration(suite) + ' s)</h4>';
 
         _.each(suite._specs, function(spec) {
             spec = specs[spec.id];
-            output += '<li>' + marks[spec.status] + '<a href="' + spec.filename + '">' + spec.fullName.replace(suite.fullName, '').trim() + '</a> (' + getDuration(spec) + ' s)</li>';
+            output += printSpec(spec);
         });
 
         if (suite._suites.length) {
