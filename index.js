@@ -174,7 +174,17 @@ function Jasmine2ScreenShotReporter(opts) {
 
     this.jasmineDone = function() {
         var htmlReport = fs.openSync(opts.dest + opts.filename, 'w');
-        var output = printResults(suites[Object.keys(suites)[0]]);
+        var output = '';
+
+        _.each(suites, function(suite) {
+          output += printResults(suite);
+        });
+
+        // Ideally this shouldn't happen, but some versions of jasmine will allow it
+        _.each(specs, function(suite) {
+          output += printSpec(suite);
+        });
+
         fs.writeSync(htmlReport, output, 0);
         fs.closeSync(htmlReport);
     };
@@ -192,6 +202,7 @@ function Jasmine2ScreenShotReporter(opts) {
       return '<li>' + marks[spec.status] + '<a href="' + spec.filename + '">' + spec.fullName.replace(suiteName, '').trim() + '</a> (' + getDuration(spec) + ' s)</li>';
     }
 
+    // TODO: proper nesting -> no need for magic
     var printedSuites = [];
     function printResults(suite) {
         var output = '';
