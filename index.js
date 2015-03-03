@@ -4,7 +4,7 @@ var fs     = require('fs'),
     path   = require('path'),
     hat    = require('hat');
 
-require('string.prototype.startsWith');
+require('string.prototype.startswith');
 
 function Jasmine2ScreenShotReporter(opts) {
     'use strict';
