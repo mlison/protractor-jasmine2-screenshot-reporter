@@ -174,7 +174,7 @@ function Jasmine2ScreenShotReporter(opts) {
 
     this.jasmineDone = function() {
         var htmlReport = fs.openSync(opts.dest + opts.filename, 'w');
-        var output = '';
+        var output = '<html><head><meta charset="utf-8"></head><body>';
 
         _.each(suites, function(suite) {
           output += printResults(suite);
@@ -184,6 +184,8 @@ function Jasmine2ScreenShotReporter(opts) {
         _.each(specs, function(suite) {
           output += printSpec(suite);
         });
+
+        output += '</body></html>';
 
         fs.writeSync(htmlReport, output, 0);
         fs.closeSync(htmlReport);
