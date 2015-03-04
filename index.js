@@ -201,7 +201,7 @@ function Jasmine2ScreenShotReporter(opts) {
       }
 
       printedSpecs.push(spec.id);
-      return '<li>' + marks[spec.status] + '<a href="' + spec.filename + '">' + spec.fullName.replace(suiteName, '').trim() + '</a> (' + getDuration(spec) + ' s)</li>';
+      return '<li>' + marks[spec.status] + '<a href="' + encodeURIComponent(spec.filename) + '">' + spec.fullName.replace(suiteName, '').trim() + '</a> (' + getDuration(spec) + ' s)</li>';
     }
 
     // TODO: proper nesting -> no need for magic
