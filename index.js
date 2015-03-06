@@ -173,7 +173,6 @@ function Jasmine2ScreenShotReporter(opts) {
     };
 
     this.jasmineDone = function() {
-        var htmlReport = fs.openSync(opts.dest + opts.filename, 'w');
         var output = '<html><head><meta charset="utf-8"></head><body>';
 
         _.each(suites, function(suite) {
@@ -187,8 +186,12 @@ function Jasmine2ScreenShotReporter(opts) {
 
         output += '</body></html>';
 
-        fs.writeSync(htmlReport, output, 0);
-        fs.closeSync(htmlReport);
+        fs.appendFileSync(opts.dest + opts.filename, output, {encoding: 'utf8'}, function(err){
+            if(err){
+                console.error("Error writing to file:" + opts.dest + opts.filename);
+                throw err;
+            }
+        });
     };
 
     // TODO: better template
