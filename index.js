@@ -173,22 +173,25 @@ function Jasmine2ScreenShotReporter(opts) {
     };
 
     this.jasmineDone = function() {
-        var htmlReport = fs.openSync(opts.dest + opts.filename, 'w');
-        var output = '<html><head><meta charset="utf-8"><style>.passed{padding: 0 1em;color:green;}.failed{padding: 0 1em;color:red;}.pending{padding: 0 1em;color:red;}</style></head><body>';
+      var output = '<html><head><meta charset="utf-8"><style>.passed{padding: 0 1em;color:green;}.failed{padding: 0 1em;color:red;}.pending{padding: 0 1em;color:red;}</style></head><body>';
 
-        _.each(suites, function(suite) {
-          output += printResults(suite);
-        });
+      _.each(suites, function(suite) {
+        output += printResults(suite);
+      });
 
-        // Ideally this shouldn't happen, but some versions of jasmine will allow it
-        _.each(specs, function(suite) {
-          output += printSpec(suite);
-        });
+      // Ideally this shouldn't happen, but some versions of jasmine will allow it
+      _.each(specs, function(suite) {
+        output += printSpec(suite);
+      });
 
-        output += '</body></html>';
+      output += '</body></html>';
 
-        fs.writeSync(htmlReport, output, 0);
-        fs.closeSync(htmlReport);
+      fs.appendFileSync(opts.dest + opts.filename, output, {encoding: 'utf8'}, function(err){
+        if(err){
+          console.error('Error writing to file:' + opts.dest + opts.filename);
+          throw err;
+        }
+      });
     };
 
     // TODO: better template
