@@ -152,16 +152,19 @@ function Jasmine2ScreenShotReporter(opts) {
         // Screenshot only for failed specs
         var isIgnored = opts.captureOnlyFailedSpecs && spec.status !== 'failed';
 
-        if (isSkipped || isIgnored) {
+        /*if (isSkipped || isIgnored) {
             _.pull(runningSuite._specs, spec);
             return;
-        }
+        }*/
 
         file = opts.pathBuilder(spec, suites);
-        spec.filename = file + '.png';
+        spec.filename = (isSkipped || isIgnored) ? "#" : file + '.png';
 
         browser.takeScreenshot().then(function (png) {
             browser.getCapabilities().then(function (capabilities) {
+                if(isIgnored || isSkipped){
+                    return false;
+                }
                 var screenshotPath,
                     metadataPath,
                     metadata;
@@ -191,7 +194,6 @@ function Jasmine2ScreenShotReporter(opts) {
 
     this.jasmineDone = function() {
         var output = '<html><head><meta charset="utf-8"><style>.passed{padding: 0 1em;color:green;}.failed{padding: 0 1em;color:red;}.pending{padding: 0 1em;color:red;}</style></head><body>';
-
         _.each(suites, function(suite) {
           output += printResults(suite);
         });
