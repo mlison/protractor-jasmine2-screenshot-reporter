@@ -61,6 +61,23 @@ function Jasmine2ScreenShotReporter(opts) {
         return (duration < 1) ? duration : Math.round(duration);
     };
 
+    var printReasonsForFailure = function(obj) {
+        if (obj.status !== 'failed') {
+            return "";
+        }
+        var reasonsForFailure = _.map(obj.failedExpectations, function(failedExpectation){
+            return failedExpectation.message;
+        });
+
+        var reasons = '<ul>'
+        for(var i = 0; i < reasonsForFailure.length; i++){
+            reasons += '<li>' + reasonsForFailure[i] + '</li>';
+        }
+        reasons += '</ul>';
+
+        return reasons;
+    };
+
     var pathBuilder = function(spec, suites, capabilities) {
       return hat();
     };
@@ -204,7 +221,7 @@ function Jasmine2ScreenShotReporter(opts) {
       }
 
       printedSpecs.push(spec.id);
-      return '<li>' + marks[spec.status] + '<a href="' + encodeURIComponent(spec.filename) + '">' + spec.fullName.replace(suiteName, '').trim() + '</a> (' + getDuration(spec) + ' s)</li>';
+      return '<li>' + marks[spec.status] + '<a href="' + encodeURIComponent(spec.filename) + '">' + spec.fullName.replace(suiteName, '').trim() + '</a>(' + getDuration(spec) + ' s</li>' + printReasonsForFailure(spec) + '</br>';
     }
 
     // TODO: proper nesting -> no need for magic
