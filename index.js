@@ -15,9 +15,9 @@ function Jasmine2ScreenShotReporter(opts) {
 
         // report marks
         marks = {
-            pending:'<span style="padding:0 1em;color:orange;">~</span>',
-            failed: '<span style="padding:0 1em;color:red;">&#10007;</span>',
-            passed: '<span style="padding:0 1em;color:green;">&#10003;</span>'
+            pending:'<span class="pending">~</span>',
+            failed: '<span class="failed">&#10007;</span>',
+            passed: '<span class="passed">&#10003;</span>'
         };
 
     // write data into opts.dest as filename
@@ -173,7 +173,7 @@ function Jasmine2ScreenShotReporter(opts) {
     };
 
     this.jasmineDone = function() {
-        var output = '<html><head><meta charset="utf-8"></head><body>';
+        var output = '<html><head><meta charset="utf-8"><style>.passed{padding: 0 1em;color:green;}.failed{padding: 0 1em;color:red;}.pending{padding: 0 1em;color:red;}</style></head><body>';
 
         _.each(suites, function(suite) {
           output += printResults(suite);
