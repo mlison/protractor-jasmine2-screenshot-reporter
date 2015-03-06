@@ -15,9 +15,9 @@ function Jasmine2ScreenShotReporter(opts) {
 
         // report marks
         marks = {
-            pending:'<span style="padding:0 1em;color:orange;">~</span>',
-            failed: '<span style="padding:0 1em;color:red;">&#10007;</span>',
-            passed: '<span style="padding:0 1em;color:green;">&#10003;</span>'
+            pending:'<span class="pending">~</span>',
+            failed: '<span class="failed">&#10007;</span>',
+            passed: '<span class="passed">&#10003;</span>'
         };
 
     // write data into opts.dest as filename
@@ -59,6 +59,23 @@ function Jasmine2ScreenShotReporter(opts) {
         }
         var duration = (obj._finished - obj._started) / 1000;
         return (duration < 1) ? duration : Math.round(duration);
+    };
+
+    var printReasonsForFailure = function(obj) {
+        if (obj.status !== 'failed') {
+            return "";
+        }
+        var reasonsForFailure = _.map(obj.failedExpectations, function(failedExpectation){
+            return failedExpectation.message;
+        });
+
+        var reasons = '<ul>'
+        for(var i = 0; i < reasonsForFailure.length; i++){
+            reasons += '<li>' + reasonsForFailure[i] + '</li>';
+        }
+        reasons += '</ul>';
+
+        return reasons;
     };
 
     var pathBuilder = function(spec, suites, capabilities) {
@@ -135,16 +152,19 @@ function Jasmine2ScreenShotReporter(opts) {
         // Screenshot only for failed specs
         var isIgnored = opts.captureOnlyFailedSpecs && spec.status !== 'failed';
 
-        if (isSkipped || isIgnored) {
+        /*if (isSkipped || isIgnored) {
             _.pull(runningSuite._specs, spec);
             return;
-        }
+        }*/
 
         file = opts.pathBuilder(spec, suites);
-        spec.filename = file + '.png';
+        spec.filename = (isSkipped || isIgnored) ? "#" : file + '.png';
 
         browser.takeScreenshot().then(function (png) {
             browser.getCapabilities().then(function (capabilities) {
+                if(isIgnored || isSkipped){
+                    return false;
+                }
                 var screenshotPath,
                     metadataPath,
                     metadata;
@@ -173,9 +193,7 @@ function Jasmine2ScreenShotReporter(opts) {
     };
 
     this.jasmineDone = function() {
-        var htmlReport = fs.openSync(opts.dest + opts.filename, 'w');
-        var output = '<html><head><meta charset="utf-8"></head><body>';
-
+        var output = '<html><head><meta charset="utf-8"><style>.passed{padding: 0 1em;color:green;}.failed{padding: 0 1em;color:red;}.pending{padding: 0 1em;color:red;}</style></head><body>';
         _.each(suites, function(suite) {
           output += printResults(suite);
         });
@@ -187,8 +205,12 @@ function Jasmine2ScreenShotReporter(opts) {
 
         output += '</body></html>';
 
-        fs.writeSync(htmlReport, output, 0);
-        fs.closeSync(htmlReport);
+        fs.appendFileSync(opts.dest + opts.filename, output, {encoding: 'utf8'}, function(err){
+            if(err){
+                console.error("Error writing to file:" + opts.dest + opts.filename);
+                throw err;
+            }
+        });
     };
 
     // TODO: better template
@@ -201,7 +223,7 @@ function Jasmine2ScreenShotReporter(opts) {
       }
 
       printedSpecs.push(spec.id);
-      return '<li>' + marks[spec.status] + '<a href="' + encodeURIComponent(spec.filename) + '">' + spec.fullName.replace(suiteName, '').trim() + '</a> (' + getDuration(spec) + ' s)</li>';
+      return '<li>' + marks[spec.status] + '<a href="' + encodeURIComponent(spec.filename) + '">' + spec.fullName.replace(suiteName, '').trim() + '</a>(' + getDuration(spec) + ' s)</li>' + printReasonsForFailure(spec) + '</br>';
     }
 
     // TODO: proper nesting -> no need for magic
