@@ -180,8 +180,8 @@ function Jasmine2ScreenShotReporter(opts) {
       });
 
       // Ideally this shouldn't happen, but some versions of jasmine will allow it
-      _.each(specs, function(suite) {
-        output += printSpec(suite);
+      _.each(specs, function(spec) {
+        output += printSpec(spec);
       });
 
       output += '</body></html>';
