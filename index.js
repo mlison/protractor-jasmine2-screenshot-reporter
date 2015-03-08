@@ -136,8 +136,8 @@ function Jasmine2ScreenShotReporter(opts) {
         var isIgnored = opts.captureOnlyFailedSpecs && spec.status !== 'failed';
 
         if (isSkipped || isIgnored) {
-            _.pull(runningSuite._specs, spec);
-            return;
+          spec.isPrinted = true;
+          return;
         }
 
         file = opts.pathBuilder(spec, suites);
@@ -196,27 +196,25 @@ function Jasmine2ScreenShotReporter(opts) {
 
     // TODO: better template
 
-    var printedSpecs = [];
     function printSpec(spec) {
       var suiteName = spec._suite ? spec._suite.fullName : '';
-      if (_.contains(printedSpecs, spec.id)) {
+      if (spec.isPrinted) {
         return '';
       }
 
-      printedSpecs.push(spec.id);
+      spec.isPrinted = true;
       return '<li>' + marks[spec.status] + '<a href="' + encodeURIComponent(spec.filename) + '">' + spec.fullName.replace(suiteName, '').trim() + '</a> (' + getDuration(spec) + ' s)</li>';
     }
 
     // TODO: proper nesting -> no need for magic
-    var printedSuites = [];
     function printResults(suite) {
         var output = '';
 
-        if (_.contains(printedSuites, suite.id)) {
+        if (suite.isPrinted) {
           return '';
         }
 
-        printedSuites.push(suite.id);
+        suite.isPrinted = true;
 
         output += '<ul style="list-style-type:none">';
         output += '<h4>' + suite.fullName + ' (' + getDuration(suite) + ' s)</h4>';
