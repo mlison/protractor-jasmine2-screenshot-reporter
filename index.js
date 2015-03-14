@@ -69,6 +69,34 @@ function Jasmine2ScreenShotReporter(opts) {
       return false;
     };
 
+    var isSpecValid = function (spec) {
+      // Don't screenshot skipped specs
+      var isSkipped = opts.ignoreSkippedSpecs && spec.status === 'pending';
+      // Screenshot only for failed specs
+      var isIgnored = opts.captureOnlyFailedSpecs && spec.status !== 'failed';
+
+      return !isSkipped && !isIgnored;
+    };
+
+    var hasValidSpecs = function (suite) {
+      var validSuites = false;
+      var validSpecs = false;
+
+      if (suite._suites.length) {
+        validSuites = _.any(suite._suites, function(s) {
+          return hasValidSpecs(s);
+        });
+      }
+
+      if (suite._specs.length) {
+        validSpecs = _.any(suite._specs, function(s) {
+          return isSpecValid(s);
+        });
+      }
+
+      return validSuites || validSpecs;
+    };
+
     // TODO: more options
     opts          = opts || {};
     opts.dest     = (opts.dest || 'target/screenshots') + '/';
@@ -130,12 +158,7 @@ function Jasmine2ScreenShotReporter(opts) {
         spec = getSpecClone(spec);
         spec._finished = Date.now();
 
-        // Don't screenshot skipped specs
-        var isSkipped = opts.ignoreSkippedSpecs && spec.status === 'pending';
-        // Screenshot only for failed specs
-        var isIgnored = opts.captureOnlyFailedSpecs && spec.status !== 'failed';
-
-        if (isSkipped || isIgnored) {
+        if (!isSpecValid(spec)) {
           spec.isPrinted = true;
           return;
         }
@@ -210,7 +233,7 @@ function Jasmine2ScreenShotReporter(opts) {
     function printResults(suite) {
         var output = '';
 
-        if (suite.isPrinted) {
+        if (suite.isPrinted || !hasValidSpecs(suite)) {
           return '';
         }
 
