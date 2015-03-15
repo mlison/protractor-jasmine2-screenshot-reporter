@@ -196,7 +196,7 @@ function Jasmine2ScreenShotReporter(opts) {
     };
 
     this.jasmineDone = function() {
-      var output = '<html><head><meta charset="utf-8"><style>.passed{padding: 0 1em;color:green;}.failed{padding: 0 1em;color:red;}.pending{padding: 0 1em;color:red;}</style></head><body>';
+      var output = '<html><head><meta charset="utf-8"><style>body{font-family:Arial;}ul{list-style-position: inside;}.passed{padding: 0 1em;color:green;}.failed{padding: 0 1em;color:red;}.pending{padding: 0 1em;color:red;}</style></head><body>';
 
       _.each(suites, function(suite) {
         output += printResults(suite);
@@ -256,6 +256,20 @@ function Jasmine2ScreenShotReporter(opts) {
         output += '</ul>';
 
         return output;
+    }
+
+    function printReasonsForFailure(spec) {
+      if (spec.status !== 'failed') {
+        return '';
+      }
+
+      var reasons = '<ul>';
+      _.each(spec.failedExpectations, function(exp) {
+        reasons += '<li>' + exp.message + '</li>';
+      });
+      reasons += '</ul>';
+
+      return reasons;
     }
 
     return this;
