@@ -9,7 +9,8 @@ require('string.prototype.startswith');
 function Jasmine2ScreenShotReporter(opts) {
     'use strict';
 
-    var suites       = {},   // suite clones
+    var self = this,
+        suites       = {},   // suite clones
         specs        = {},   // tes spec clones
         runningSuite = null, // currently running suite
 
@@ -18,6 +19,12 @@ function Jasmine2ScreenShotReporter(opts) {
             pending:'<span class="pending">~</span>',
             failed: '<span class="failed">&#10007;</span>',
             passed: '<span class="passed">&#10003;</span>'
+        },
+        // when use use fit, jasmine never calls suiteStarted / suiteDone, so make a fake one to use
+        fakeFocusedSuite = {
+          id: 'focused',
+          description: 'focused specs',
+          fullName: 'focused specs'
         };
 
     // write data into opts.dest as filename
@@ -142,11 +149,19 @@ function Jasmine2ScreenShotReporter(opts) {
 
     this.suiteDone = function(suite) {
         suite = getSuiteClone(suite);
+        if (suite._parent === undefined) {
+            // disabled suite (xdescribe) -- suiteStarted was never called
+            self.suiteStarted(suite);
+        }
         suite._finished = Date.now();
         runningSuite = suite._parent;
     };
 
     this.specStarted = function(spec) {
+        if (!runningSuite) {
+          // focused spec (fit) -- suiteStarted was never called
+          self.suiteStarted(fakeFocusedSuite);
+        }
         spec = getSpecClone(spec);
         spec._started = Date.now();
         spec._suite = runningSuite;
@@ -197,7 +212,10 @@ function Jasmine2ScreenShotReporter(opts) {
 
     this.jasmineDone = function() {
       var output = '<html><head><meta charset="utf-8"><style>body{font-family:Arial;}ul{list-style-position: inside;}.passed{padding: 0 1em;color:green;}.failed{padding: 0 1em;color:red;}.pending{padding: 0 1em;color:red;}</style></head><body>';
-
+      if (runningSuite) {
+          // focused spec (fit) -- suiteDone was never called
+          self.suiteDone(fakeFocusedSuite);
+      }
       _.each(suites, function(suite) {
         output += printResults(suite);
       });
