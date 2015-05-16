@@ -33,7 +33,7 @@ Output directory for created files. All screenshots and reports will be stored h
 
 If the directory doesn't exist, it will be created automatically or otherwise cleaned before running the test suite.
 
-<pre><code>jasmine.getEnv().addReporter(new ScreenShotReporter({
+<pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
    dest: '/project/test/screenshots'
 }));</code></pre>
 
@@ -41,7 +41,7 @@ If the directory doesn't exist, it will be created automatically or otherwise cl
 
 Filename for html report.
 
-<pre><code>jasmine.getEnv().addReporter(new ScreenShotReporter({
+<pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
    filename: 'my-report.html'
 }));</code></pre>
 
@@ -51,7 +51,7 @@ Default is <code>report.html</code>
 
 When this option is enabled, reporter will not create screenshots for pending / disabled specs. Only executed specs will be captured.
 
-<pre><code>jasmine.getEnv().addReporter(new ScreenShotReporter({
+<pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
    ignoreSkippedSpecs: true
 }));</code></pre>
 
@@ -61,7 +61,7 @@ Default is <code>false</code>
 
 When this option is enabled, reporter will create screenshots only for specs that have failed their expectations.
 
-<pre><code>jasmine.getEnv().addReporter(new ScreenShotReporter({
+<pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
    captureOnlyFailedSpecs: true
 }));</code></pre>
 
@@ -71,7 +71,7 @@ Default is <code>false</code>
 
 Function used to build custom paths for screenshots. For example:
 
-<pre><code>jasmine.getEnv().addReporter(new ScreenShotReporter({
+<pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
    pathBuilder: function(currentSpec, suites, browserCapabilities) {
       // will return chrome/your-spec-name.png
       return browserCapabilities.get('browserName') + '/' + currentSpec.fullName);
