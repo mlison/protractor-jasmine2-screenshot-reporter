@@ -74,7 +74,7 @@ Function used to build custom paths for screenshots. For example:
 <pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
    pathBuilder: function(currentSpec, suites, browserCapabilities) {
       // will return chrome/your-spec-name.png
-      return browserCapabilities.get('browserName') + '/' + currentSpec.fullName);
+      return browserCapabilities.get('browserName') + '/' + currentSpec.fullName;
    }
 }));</code></pre>
 
