@@ -67,6 +67,15 @@ When this option is enabled, reporter will create screenshots only for specs tha
 
 Default is <code>false</code>
 
+### Report only failed specs (optional)
+
+This option is __enabled by default__ - in combination with <code>captureOnlyFailedSpecs</code>, it will capture and report screenshots only for failed specs. Turning this option off will cause the report to contain all specs, but screenshots will be captured only for failed specs.
+
+<pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
+   reportOnlyFailedSpecs: false,
+   captureOnlyFailedSpecs: true
+}));</code></pre>
+
 ### Path Builder (optional)
 
 Function used to build custom paths for screenshots. For example:
