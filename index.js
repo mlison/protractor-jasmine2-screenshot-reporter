@@ -76,7 +76,7 @@ function Jasmine2ScreenShotReporter(opts) {
       return false;
     };
 
-    var isSpecValid = function (spec) {
+    var isSpecValid = function(spec) {
       // Don't screenshot skipped specs
       var isSkipped = opts.ignoreSkippedSpecs && spec.status === 'pending';
       // Screenshot only for failed specs
@@ -85,7 +85,11 @@ function Jasmine2ScreenShotReporter(opts) {
       return !isSkipped && !isIgnored;
     };
 
-    var hasValidSpecs = function (suite) {
+    var isSpecReportable = function(spec) {
+      return (opts.reportOnlyFailedSpecs && spec.status === 'failed') || !opts.reportOnlyFailedSpecs;
+    };
+
+    var hasValidSpecs = function(suite) {
       var validSuites = false;
       var validSpecs = false;
 
@@ -97,7 +101,7 @@ function Jasmine2ScreenShotReporter(opts) {
 
       if (suite._specs.length) {
         validSpecs = _.any(suite._specs, function(s) {
-          return isSpecValid(s);
+          return isSpecValid(s) || isSpecReportable(s);
         });
       }
 
@@ -109,6 +113,7 @@ function Jasmine2ScreenShotReporter(opts) {
     opts.dest     = (opts.dest || 'target/screenshots') + '/';
     opts.filename = opts.filename || 'report.html';
     opts.ignoreSkippedSpecs = opts.ignoreSkippedSpecs || false;
+    opts.reportOnlyFailedSpecs = opts.hasOwnProperty('reportOnlyFailedSpecs') ? opts.reportOnlyFailedSpecs : true;
     opts.captureOnlyFailedSpecs = opts.captureOnlyFailedSpecs || false;
     opts.pathBuilder = opts.pathBuilder || pathBuilder;
     opts.metadataBuilder = opts.metadataBuilder || metadataBuilder;
@@ -174,7 +179,7 @@ function Jasmine2ScreenShotReporter(opts) {
         spec._finished = Date.now();
 
         if (!isSpecValid(spec)) {
-          spec.isPrinted = true;
+          spec.skipPrinting = true;
           return;
         }
 
@@ -239,7 +244,9 @@ function Jasmine2ScreenShotReporter(opts) {
 
     function printSpec(spec) {
       var suiteName = spec._suite ? spec._suite.fullName : '';
-      if (spec.isPrinted) {
+      console.log(spec.id, isSpecReportable(spec) );
+
+      if (spec.isPrinted || (spec.skipPrinting && !isSpecReportable(spec))) {
         return '';
       }
 
