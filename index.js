@@ -244,7 +244,6 @@ function Jasmine2ScreenShotReporter(opts) {
 
     function printSpec(spec) {
       var suiteName = spec._suite ? spec._suite.fullName : '';
-      console.log(spec.id, isSpecReportable(spec) );
 
       if (spec.isPrinted || (spec.skipPrinting && !isSpecReportable(spec))) {
         return '';
