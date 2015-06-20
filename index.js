@@ -61,6 +61,14 @@ function Jasmine2ScreenShotReporter(opts) {
         '</html>'
     );
 
+    var reasonsTemplate = _.template(
+      '<ul>' +
+          '<% _.forEach(reasons, function(reason) { %>' +
+              '<li><%- reason.message %></li>' +
+          '<% }); %>' +
+      '</ul>'
+    );
+
     // write data into opts.dest as filename
     var writeScreenshot = function (data, filename) {
         var stream = fs.createWriteStream(opts.dest + filename);
@@ -331,13 +339,7 @@ function Jasmine2ScreenShotReporter(opts) {
         return '';
       }
 
-      var reasons = '<ul>';
-      _.each(spec.failedExpectations, function(exp) {
-        reasons += '<li>' + exp.message + '</li>';
-      });
-      reasons += '</ul>';
-
-      return reasons;
+      return reasonsTemplate({ reasons: spec.failedExpectations });
     }
 
     return this;
