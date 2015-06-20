@@ -27,6 +27,40 @@ function Jasmine2ScreenShotReporter(opts) {
           fullName: 'focused specs'
         };
 
+    var linkTemplate = _.template(
+        '<li>' +
+            '<%= mark %>' +
+            '<a href="<%= filename %>"><%= name %></a> ' +
+            '(<%= duration %> s)' +
+            '<%= reason %>' +
+        '</li>'
+    );
+
+    var nonLinkTemplate = _.template(
+        '<li title="No screenshot was created for this test case.">' +
+            '<%= mark %>' +
+            '<%= name %> ' +
+            '(<%= duration %> s)' +
+            '<%= reason %>' +
+        '</li>'
+    );
+
+    var reportTemplate = _.template(
+        '<html>' +
+            '<head>' +
+                '<meta charset="utf-8">' +
+                '<style>' +
+                    'body { font-family: Arial; }' +
+                    'ul { list-style-position: inside; }' +
+                    '.passed { padding: 0 1em; color: green; }' +
+                    '.failed { padding: 0 1em; color: red; }' +
+                    '.pending { padding: 0 1em; color: orange; }' +
+                '</style>' +
+            '</head>' +
+            '<body><%= report %></body>' +
+        '</html>'
+    );
+
     // write data into opts.dest as filename
     var writeScreenshot = function (data, filename) {
         var stream = fs.createWriteStream(opts.dest + filename);
@@ -216,7 +250,8 @@ function Jasmine2ScreenShotReporter(opts) {
     };
 
     this.jasmineDone = function() {
-      var output = '<html><head><meta charset="utf-8"><style>body{font-family:Arial;}ul{list-style-position: inside;}.passed{padding: 0 1em;color:green;}.failed{padding: 0 1em;color:red;}.pending{padding: 0 1em;color:red;}</style></head><body>';
+      var output = '';
+
       if (runningSuite) {
           // focused spec (fit) -- suiteDone was never called
           self.suiteDone(fakeFocusedSuite);
@@ -230,27 +265,36 @@ function Jasmine2ScreenShotReporter(opts) {
         output += printSpec(spec);
       });
 
-      output += '</body></html>';
-
-      fs.appendFileSync(opts.dest + opts.filename, output, {encoding: 'utf8'}, function(err){
-        if(err){
-          console.error('Error writing to file:' + opts.dest + opts.filename);
-          throw err;
+      fs.appendFileSync(
+        opts.dest + opts.filename,
+        reportTemplate({ report: output}),
+        { encoding: 'utf8' },
+        function(err) {
+            if(err) {
+              console.error('Error writing to file:' + opts.dest + opts.filename);
+              throw err;
+            }
         }
-      });
+      );
     };
-
-    // TODO: better template
 
     function printSpec(spec) {
       var suiteName = spec._suite ? spec._suite.fullName : '';
+      var template = spec.filename ? linkTemplate : nonLinkTemplate;
 
       if (spec.isPrinted || (spec.skipPrinting && !isSpecReportable(spec))) {
         return '';
       }
 
       spec.isPrinted = true;
-      return '<li>' + marks[spec.status] + '<a href="' + encodeURIComponent(spec.filename) + '">' + spec.fullName.replace(suiteName, '').trim() + '</a> (' + getDuration(spec) + ' s)' + printReasonsForFailure(spec) + '</li>';
+
+      return template({
+        mark:     marks[spec.status],
+        name:     spec.fullName.replace(suiteName, '').trim(),
+        reason:   printReasonsForFailure(spec),
+        filename: encodeURIComponent(spec.filename),
+        duration: getDuration(spec),
+      });
     }
 
     // TODO: proper nesting -> no need for magic
