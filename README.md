@@ -101,3 +101,13 @@ For example:
 }));</code></pre>
 
 By default, the runner builder will not save any metadata except the actual html report.
+
+### Preserve Directory (optional)
+
+This option is __disabled by default__. When this option is enabled, than for each report will be
+ created separate directory with unique name. Directory unique name will be generated randomly.
+ 
+<pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
+   preserveDirectory: true
+}));</code></pre>
+ 
