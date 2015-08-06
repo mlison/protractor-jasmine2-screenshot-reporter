@@ -1,3 +1,5 @@
+var DEFAULT_DESTINATION = 'target/screenshots';
+
 var fs     = require('fs'),
     mkdirp = require('mkdirp'),
     _      = require('lodash'),
@@ -150,16 +152,24 @@ function Jasmine2ScreenShotReporter(opts) {
       return validSuites || validSpecs;
     };
 
+    var getDestination = function(){
+        return (opts.dest || DEFAULT_DESTINATION) + '/';
+    };
+
+    var getDestinationWithUniqueDirectory = function(){
+        return getDestination() + hat() + '/';
+    };
+
     // TODO: more options
     opts          = opts || {};
-    opts.dest     = (opts.dest || 'target/screenshots') + '/';
+    opts.preserveDirectory = opts.preserveDirectory || false;
+    opts.dest     = opts.preserveDirectory ?  getDestinationWithUniqueDirectory() : getDestination();
     opts.filename = opts.filename || 'report.html';
     opts.ignoreSkippedSpecs = opts.ignoreSkippedSpecs || false;
     opts.reportOnlyFailedSpecs = opts.hasOwnProperty('reportOnlyFailedSpecs') ? opts.reportOnlyFailedSpecs : true;
     opts.captureOnlyFailedSpecs = opts.captureOnlyFailedSpecs || false;
     opts.pathBuilder = opts.pathBuilder || pathBuilder;
     opts.metadataBuilder = opts.metadataBuilder || metadataBuilder;
-
 
     this.jasmineStarted = function() {
         mkdirp(opts.dest, function(err) {
