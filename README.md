@@ -31,19 +31,19 @@ There is possibility to pass additional messages to report from within spec:
 
 1. Save reference to reporter object. ex.:
 <pre><code>var reporter = new HtmlScreenshotReporter({
-        filename: 'my-report.html'
-    });
-    global.reporter = reporter;
-    jasmine.getEnv().addReporter(reporter);</pre></code>
+    filename: 'my-report.html'
+});
+global.reporter = reporter;
+jasmine.getEnv().addReporter(reporter);</pre></code>
 
 
 2. Pass extra message
 <pre><code>describe('Top Level suite', function() {
-        it('spec', function() {
-            reporter.addMessageToSpec("Extra message");
-            expect(1).toBe(1);
-        });
-    });</pre></code>
+    it('spec', function() {
+        reporter.addMessageToSpec("Extra message");
+        expect(1).toBe(1);
+    });
+});</pre></code>
 
 ## Options
 ### Destination directory
