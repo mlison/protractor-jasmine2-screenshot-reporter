@@ -4,7 +4,8 @@ var fs     = require('fs'),
     mkdirp = require('mkdirp'),
     _      = require('lodash'),
     path   = require('path'),
-    hat    = require('hat');
+    hat    = require('hat'),
+    TemplateBuilder = require('./builder/templateBuilder');
 
 require('string.prototype.startswith');
 
@@ -15,12 +16,13 @@ function Jasmine2ScreenShotReporter(opts) {
         suites       = {},   // suite clones
         specs        = {},   // tes spec clones
         runningSuite = null, // currently running suite
+        currentSpec = null, //reference to current spec
 
         // report marks
         marks = {
-            pending:'<span class="pending">~</span>',
-            failed: '<span class="failed">&#10007;</span>',
-            passed: '<span class="passed">&#10003;</span>'
+          pending:'<span class="pending">~</span>',
+          failed: '<span class="failed">&#10007;</span>',
+          passed: '<span class="passed">&#10003;</span>'
         },
         // when use use fit, jasmine never calls suiteStarted / suiteDone, so make a fake one to use
         fakeFocusedSuite = {
@@ -28,24 +30,6 @@ function Jasmine2ScreenShotReporter(opts) {
           description: 'focused specs',
           fullName: 'focused specs'
         };
-
-    var linkTemplate = _.template(
-        '<li>' +
-            '<%= mark %>' +
-            '<a href="<%= filename %>"><%= name %></a> ' +
-            '(<%= duration %> s)' +
-            '<%= reason %>' +
-        '</li>'
-    );
-
-    var nonLinkTemplate = _.template(
-        '<li title="No screenshot was created for this test case.">' +
-            '<%= mark %>' +
-            '<%= name %> ' +
-            '(<%= duration %> s)' +
-            '<%= reason %>' +
-        '</li>'
-    );
 
     var reportTemplate = _.template(
         '<html>' +
@@ -57,6 +41,7 @@ function Jasmine2ScreenShotReporter(opts) {
                     '.passed { padding: 0 1em; color: green; }' +
                     '.failed { padding: 0 1em; color: red; }' +
                     '.pending { padding: 0 1em; color: orange; }' +
+                    '.indent { margin-left: 2.4%; }' +
                 '</style>' +
             '</head>' +
             '<body><%= report %></body>' +
@@ -153,11 +138,31 @@ function Jasmine2ScreenShotReporter(opts) {
     };
 
     var getDestination = function(){
-        return (opts.dest || DEFAULT_DESTINATION) + '/';
+      return (opts.dest || DEFAULT_DESTINATION) + '/';
     };
 
     var getDestinationWithUniqueDirectory = function(){
-        return getDestination() + hat() + '/';
+      return getDestination() + hat() + '/';
+    };
+
+    function isScreenshot(spec) {
+      return spec.filename;
+    }
+
+    function isAdditionalMessage(spec) {
+      return spec.additionalMessage;
+    }
+
+    var getTemplate = function(spec){
+      var builder = new TemplateBuilder();
+      isScreenshot(spec) ? builder.li() : builder.li('title', 'No screenshot was created for this test case.');
+      builder.mark();
+      isScreenshot(spec) ? builder.a().name().closeA() : builder.name();
+      builder.reason().closeLi();
+      if(isAdditionalMessage(spec)) builder.li('class', 'indent').additionalMessage().closeLi();
+      return builder
+          .li('class', 'indent').addText('Duration = ').duration().closeLi()
+          .build();
     };
 
     // TODO: more options
@@ -170,6 +175,12 @@ function Jasmine2ScreenShotReporter(opts) {
     opts.captureOnlyFailedSpecs = opts.captureOnlyFailedSpecs || false;
     opts.pathBuilder = opts.pathBuilder || pathBuilder;
     opts.metadataBuilder = opts.metadataBuilder || metadataBuilder;
+
+    this.addMessageToSpec = function(msg){
+      if(currentSpec != null){
+        currentSpec.additionalMessage = msg;
+      }
+    };
 
     this.jasmineStarted = function() {
         mkdirp(opts.dest, function(err) {
@@ -219,7 +230,7 @@ function Jasmine2ScreenShotReporter(opts) {
           // focused spec (fit) -- suiteStarted was never called
           self.suiteStarted(fakeFocusedSuite);
         }
-        spec = getSpecClone(spec);
+        spec = currentSpec = getSpecClone(spec);
         spec._started = Date.now();
         spec._suite = runningSuite;
         runningSuite._specs.push(spec);
@@ -298,7 +309,7 @@ function Jasmine2ScreenShotReporter(opts) {
 
     function printSpec(spec) {
       var suiteName = spec._suite ? spec._suite.fullName : '';
-      var template = spec.filename ? linkTemplate : nonLinkTemplate;
+      var template = getTemplate(spec);
 
       if (spec.isPrinted || (spec.skipPrinting && !isSpecReportable(spec))) {
         return '';
@@ -312,6 +323,7 @@ function Jasmine2ScreenShotReporter(opts) {
         reason:   printReasonsForFailure(spec),
         filename: encodeURIComponent(spec.filename),
         duration: getDuration(spec),
+        additionalMessage : spec.additionalMessage
       });
     }
 

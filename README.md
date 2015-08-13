@@ -26,6 +26,24 @@ exports.config = {
    }
 }</code></pre>
 
+### Additional message passing
+There is possibility to pass additional messages to report from within spec:
+
+1. Save reference to reporter object:
+<pre><code>var reporter = new HtmlScreenshotReporter();
+global.reporter = reporter;
+jasmine.getEnv().addReporter(reporter);</pre></code>
+
+
+2. Pass extra message
+<pre><code>describe('Top Level suite', function() {
+      it('spec', function() {
+         reporter.addMessageToSpec("Extra message");
+         expect(1).toBe(1);
+      });
+});
+</pre></code>
+
 ## Options
 ### Destination directory
 
