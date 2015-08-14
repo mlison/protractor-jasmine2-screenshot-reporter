@@ -29,14 +29,31 @@ function Jasmine2ScreenShotReporter(opts) {
           fullName: 'focused specs'
         };
 
-    var linkTemplate = _.template(
-        '<li>' +
-            '<%= mark %>' +
-            '<a href="<%= filename %>"><%= name %></a> ' +
-            '(<%= duration %> s)' +
-            '<%= reason %>' +
-        '</li>'
-    );
+    var getLinkTemplate = function() {
+
+        var linkTemplateHelpers = [];
+        linkTemplateHelpers.push(               '<li>');
+        linkTemplateHelpers.push(                  '<ul class="specDetails">');
+        linkTemplateHelpers.push(                     '<li><%= mark %></li>');
+
+        if(opts.addPageSourceCodeOnCapture) {
+          linkTemplateHelpers.push(                   '<li><%= name %></li>');
+          linkTemplateHelpers.push(                   '<li><a href="<%= filename %>">Screenshot</a></li>');
+        } else{
+          linkTemplateHelpers.push(                   '<li><a href="<%= filename %>"><%= name %></a></li>');
+        }
+
+        if(opts.addPageSourceCodeOnCapture) {
+          linkTemplateHelpers.push(                   '<li><a href="<%= pageSourceCodeFilename %>">Page source code</a></li>');
+        }
+
+        linkTemplateHelpers.push(                     '<li>(<%= duration %> s)</li>');
+        linkTemplateHelpers.push(                  '</ul>');
+        linkTemplateHelpers.push(                '<%= reason %>');
+        linkTemplateHelpers.push(               '</li>');
+
+        return _.template(linkTemplateHelpers.join(''));
+    };
 
     var nonLinkTemplate = _.template(
         '<li title="No screenshot was created for this test case.">' +
@@ -53,7 +70,10 @@ function Jasmine2ScreenShotReporter(opts) {
                 '<meta charset="utf-8">' +
                 '<style>' +
                     'body { font-family: Arial; }' +
-                    'ul { list-style-position: inside; }' +
+                    'ul.reasons {  padding-left: 5em; }' +
+                    'ul.specDetails {margin: 1em; padding: 0;}' +
+                    'ul.specDetails li { display: inline; padding-right: 1em;}' +
+                    'ul.specDetails li:first-child { padding-right: 0;}' +
                     '.passed { padding: 0 1em; color: green; }' +
                     '.failed { padding: 0 1em; color: red; }' +
                     '.pending { padding: 0 1em; color: orange; }' +
@@ -64,7 +84,7 @@ function Jasmine2ScreenShotReporter(opts) {
     );
 
     var reasonsTemplate = _.template(
-      '<ul>' +
+      '<ul class="reasons">' +
           '<% _.forEach(reasons, function(reason) { %>' +
               '<li><%- reason.message %></li>' +
           '<% }); %>' +
@@ -168,6 +188,7 @@ function Jasmine2ScreenShotReporter(opts) {
     opts.ignoreSkippedSpecs = opts.ignoreSkippedSpecs || false;
     opts.reportOnlyFailedSpecs = opts.hasOwnProperty('reportOnlyFailedSpecs') ? opts.reportOnlyFailedSpecs : true;
     opts.captureOnlyFailedSpecs = opts.captureOnlyFailedSpecs || false;
+    opts.addPageSourceCodeOnCapture = opts.addPageSourceCodeOnCapture || false;
     opts.pathBuilder = opts.pathBuilder || pathBuilder;
     opts.metadataBuilder = opts.metadataBuilder || metadataBuilder;
 
@@ -265,6 +286,23 @@ function Jasmine2ScreenShotReporter(opts) {
                 });
             });
         });
+
+        if(opts.addPageSourceCodeOnCapture) {
+
+            spec.pageSourceCodeFilename = file +'.html';
+
+            var pageSourceCodePath = path.join(opts.dest, file +'.html');
+
+            browser.getPageSource().then(function(pageSource){
+
+                mkdirp(path.dirname(pageSourceCodePath), function(err) {
+                    if(err) {
+                      throw new Error('Could not create directory for ' + pageSourceCodePath);
+                    }
+                    writeMetadata(pageSource, pageSourceCodePath);
+                });
+            });
+        }
     };
 
     this.jasmineDone = function() {
@@ -298,7 +336,7 @@ function Jasmine2ScreenShotReporter(opts) {
 
     function printSpec(spec) {
       var suiteName = spec._suite ? spec._suite.fullName : '';
-      var template = spec.filename ? linkTemplate : nonLinkTemplate;
+      var template = spec.filename ? getLinkTemplate() : nonLinkTemplate;
 
       if (spec.isPrinted || (spec.skipPrinting && !isSpecReportable(spec))) {
         return '';
@@ -306,13 +344,19 @@ function Jasmine2ScreenShotReporter(opts) {
 
       spec.isPrinted = true;
 
-      return template({
+      var valuesForTemplate = {
         mark:     marks[spec.status],
         name:     spec.fullName.replace(suiteName, '').trim(),
         reason:   printReasonsForFailure(spec),
         filename: encodeURIComponent(spec.filename),
         duration: getDuration(spec),
-      });
+      };
+
+      if(opts.addPageSourceCodeOnCapture){
+        valuesForTemplate.pageSourceCodeFilename = encodeURIComponent(spec.pageSourceCodeFilename);
+      }
+
+      return template(valuesForTemplate);
     }
 
     // TODO: proper nesting -> no need for magic
