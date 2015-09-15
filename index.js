@@ -111,6 +111,19 @@ function Jasmine2ScreenShotReporter(opts) {
 
     };
 
+    var writePageSourceCode = function(data, filename){
+      var stream;
+
+      try {
+        stream = fs.createWriteStream(filename);
+        stream.write(data);
+        stream.end();
+      } catch(e) {
+        console.error('Couldn\'t save page source code: ' + filename);
+      }
+
+    };
+
     // returns suite clone or creates one
     var getSuiteClone = function(suite) {
       suites[suite.id] = _.extend((suites[suite.id] || {}), suite);
@@ -299,7 +312,7 @@ function Jasmine2ScreenShotReporter(opts) {
                     if(err) {
                       throw new Error('Could not create directory for ' + pageSourceCodePath);
                     }
-                    writeMetadata(pageSource, pageSourceCodePath);
+                    writePageSourceCode(pageSource, pageSourceCodePath);
                 });
             });
         }
