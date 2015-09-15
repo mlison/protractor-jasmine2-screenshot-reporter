@@ -111,3 +111,11 @@ This option is __disabled by default__. When this option is enabled, than for ea
    preserveDirectory: true
 }));</code></pre>
  
+### Add page source code for each spec capture (optional)
+
+This option is __disabled by default__. When this option is enabled, for each spec capture, the page source code
+ is saved and a link to see it is added to the report.
+
+<pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
+   addPageSourceCodeOnCapture: true
+}));</code></pre>
