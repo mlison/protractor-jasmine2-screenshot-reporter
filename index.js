@@ -1,4 +1,5 @@
 var DEFAULT_DESTINATION = 'target/screenshots';
+var SCREENSHOT_TIMEOUT_INTERVAL = 2000;
 
 var fs     = require('fs'),
     mkdirp = require('mkdirp'),
@@ -170,6 +171,7 @@ function Jasmine2ScreenShotReporter(opts) {
     opts.captureOnlyFailedSpecs = opts.captureOnlyFailedSpecs || false;
     opts.pathBuilder = opts.pathBuilder || pathBuilder;
     opts.metadataBuilder = opts.metadataBuilder || metadataBuilder;
+    opts.screenshotTimeout = opts.screenshotTimeout || SCREENSHOT_TIMEOUT_INTERVAL;
 
     this.jasmineStarted = function() {
         mkdirp(opts.dest, function(err) {
@@ -202,6 +204,7 @@ function Jasmine2ScreenShotReporter(opts) {
         }
 
         runningSuite = suite;
+
     };
 
     this.suiteDone = function(suite) {
@@ -214,15 +217,51 @@ function Jasmine2ScreenShotReporter(opts) {
         runningSuite = suite._parent;
     };
 
+    // Patch the jasmine.Spec execute function
+    // to publish the actual Spec object.
+    var _execute = jasmine.Spec.prototype.execute;
+    jasmine.Spec.prototype.execute = function() {
+      var clonedSpec = getSpecClone(this.result);
+      clonedSpec._spec = this;
+      return _execute.apply(this, arguments);
+    }
+
     this.specStarted = function(spec) {
         if (!runningSuite) {
           // focused spec (fit) -- suiteStarted was never called
           self.suiteStarted(fakeFocusedSuite);
         }
-        spec = getSpecClone(spec);
-        spec._started = Date.now();
-        spec._suite = runningSuite;
-        runningSuite._specs.push(spec);
+
+        var clonedSpec = getSpecClone(spec);
+        clonedSpec._started = Date.now();
+        clonedSpec._suite = runningSuite;
+
+        var spec = clonedSpec._spec;
+
+        if (spec) {
+          // Take a screenshot after the spec is complete.
+          var afterSpec = function(done) {
+              browser.getCapabilities().then(function (capabilities) {
+                  clonedSpec._capabilities = capabilities;
+                  browser.takeScreenshot().then(function (png) {
+                      clonedSpec._png = png;
+                      done();
+                  });
+              });
+          }
+          var _beforeAndAfterFns = spec.beforeAndAfterFns;
+          spec.beforeAndAfterFns = function() {
+            var old = _beforeAndAfterFns.call(this);
+            old.afters.push({
+              fn: afterSpec,
+              timeout: function() { return opts.screenshotTimeout; }
+            });
+            return old;
+          }
+        } else {
+          console.log("jasmine Spec execute patching did not work for this spec.")
+        }
+        runningSuite._specs.push(clonedSpec);
     };
 
     this.specDone = function(spec) {
@@ -238,32 +277,27 @@ function Jasmine2ScreenShotReporter(opts) {
         file = opts.pathBuilder(spec, suites);
         spec.filename = file + '.png';
 
-        browser.takeScreenshot().then(function (png) {
-            browser.getCapabilities().then(function (capabilities) {
-                var screenshotPath,
-                    metadataPath,
-                    metadata;
+        var screenshotPath,
+            metadataPath,
+            metadata;
 
-                screenshotPath = path.join(opts.dest, spec.filename);
-                metadata       = opts.metadataBuilder(spec, suites, capabilities);
+        screenshotPath = path.join(opts.dest, spec.filename);
+        metadata       = opts.metadataBuilder(spec, suites, spec._capabilities);
 
-                if (metadata) {
-                    metadataPath = path.join(opts.dest, file + '.json');
-                    mkdirp(path.dirname(metadataPath), function(err) {
-                        if(err) {
-                            throw new Error('Could not create directory for ' + metadataPath);
-                        }
-                        writeMetadata(metadata, metadataPath);
-                    });
+        if (metadata) {
+            metadataPath = path.join(opts.dest, file + '.json');
+            mkdirp(path.dirname(metadataPath), function(err) {
+                if(err) {
+                    throw new Error('Could not create directory for ' + metadataPath);
                 }
-
-                mkdirp(path.dirname(screenshotPath), function(err) {
-                    if(err) {
-                        throw new Error('Could not create directory for ' + screenshotPath);
-                    }
-                    writeScreenshot(png, spec.filename);
-                });
+                writeMetadata(metadata, metadataPath);
             });
+        }
+        mkdirp(path.dirname(screenshotPath), function(err) {
+            if(err) {
+                throw new Error('Could not create directory for ' + screenshotPath);
+            }
+            writeScreenshot(spec._png, spec.filename);
         });
     };
 
