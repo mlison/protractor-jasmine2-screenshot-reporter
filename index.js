@@ -172,6 +172,7 @@ function Jasmine2ScreenShotReporter(opts) {
     opts.pathBuilder = opts.pathBuilder || pathBuilder;
     opts.metadataBuilder = opts.metadataBuilder || metadataBuilder;
     opts.screenshotTimeout = opts.screenshotTimeout || SCREENSHOT_TIMEOUT_INTERVAL;
+    opts.specDone = opts.specDone || function(spec) {};
 
     this.jasmineStarted = function() {
         mkdirp(opts.dest, function(err) {
@@ -271,6 +272,7 @@ function Jasmine2ScreenShotReporter(opts) {
 
         if (!isSpecValid(spec)) {
           spec.skipPrinting = true;
+          opts.specDone(spec);
           return;
         }
 
@@ -298,6 +300,7 @@ function Jasmine2ScreenShotReporter(opts) {
                 throw new Error('Could not create directory for ' + screenshotPath);
             }
             writeScreenshot(spec._png, spec.filename);
+            opts.specDone(spec);
         });
     };
 
