@@ -278,7 +278,7 @@ function Jasmine2ScreenShotReporter(opts) {
           return;
         }
 
-        file = opts.pathBuilder(spec, suites);
+        file = opts.pathBuilder(spec, suites, spec._capabilities);
         spec.filename = file + '.png';
 
         var screenshotPath,
