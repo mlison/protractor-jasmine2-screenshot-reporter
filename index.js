@@ -125,8 +125,10 @@ function Jasmine2ScreenShotReporter(opts) {
       var isSkipped = opts.ignoreSkippedSpecs && spec.status === 'pending';
       // Screenshot only for failed specs
       var isIgnored = opts.captureOnlyFailedSpecs && spec.status !== 'failed';
-
-      return !isSkipped && !isIgnored;
+      // Don't screenshot for disabled specs
+      var isDisabled = spec.status === 'disabled';
+      
+      return !isSkipped && !isIgnored && !isDisabled;
     };
 
     var isSpecReportable = function(spec) {
