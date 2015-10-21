@@ -47,6 +47,14 @@ Filename for html report.
 
 Default is <code>report.html</code>
 
+### Use External CSS (optional)
+
+Array of filenames that specifies extra css files to include in the html report.
+
+<pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
+   userCss: 'my-report-styles.css'
+}));</code></pre>
+
 ### Ignore pending specs (optional)
 
 When this option is enabled, reporter will not create screenshots for pending / disabled specs. Only executed specs will be captured.

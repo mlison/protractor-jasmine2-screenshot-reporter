@@ -22,6 +22,10 @@ function Jasmine2ScreenShotReporter(opts) {
             failed: '<span class="failed">&#10007;</span>',
             passed: '<span class="passed">&#10003;</span>'
         },
+
+        // store extra css files.
+        cssLinks = [],
+
         // when use use fit, jasmine never calls suiteStarted / suiteDone, so make a fake one to use
         fakeFocusedSuite = {
           id: 'focused',
@@ -58,6 +62,7 @@ function Jasmine2ScreenShotReporter(opts) {
                     '.failed { padding: 0 1em; color: red; }' +
                     '.pending { padding: 0 1em; color: orange; }' +
                 '</style>' +
+                '<%= userCss %>' + 
             '</head>' +
             '<body><%= report %></body>' +
         '</html>'
@@ -160,6 +165,16 @@ function Jasmine2ScreenShotReporter(opts) {
         return getDestination() + hat() + '/';
     };
 
+    var getCssLinks = function(cssFiles) {
+        var cssLinks = '';
+
+        _.each(cssFiles, function(file) {
+            cssLinks +='<link type="text/css" rel="stylesheet" href="' + file + '">';
+        });
+
+        return cssLinks;
+    };
+
     // TODO: more options
     opts          = opts || {};
     opts.preserveDirectory = opts.preserveDirectory || false;
@@ -170,6 +185,7 @@ function Jasmine2ScreenShotReporter(opts) {
     opts.captureOnlyFailedSpecs = opts.captureOnlyFailedSpecs || false;
     opts.pathBuilder = opts.pathBuilder || pathBuilder;
     opts.metadataBuilder = opts.metadataBuilder || metadataBuilder;
+    opts.userCss = Array.isArray(opts.userCss) ?  opts.userCss : opts.userCss ? [ opts.userCss ] : [];
 
     this.jasmineStarted = function() {
         mkdirp(opts.dest, function(err) {
@@ -283,9 +299,12 @@ function Jasmine2ScreenShotReporter(opts) {
         output += printSpec(spec);
       });
 
+      var cssLinks = getCssLinks(opts.userCss);
+
       fs.appendFileSync(
         opts.dest + opts.filename,
-        reportTemplate({ report: output}),
+        reportTemplate({ report: output,
+                         userCss: cssLinks});
         { encoding: 'utf8' },
         function(err) {
             if(err) {
