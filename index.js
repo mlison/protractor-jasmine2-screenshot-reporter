@@ -257,7 +257,7 @@ function Jasmine2ScreenShotReporter(opts) {
                     metadataPath,
                     metadata;
 
-                file = opts.pathBuilder(spec, suites, capabilities.caps_);
+                file = opts.pathBuilder(spec, suites, capabilities);
                 spec.filename = file + '.png';
 
                 screenshotPath = path.join(opts.dest, spec.filename);
