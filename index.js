@@ -34,7 +34,7 @@ function Jasmine2ScreenShotReporter(opts) {
         };
 
     var linkTemplate = _.template(
-        '<li>' +
+        '<li id="<%= id %>" class="failed">' +
             '<%= mark %>' +
             '<a href="<%= filename %>"><%= name %></a> ' +
             '(<%= duration %> s)' +
@@ -43,7 +43,7 @@ function Jasmine2ScreenShotReporter(opts) {
     );
 
     var nonLinkTemplate = _.template(
-        '<li title="No screenshot was created for this test case.">' +
+        '<li title="No screenshot was created for this test case." id="<%= id %>" class="passed">' +
             '<%= mark %>' +
             '<%= name %> ' +
             '(<%= duration %> s)' +
@@ -58,9 +58,9 @@ function Jasmine2ScreenShotReporter(opts) {
                 '<style>' +
                     'body { font-family: Arial; }' +
                     'ul { list-style-position: inside; }' +
-                    '.passed { padding: 0 1em; color: green; }' +
-                    '.failed { padding: 0 1em; color: red; }' +
-                    '.pending { padding: 0 1em; color: orange; }' +
+                    'span.passed { padding: 0 1em; color: green; }' +
+                    'span.failed { padding: 0 1em; color: red; }' +
+                    'span.pending { padding: 0 1em; color: orange; }' +
                 '</style>' +
                 '<%= userCss %>' + 
             '</head>' +
@@ -327,6 +327,7 @@ function Jasmine2ScreenShotReporter(opts) {
 
       return template({
         mark:     marks[spec.status],
+        id:       spec.id,
         name:     spec.fullName.replace(suiteName, '').trim(),
         reason:   printReasonsForFailure(spec),
         filename: encodeURIComponent(spec.filename),
