@@ -346,7 +346,7 @@ function Jasmine2ScreenShotReporter(opts) {
         suite.isPrinted = true;
 
         output += '<ul style="list-style-type:none">';
-        output += '<h4>' + suite.fullName + ' (' + getDuration(suite) + ' s)</h4>';
+        output += '<h4>' + suite.description + ' (' + getDuration(suite) + ' s)</h4>';
 
         _.each(suite._specs, function(spec) {
             spec = specs[spec.id];
