@@ -235,14 +235,14 @@ function Jasmine2ScreenShotReporter(opts) {
           return;
         }
 
-        file = opts.pathBuilder(spec, suites);
-        spec.filename = file + '.png';
-
         browser.takeScreenshot().then(function (png) {
             browser.getCapabilities().then(function (capabilities) {
                 var screenshotPath,
                     metadataPath,
                     metadata;
+
+                file = opts.pathBuilder(spec, suites, capabilities.caps_);
+                spec.filename = file + '.png';
 
                 screenshotPath = path.join(opts.dest, spec.filename);
                 metadata       = opts.metadataBuilder(spec, suites, capabilities);
