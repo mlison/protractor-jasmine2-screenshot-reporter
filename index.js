@@ -23,6 +23,12 @@ function Jasmine2ScreenShotReporter(opts) {
             passed: '<span class="passed">&#10003;</span>'
         },
 
+        statusCssClass = {
+          pending: 'pending',
+          failed:  'failed',
+          passed:  'passed'
+        },
+
         // store extra css files.
         cssLinks = [],
 
@@ -34,7 +40,7 @@ function Jasmine2ScreenShotReporter(opts) {
         };
 
     var linkTemplate = _.template(
-        '<li id="<%= id %>" class="failed">' +
+        '<li id="<%= id %>" class="<%= cssClass %>">' +
             '<%= mark %>' +
             '<a href="<%= filename %>"><%= name %></a> ' +
             '(<%= duration %> s)' +
@@ -43,7 +49,7 @@ function Jasmine2ScreenShotReporter(opts) {
     );
 
     var nonLinkTemplate = _.template(
-        '<li title="No screenshot was created for this test case." id="<%= id %>" class="passed">' +
+        '<li title="No screenshot was created for this test case." id="<%= id %>" class="<%= cssClass %>">' +
             '<%= mark %>' +
             '<%= name %> ' +
             '(<%= duration %> s)' +
@@ -327,6 +333,7 @@ function Jasmine2ScreenShotReporter(opts) {
 
       return template({
         mark:     marks[spec.status],
+        cssClass: statusCssClass[spec.status],
         id:       spec.id,
         name:     spec.fullName.replace(suiteName, '').trim(),
         reason:   printReasonsForFailure(spec),
