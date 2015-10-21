@@ -304,7 +304,7 @@ function Jasmine2ScreenShotReporter(opts) {
       fs.appendFileSync(
         opts.dest + opts.filename,
         reportTemplate({ report: output,
-                         userCss: cssLinks});
+                         userCss: cssLinks}),
         { encoding: 'utf8' },
         function(err) {
             if(err) {
