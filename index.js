@@ -298,6 +298,10 @@ function Jasmine2ScreenShotReporter(opts) {
           return;
         }
 
+        if (spec.status === 'failed') {
+          opts.failedSpecs += 1;
+        }
+
         browser.takeScreenshot().then(function (png) {
             browser.getCapabilities().then(function (capabilities) {
                 var screenshotPath,
@@ -378,10 +382,6 @@ function Jasmine2ScreenShotReporter(opts) {
 
       if (spec.isPrinted || (spec.skipPrinting && !isSpecReportable(spec))) {
         return '';
-      }
-
-      if (spec.status === 'failed') {
-        opts.failedSpecs += 1;
       }
 
       spec.isPrinted = true;
