@@ -70,7 +70,10 @@ function Jasmine2ScreenShotReporter(opts) {
                 '</style>' +
                 '<%= userCss %>' +
             '</head>' +
-            '<body><%= report %></body>' +
+            '<body>' +
+            '<h1><%= title %></h1>' +
+            '<%= report %>' +
+            '</body>' +
         '</html>'
     );
 
@@ -218,6 +221,8 @@ function Jasmine2ScreenShotReporter(opts) {
     opts.browserCaps = {};
     opts.configurationStrings = opts.configurationStrings || {};
     opts.showConfiguration = opts.showConfiguration || true;
+    opts.reportTitle = opts.reportTitle || 'Report';
+
 
     this.jasmineStarted = function(suiteInfo) {
         opts.totalSpecsDefined = suiteInfo.totalSpecsDefined;
@@ -355,6 +360,7 @@ function Jasmine2ScreenShotReporter(opts) {
       fs.appendFileSync(
         opts.dest + opts.filename,
         reportTemplate({ report: output,
+                         title: opts.reportTitle,
                          userCss: cssLinks}),
         { encoding: 'utf8' },
         function(err) {

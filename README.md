@@ -104,6 +104,16 @@ This option is __enabled by default__ - it will display a summary of the test co
 
 Default is <code>true</code>
 
+### Report title (optional)
+
+This option will add a title to the report.
+
+<pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
+   reportTitle: "Report Title"
+}));</code></pre>
+
+Default is <code>'Report'</code>
+
 ### Extra configuration summary items (optional)
 
 The user may specify a set of key/value pairs that are appended to the configuration report.
