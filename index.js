@@ -2,6 +2,7 @@ var DEFAULT_DESTINATION = 'target/screenshots';
 
 var fs     = require('fs'),
     mkdirp = require('mkdirp'),
+    rimraf = require('rimraf'),
     _      = require('lodash'),
     path   = require('path'),
     hat    = require('hat');
@@ -227,21 +228,16 @@ function Jasmine2ScreenShotReporter(opts) {
     this.jasmineStarted = function(suiteInfo) {
         opts.totalSpecsDefined = suiteInfo.totalSpecsDefined;
 
-        mkdirp(opts.dest, function(err) {
-            var files;
+        rimraf(opts.dest, function(err) {
+          if(err) {
+            throw new Error('Could not remove previous destination directory ' + opts.dest);
+          }
 
+          mkdirp(opts.dest, function(err) {
             if(err) {
-                throw new Error('Could not create directory ' + opts.dest);
+              throw new Error('Could not create directory ' + opts.dest);
             }
-
-            files = fs.readdirSync(opts.dest);
-
-            _.each(files, function(file) {
-              var filepath = opts.dest + file;
-              if (fs.statSync(filepath).isFile()) {
-                fs.unlinkSync(filepath);
-              }
-            });
+          });
         });
 
         browser.getCapabilities().then(function (capabilities) {
