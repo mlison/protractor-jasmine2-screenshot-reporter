@@ -87,7 +87,7 @@ function Jasmine2ScreenShotReporter(opts) {
     );
 
     var summaryTemplate = _.template(
-      '<div id="summary">' +
+      '<div id="summary" class="<%= cssClass %>">' +
         '<h4>Summary</h4>' +
         '<%= summaryBody %>' +
       '</div>'
@@ -436,6 +436,7 @@ function Jasmine2ScreenShotReporter(opts) {
         "Failed specs": opts.failedSpecs
       };
 
+      var cssClass = opts.failedSpecs > 0 ? statusCssClass["failed"] : statusCssClass["passed"];
       var keys = Object.keys(summary);
       
       var summaryOutput = "";
@@ -443,7 +444,7 @@ function Jasmine2ScreenShotReporter(opts) {
         summaryOutput += objectToItemTemplate({"key": key, "value": summary[key]});
       });
 
-      return summaryTemplate({"summaryBody": summaryOutput});
+      return summaryTemplate({"summaryBody": summaryOutput, "cssClass": cssClass});
     }
     
     function printTestConfiguration() {
