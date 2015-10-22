@@ -89,6 +89,13 @@ function Jasmine2ScreenShotReporter(opts) {
       '</div>'
     );
 
+    var configurationTemplate = _.template(
+      '<div id="config">' +
+        '<h4>Configuration</h4>' +
+        '<%= configBody %>' +
+      '</div>'
+    );
+
     var objectToItemTemplate = _.template(
       '<li>' +
         '<%= key %>:  <%= value %>' +
@@ -208,6 +215,8 @@ function Jasmine2ScreenShotReporter(opts) {
     opts.totalSpecsDefined = null;
     opts.failedSpecs = 0;
     opts.showSummary = opts.showSummary || true;
+    opts.browserCaps = {};
+    opts.showConfiguration = opts.showConfiguration || true;
 
     this.jasmineStarted = function(suiteInfo) {
         opts.totalSpecsDefined = suiteInfo.totalSpecsDefined;
@@ -227,6 +236,14 @@ function Jasmine2ScreenShotReporter(opts) {
                 fs.unlinkSync(filepath);
               }
             });
+        });
+
+        browser.getCapabilities().then(function (capabilities) {
+            opts.browserCaps.browserName = capabilities.get('browserName');
+            opts.browserCaps.browserVersion = capabilities.get('version');
+            opts.browserCaps.platform = capabilities.get('platform');
+            opts.browserCaps.javascriptEnabled = capabilities.get('javascriptEnabled');
+            opts.browserCaps.cssSelectorsEnabled = capabilities.get('cssSelectorsEnabled');
         });
     };
 
@@ -328,6 +345,10 @@ function Jasmine2ScreenShotReporter(opts) {
         output += printSpec(spec);
       });
 
+      if (opts.showConfiguration) {
+        output += printTestConfiguration();
+      }
+
       var cssLinks = getCssLinks(opts.userCss);
 
       fs.appendFileSync(
@@ -422,6 +443,26 @@ function Jasmine2ScreenShotReporter(opts) {
       return summaryTemplate({"summaryBody": summaryOutput});
     }
     
+    function printTestConfiguration() {
+      var testConfiguration = {
+        "Jasmine version": jasmine.version,
+        "Browser name": opts.browserCaps.browserName,
+        "Browser version": opts.browserCaps.browserVersion,
+        "Platform": opts.browserCaps.platform,
+        "Javascript enabled": opts.browserCaps.javascriptEnabled,
+        "Css selectors enabled": opts.browserCaps.cssSelectorsEnabled
+      };
+
+      var keys = Object.keys(testConfiguration);
+      
+      var configOutput = "";
+      _.each(keys, function(key) {
+        configOutput += objectToItemTemplate({"key": key, "value": testConfiguration[key]});
+      });
+
+      return configurationTemplate({"configBody": configOutput});
+    }
+
     return this;
 }
 

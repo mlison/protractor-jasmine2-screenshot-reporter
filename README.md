@@ -94,6 +94,16 @@ This option is __enabled by default__ - it will display the total number of spec
 
 Default is <code>true</code>
 
+### Display configuration summary in report (optional)
+
+This option is __enabled by default__ - it will display a summary of the test configuration details at the end of the report.
+
+<pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
+   showConfiguration: true
+}));</code></pre>
+
+Default is <code>true</code>
+
 ### Path Builder (optional)
 
 Function used to build custom paths for screenshots. For example:
