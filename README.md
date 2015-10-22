@@ -94,6 +94,17 @@ This option is __enabled by default__ - it will display the total number of spec
 
 Default is <code>true</code>
 
+### Display links to failed specs in report summary (optional)
+
+If this option is enabled with the report summary, it will display a link to each failed spec as a part of the short summary at the beginnning of the report.
+
+<pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
+   showSummary: true,
+   showQuickLinks: true
+}));</code></pre>
+
+Default is <code>false</code>
+
 ### Display configuration summary in report (optional)
 
 This option is __enabled by default__ - it will display a summary of the test configuration details at the end of the report.

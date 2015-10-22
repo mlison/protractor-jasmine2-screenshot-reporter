@@ -33,6 +33,9 @@ function Jasmine2ScreenShotReporter(opts) {
         // store extra css files.
         cssLinks = [],
 
+        // monitor failed specs for quick links
+        failedSpecIds = [],
+
         // when use use fit, jasmine never calls suiteStarted / suiteDone, so make a fake one to use
         fakeFocusedSuite = {
           id: 'focused',
@@ -90,6 +93,7 @@ function Jasmine2ScreenShotReporter(opts) {
       '<div id="summary" class="<%= cssClass %>">' +
         '<h4>Summary</h4>' +
         '<%= summaryBody %>' +
+        '<%= quickLinks %>' +
       '</div>'
     );
 
@@ -103,6 +107,16 @@ function Jasmine2ScreenShotReporter(opts) {
     var objectToItemTemplate = _.template(
       '<li>' +
         '<%= key %>:  <%= value %>' +
+      '</li>'
+    );
+
+    var quickLinksTemplate = _.template(
+      '<ul id="quickLinks"><%= quickLinks %></ul>'
+    );
+
+    var quickLinkListItemTemplate = _.template(  
+      '<li>' +
+        '<a href="#<%= specId %>"><%= specId %></a>' +
       '</li>'
     );
 
@@ -219,6 +233,7 @@ function Jasmine2ScreenShotReporter(opts) {
     opts.totalSpecsDefined = null;
     opts.failedSpecs = 0;
     opts.showSummary = opts.showSummary || true;
+    opts.showQuickLinks = opts.showQuickLinks || false;
     opts.browserCaps = {};
     opts.configurationStrings = opts.configurationStrings || {};
     opts.showConfiguration = opts.showConfiguration || true;
@@ -296,6 +311,7 @@ function Jasmine2ScreenShotReporter(opts) {
 
         if (spec.status === 'failed') {
           opts.failedSpecs += 1;
+          failedSpecIds.push(spec.id);
         }
 
         browser.takeScreenshot().then(function (png) {
@@ -444,7 +460,18 @@ function Jasmine2ScreenShotReporter(opts) {
         summaryOutput += objectToItemTemplate({"key": key, "value": summary[key]});
       });
 
-      return summaryTemplate({"summaryBody": summaryOutput, "cssClass": cssClass});
+      var quickLinks = opts.showQuickLinks ? printFailedSpecQuickLinks() : '';
+
+      return summaryTemplate({"summaryBody": summaryOutput, "cssClass": cssClass, "quickLinks": quickLinks});
+    }
+
+    function printFailedSpecQuickLinks() {
+      var quickLinksOutput = "";
+      _.each(failedSpecIds, function(id) {
+        quickLinksOutput += quickLinkListItemTemplate({specId: id});
+      });
+
+      return quickLinksTemplate({quickLinks: quickLinksOutput});
     }
     
     function printTestConfiguration() {
