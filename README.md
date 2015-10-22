@@ -86,7 +86,7 @@ This option is __enabled by default__ - in combination with <code>captureOnlyFai
 
 ### Display summary in report (optional)
 
-This option is __enabled by default__ - it will display the total number of specs and the number of failed specs in a short summary.
+This option is __enabled by default__ - it will display the total number of specs and the number of failed specs in a short summary at the beginnning of the report.
 
 <pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
    showSummary: true

@@ -68,7 +68,7 @@ function Jasmine2ScreenShotReporter(opts) {
                     'span.failed { padding: 0 1em; color: red; }' +
                     'span.pending { padding: 0 1em; color: orange; }' +
                 '</style>' +
-                '<%= userCss %>' + 
+                '<%= userCss %>' +
             '</head>' +
             '<body><%= report %></body>' +
         '</html>'
