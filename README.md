@@ -84,6 +84,16 @@ This option is __enabled by default__ - in combination with <code>captureOnlyFai
    captureOnlyFailedSpecs: true
 }));</code></pre>
 
+### Display summary in report (optional)
+
+This option is __enabled by default__ - it will display the total number of specs and the number of failed specs in a short summary.
+
+<pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
+   showSummary: true
+}));</code></pre>
+
+Default is <code>true</code>
+
 ### Path Builder (optional)
 
 Function used to build custom paths for screenshots. For example:

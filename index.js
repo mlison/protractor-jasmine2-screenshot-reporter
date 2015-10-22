@@ -82,6 +82,19 @@ function Jasmine2ScreenShotReporter(opts) {
       '</ul>'
     );
 
+    var summaryTemplate = _.template(
+      '<div id="summary">' +
+        '<h4>Summary</h4>' +
+        '<%= summaryBody %>' +
+      '</div>'
+    );
+
+    var objectToItemTemplate = _.template(
+      '<li>' +
+        '<%= key %>:  <%= value %>' +
+      '</li>'
+    );
+
     // write data into opts.dest as filename
     var writeScreenshot = function (data, filename) {
         var stream = fs.createWriteStream(opts.dest + filename);
@@ -192,8 +205,13 @@ function Jasmine2ScreenShotReporter(opts) {
     opts.pathBuilder = opts.pathBuilder || pathBuilder;
     opts.metadataBuilder = opts.metadataBuilder || metadataBuilder;
     opts.userCss = Array.isArray(opts.userCss) ?  opts.userCss : opts.userCss ? [ opts.userCss ] : [];
+    opts.totalSpecsDefined = null;
+    opts.failedSpecs = 0;
+    opts.showSummary = opts.showSummary || true;
 
-    this.jasmineStarted = function() {
+    this.jasmineStarted = function(suiteInfo) {
+        opts.totalSpecsDefined = suiteInfo.totalSpecsDefined;
+
         mkdirp(opts.dest, function(err) {
             var files;
 
@@ -296,6 +314,11 @@ function Jasmine2ScreenShotReporter(opts) {
           // focused spec (fit) -- suiteDone was never called
           self.suiteDone(fakeFocusedSuite);
       }
+
+      if (opts.showSummary) {
+        output += printTestSummary();
+      }
+
       _.each(suites, function(suite) {
         output += printResults(suite);
       });
@@ -327,6 +350,10 @@ function Jasmine2ScreenShotReporter(opts) {
 
       if (spec.isPrinted || (spec.skipPrinting && !isSpecReportable(spec))) {
         return '';
+      }
+
+      if (spec.status === 'failed') {
+        opts.failedSpecs += 1;
       }
 
       spec.isPrinted = true;
@@ -379,6 +406,22 @@ function Jasmine2ScreenShotReporter(opts) {
       return reasonsTemplate({ reasons: spec.failedExpectations });
     }
 
+    function printTestSummary() {
+      var summary = {
+        "Total specs": opts.totalSpecsDefined,
+        "Failed specs": opts.failedSpecs
+      };
+
+      var keys = Object.keys(summary);
+      
+      var summaryOutput = "";
+      _.each(keys, function(key) {
+        summaryOutput += objectToItemTemplate({"key": key, "value": summary[key]});
+      });
+
+      return summaryTemplate({"summaryBody": summaryOutput});
+    }
+    
     return this;
 }
 
