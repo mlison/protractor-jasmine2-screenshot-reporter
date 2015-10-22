@@ -216,6 +216,7 @@ function Jasmine2ScreenShotReporter(opts) {
     opts.failedSpecs = 0;
     opts.showSummary = opts.showSummary || true;
     opts.browserCaps = {};
+    opts.configurationStrings = opts.configurationStrings || {};
     opts.showConfiguration = opts.showConfiguration || true;
 
     this.jasmineStarted = function(suiteInfo) {
@@ -452,6 +453,8 @@ function Jasmine2ScreenShotReporter(opts) {
         "Javascript enabled": opts.browserCaps.javascriptEnabled,
         "Css selectors enabled": opts.browserCaps.cssSelectorsEnabled
       };
+
+      testConfiguration = _.assign(testConfiguration, opts.configurationStrings);
 
       var keys = Object.keys(testConfiguration);
       

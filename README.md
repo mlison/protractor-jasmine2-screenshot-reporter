@@ -104,6 +104,17 @@ This option is __enabled by default__ - it will display a summary of the test co
 
 Default is <code>true</code>
 
+### Extra configuration summary items (optional)
+
+The user may specify a set of key/value pairs that are appended to the configuration report.
+
+<pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
+   configurationStrings: {
+           "My 1st Param": firstParam,
+           "My 2nd Param": secondParam
+   }
+}));</code></pre>
+
 ### Path Builder (optional)
 
 Function used to build custom paths for screenshots. For example:
