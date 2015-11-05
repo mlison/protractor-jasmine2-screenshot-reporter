@@ -128,7 +128,7 @@ function Jasmine2ScreenShotReporter(opts) {
       var isIgnored = opts.captureOnlyFailedSpecs && spec.status !== 'failed';
       // Don't screenshot for disabled specs
       var isDisabled = spec.status === 'disabled';
-      
+
       return !isSkipped && !isIgnored && !isDisabled;
     };
 
@@ -227,7 +227,7 @@ function Jasmine2ScreenShotReporter(opts) {
       var clonedSpec = getSpecClone(this.result);
       clonedSpec._spec = this;
       return _execute.apply(this, arguments);
-    }
+    };
 
     this.specStarted = function(spec) {
         if (!runningSuite) {
@@ -239,7 +239,7 @@ function Jasmine2ScreenShotReporter(opts) {
         clonedSpec._started = Date.now();
         clonedSpec._suite = runningSuite;
 
-        var spec = clonedSpec._spec;
+        spec = clonedSpec._spec;
 
         if (spec) {
           // Take a screenshot after the spec is complete.
@@ -251,7 +251,7 @@ function Jasmine2ScreenShotReporter(opts) {
                       done();
                   });
               });
-          }
+          };
           var _beforeAndAfterFns = spec.beforeAndAfterFns;
           spec.beforeAndAfterFns = function() {
             var old = _beforeAndAfterFns.call(this);
@@ -260,9 +260,9 @@ function Jasmine2ScreenShotReporter(opts) {
               timeout: function() { return opts.screenshotTimeout; }
             });
             return old;
-          }
+          };
         } else {
-          console.log("jasmine Spec execute patching did not work for this spec.")
+          console.log('jasmine Spec execute patching did not work for this spec.');
         }
         runningSuite._specs.push(clonedSpec);
     };
