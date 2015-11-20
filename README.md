@@ -111,3 +111,16 @@ This option is __disabled by default__. When this option is enabled, than for ea
    preserveDirectory: true
 }));</code></pre>
  
+### Browser Name (optional)
+
+Option is used in the report to separate each browser suites when using 'multiCapabilities'.
+
+<pre><code>onPrepare: function() {
+  return browser.getProcessedConfig().then(function(config) {
+    jasmine.getEnv().addReporter(new HtmlScreenshotReporter({ 
+      browserName : config.capabilities.browserName
+    }););
+  });
+}</code></pre>
+
+Default don't print the specific line.
