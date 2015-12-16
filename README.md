@@ -53,7 +53,8 @@ This is to include the browser type in the generated image file
 Filename for html report.
 
 <pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
-   filename: 'my-report.html'
+  browserName: config.capabilities.browserName,
+
 }));</code></pre>
 
 Default is <code>report.html</code>
