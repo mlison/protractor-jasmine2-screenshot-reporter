@@ -21,6 +21,8 @@ exports.config = {
         new HtmlScreenshotReporter({
           dest: 'target/screenshots',
           filename: 'my-report.html'
+          browserName: config.capabilities.browserName,
+
         })
       );
    }
@@ -39,6 +41,15 @@ If the directory doesn't exist, it will be created automatically or otherwise cl
 
 ### Filename (optional)
 
+Filename for html report.
+
+<pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
+   filename: 'my-report.html'
+}));</code></pre>
+
+### browserName  (optional)
+
+This is to include the browser type in the generated image file
 Filename for html report.
 
 <pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
