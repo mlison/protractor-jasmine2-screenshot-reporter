@@ -236,7 +236,7 @@ function Jasmine2ScreenShotReporter(opts) {
         }
 
         file = opts.pathBuilder(spec, suites);
-        spec.filename = file + '.png';
+        spec.filename =  spec.fullName+'.png';
 
         browser.takeScreenshot().then(function (png) {
             browser.getCapabilities().then(function (capabilities) {
