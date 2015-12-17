@@ -21,6 +21,8 @@ exports.config = {
         new HtmlScreenshotReporter({
           dest: 'target/screenshots',
           filename: 'my-report.html'
+          browserName: config.capabilities.browserName,
+
         })
       );
    }
@@ -43,6 +45,16 @@ Filename for html report.
 
 <pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
    filename: 'my-report.html'
+}));</code></pre>
+
+### browserName  (optional)
+
+This is to include the browser type in the generated image file
+Filename for html report.
+
+<pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
+  browserName: config.capabilities.browserName,
+
 }));</code></pre>
 
 Default is <code>report.html</code>

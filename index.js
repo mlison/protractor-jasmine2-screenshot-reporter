@@ -164,10 +164,11 @@ function Jasmine2ScreenShotReporter(opts) {
     opts          = opts || {};
     opts.preserveDirectory = opts.preserveDirectory || false;
     opts.dest     = opts.preserveDirectory ?  getDestinationWithUniqueDirectory() : getDestination();
-    opts.filename = opts.filename || 'report.html';
+    opts.filename = opts.filename || 'reportScreenshots.html';
     opts.ignoreSkippedSpecs = opts.ignoreSkippedSpecs || false;
     opts.reportOnlyFailedSpecs = opts.hasOwnProperty('reportOnlyFailedSpecs') ? opts.reportOnlyFailedSpecs : true;
     opts.captureOnlyFailedSpecs = opts.captureOnlyFailedSpecs || false;
+    opts.browserName = opts.browserName;
     opts.pathBuilder = opts.pathBuilder || pathBuilder;
     opts.metadataBuilder = opts.metadataBuilder || metadataBuilder;
 
@@ -236,7 +237,7 @@ function Jasmine2ScreenShotReporter(opts) {
         }
 
         file = opts.pathBuilder(spec, suites);
-        spec.filename = file + '.png';
+        spec.filename =  opts.browserName+'_'+spec.fullName+'.png';
 
         browser.takeScreenshot().then(function (png) {
             browser.getCapabilities().then(function (capabilities) {
