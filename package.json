@@ -1,6 +1,6 @@
 {
   "name": "protractor-jasmine2-screenshot-reporter",
-  "version": "0.1.8",
+  "version": "0.2.0",
   "description": "Use the screenshot reporter to capture screenshots after each executed Protractor test case.",
   "main": "index.js",
   "repository": {
