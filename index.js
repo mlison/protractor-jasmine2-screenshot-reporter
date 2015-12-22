@@ -170,6 +170,7 @@ function Jasmine2ScreenShotReporter(opts) {
     opts.captureOnlyFailedSpecs = opts.captureOnlyFailedSpecs || false;
     opts.pathBuilder = opts.pathBuilder || pathBuilder;
     opts.metadataBuilder = opts.metadataBuilder || metadataBuilder;
+    opts.browserName = opts.browserName || '';
 
     this.jasmineStarted = function() {
         mkdirp(opts.dest, function(err) {
@@ -274,6 +275,11 @@ function Jasmine2ScreenShotReporter(opts) {
           // focused spec (fit) -- suiteDone was never called
           self.suiteDone(fakeFocusedSuite);
       }
+
+      if (opts.browserName) {
+        output += printBrowserName();
+      }
+
       _.each(suites, function(suite) {
         output += printResults(suite);
       });
@@ -342,6 +348,10 @@ function Jasmine2ScreenShotReporter(opts) {
         output += '</ul>';
 
         return output;
+    }
+
+    function printBrowserName() {
+      return '<h3>' + opts.browserName + '</h3>';
     }
 
     function printReasonsForFailure(spec) {
