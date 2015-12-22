@@ -47,6 +47,14 @@ Filename for html report.
 
 Default is <code>report.html</code>
 
+### Use External CSS (optional)
+
+Array of filenames that specifies extra css files to include in the html report.
+
+<pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
+   userCss: 'my-report-styles.css'
+}));</code></pre>
+
 ### Ignore pending specs (optional)
 
 When this option is enabled, reporter will not create screenshots for pending / disabled specs. Only executed specs will be captured.
@@ -74,6 +82,58 @@ This option is __enabled by default__ - in combination with <code>captureOnlyFai
 <pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
    reportOnlyFailedSpecs: false,
    captureOnlyFailedSpecs: true
+}));</code></pre>
+
+### Display summary in report (optional)
+
+This option is __enabled by default__ - it will display the total number of specs and the number of failed specs in a short summary at the beginnning of the report.
+
+<pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
+   showSummary: true
+}));</code></pre>
+
+Default is <code>true</code>
+
+### Display links to failed specs in report summary (optional)
+
+If this option is enabled with the report summary, it will display a link to each failed spec as a part of the short summary at the beginnning of the report.
+
+<pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
+   showSummary: true,
+   showQuickLinks: true
+}));</code></pre>
+
+Default is <code>false</code>
+
+### Display configuration summary in report (optional)
+
+This option is __enabled by default__ - it will display a summary of the test configuration details at the end of the report.
+
+<pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
+   showConfiguration: true
+}));</code></pre>
+
+Default is <code>true</code>
+
+### Report title (optional)
+
+This option will add a title to the report.
+
+<pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
+   reportTitle: "Report Title"
+}));</code></pre>
+
+Default is <code>'Report'</code>
+
+### Extra configuration summary items (optional)
+
+The user may specify a set of key/value pairs that are appended to the configuration report.
+
+<pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
+   configurationStrings: {
+           "My 1st Param": firstParam,
+           "My 2nd Param": secondParam
+   }
 }));</code></pre>
 
 ### Path Builder (optional)

@@ -2,6 +2,7 @@ var DEFAULT_DESTINATION = 'target/screenshots';
 
 var fs     = require('fs'),
     mkdirp = require('mkdirp'),
+    rimraf = require('rimraf'),
     _      = require('lodash'),
     path   = require('path'),
     hat    = require('hat');
@@ -22,6 +23,19 @@ function Jasmine2ScreenShotReporter(opts) {
             failed: '<span class="failed">&#10007;</span>',
             passed: '<span class="passed">&#10003;</span>'
         },
+
+        statusCssClass = {
+          pending: 'pending',
+          failed:  'failed',
+          passed:  'passed'
+        },
+
+        // store extra css files.
+        cssLinks = [],
+
+        // monitor failed specs for quick links
+        failedSpecIds = [],
+
         // when use use fit, jasmine never calls suiteStarted / suiteDone, so make a fake one to use
         fakeFocusedSuite = {
           id: 'focused',
@@ -30,7 +44,7 @@ function Jasmine2ScreenShotReporter(opts) {
         };
 
     var linkTemplate = _.template(
-        '<li>' +
+        '<li id="<%= id %>" class="<%= cssClass %>">' +
             '<%= mark %>' +
             '<a href="<%= filename %>"><%= name %></a> ' +
             '(<%= duration %> s)' +
@@ -39,7 +53,7 @@ function Jasmine2ScreenShotReporter(opts) {
     );
 
     var nonLinkTemplate = _.template(
-        '<li title="No screenshot was created for this test case.">' +
+        '<li title="No screenshot was created for this test case." id="<%= id %>" class="<%= cssClass %>">' +
             '<%= mark %>' +
             '<%= name %> ' +
             '(<%= duration %> s)' +
@@ -54,12 +68,16 @@ function Jasmine2ScreenShotReporter(opts) {
                 '<style>' +
                     'body { font-family: Arial; }' +
                     'ul { list-style-position: inside; }' +
-                    '.passed { padding: 0 1em; color: green; }' +
-                    '.failed { padding: 0 1em; color: red; }' +
-                    '.pending { padding: 0 1em; color: orange; }' +
+                    'span.passed { padding: 0 1em; color: green; }' +
+                    'span.failed { padding: 0 1em; color: red; }' +
+                    'span.pending { padding: 0 1em; color: orange; }' +
                 '</style>' +
+                '<%= userCss %>' +
             '</head>' +
-            '<body><%= report %></body>' +
+            '<body>' +
+            '<h1><%= title %></h1>' +
+            '<%= report %>' +
+            '</body>' +
         '</html>'
     );
 
@@ -69,6 +87,37 @@ function Jasmine2ScreenShotReporter(opts) {
               '<li><%- reason.message %></li>' +
           '<% }); %>' +
       '</ul>'
+    );
+
+    var summaryTemplate = _.template(
+      '<div id="summary" class="<%= cssClass %>">' +
+        '<h4>Summary</h4>' +
+        '<%= summaryBody %>' +
+        '<%= quickLinks %>' +
+      '</div>'
+    );
+
+    var configurationTemplate = _.template(
+      '<div id="config">' +
+        '<h4>Configuration</h4>' +
+        '<%= configBody %>' +
+      '</div>'
+    );
+
+    var objectToItemTemplate = _.template(
+      '<li>' +
+        '<%= key %>:  <%= value %>' +
+      '</li>'
+    );
+
+    var quickLinksTemplate = _.template(
+      '<ul id="quickLinks"><%= quickLinks %></ul>'
+    );
+
+    var quickLinkListItemTemplate = _.template(  
+      '<li>' +
+        '<a href="#<%= specId %>"><%= specId %></a>' +
+      '</li>'
     );
 
     // write data into opts.dest as filename
@@ -160,6 +209,16 @@ function Jasmine2ScreenShotReporter(opts) {
         return getDestination() + hat() + '/';
     };
 
+    var getCssLinks = function(cssFiles) {
+        var cssLinks = '';
+
+        _.each(cssFiles, function(file) {
+            cssLinks +='<link type="text/css" rel="stylesheet" href="' + file + '">';
+        });
+
+        return cssLinks;
+    };
+
     // TODO: more options
     opts          = opts || {};
     opts.preserveDirectory = opts.preserveDirectory || false;
@@ -170,23 +229,38 @@ function Jasmine2ScreenShotReporter(opts) {
     opts.captureOnlyFailedSpecs = opts.captureOnlyFailedSpecs || false;
     opts.pathBuilder = opts.pathBuilder || pathBuilder;
     opts.metadataBuilder = opts.metadataBuilder || metadataBuilder;
+    opts.userCss = Array.isArray(opts.userCss) ?  opts.userCss : opts.userCss ? [ opts.userCss ] : [];
+    opts.totalSpecsDefined = null;
+    opts.failedSpecs = 0;
+    opts.showSummary = opts.showSummary || true;
+    opts.showQuickLinks = opts.showQuickLinks || false;
+    opts.browserCaps = {};
+    opts.configurationStrings = opts.configurationStrings || {};
+    opts.showConfiguration = opts.showConfiguration || true;
+    opts.reportTitle = opts.reportTitle || 'Report';
 
-    this.jasmineStarted = function() {
-        mkdirp(opts.dest, function(err) {
-            var files;
 
+    this.jasmineStarted = function(suiteInfo) {
+        opts.totalSpecsDefined = suiteInfo.totalSpecsDefined;
+
+        rimraf(opts.dest, function(err) {
+          if(err) {
+            throw new Error('Could not remove previous destination directory ' + opts.dest);
+          }
+
+          mkdirp(opts.dest, function(err) {
             if(err) {
-                throw new Error('Could not create directory ' + opts.dest);
+              throw new Error('Could not create directory ' + opts.dest);
             }
+          });
+        });
 
-            files = fs.readdirSync(opts.dest);
-
-            _.each(files, function(file) {
-              var filepath = opts.dest + file;
-              if (fs.statSync(filepath).isFile()) {
-                fs.unlinkSync(filepath);
-              }
-            });
+        browser.getCapabilities().then(function (capabilities) {
+            opts.browserCaps.browserName = capabilities.get('browserName');
+            opts.browserCaps.browserVersion = capabilities.get('version');
+            opts.browserCaps.platform = capabilities.get('platform');
+            opts.browserCaps.javascriptEnabled = capabilities.get('javascriptEnabled');
+            opts.browserCaps.cssSelectorsEnabled = capabilities.get('cssSelectorsEnabled');
         });
     };
 
@@ -235,14 +309,19 @@ function Jasmine2ScreenShotReporter(opts) {
           return;
         }
 
-        file = opts.pathBuilder(spec, suites);
-        spec.filename = file + '.png';
+        if (spec.status === 'failed') {
+          opts.failedSpecs += 1;
+          failedSpecIds.push(spec.id);
+        }
 
         browser.takeScreenshot().then(function (png) {
             browser.getCapabilities().then(function (capabilities) {
                 var screenshotPath,
                     metadataPath,
                     metadata;
+
+                file = opts.pathBuilder(spec, suites, capabilities);
+                spec.filename = file + '.png';
 
                 screenshotPath = path.join(opts.dest, spec.filename);
                 metadata       = opts.metadataBuilder(spec, suites, capabilities);
@@ -274,6 +353,11 @@ function Jasmine2ScreenShotReporter(opts) {
           // focused spec (fit) -- suiteDone was never called
           self.suiteDone(fakeFocusedSuite);
       }
+
+      if (opts.showSummary) {
+        output += printTestSummary();
+      }
+
       _.each(suites, function(suite) {
         output += printResults(suite);
       });
@@ -283,9 +367,17 @@ function Jasmine2ScreenShotReporter(opts) {
         output += printSpec(spec);
       });
 
+      if (opts.showConfiguration) {
+        output += printTestConfiguration();
+      }
+
+      var cssLinks = getCssLinks(opts.userCss);
+
       fs.appendFileSync(
         opts.dest + opts.filename,
-        reportTemplate({ report: output}),
+        reportTemplate({ report: output,
+                         title: opts.reportTitle,
+                         userCss: cssLinks}),
         { encoding: 'utf8' },
         function(err) {
             if(err) {
@@ -308,6 +400,8 @@ function Jasmine2ScreenShotReporter(opts) {
 
       return template({
         mark:     marks[spec.status],
+        cssClass: statusCssClass[spec.status],
+        id:       spec.id,
         name:     spec.fullName.replace(suiteName, '').trim(),
         reason:   printReasonsForFailure(spec),
         filename: encodeURI(spec.filename),
@@ -326,7 +420,7 @@ function Jasmine2ScreenShotReporter(opts) {
         suite.isPrinted = true;
 
         output += '<ul style="list-style-type:none">';
-        output += '<h4>' + suite.fullName + ' (' + getDuration(suite) + ' s)</h4>';
+        output += '<h4>' + suite.description + ' (' + getDuration(suite) + ' s)</h4>';
 
         _.each(suite._specs, function(spec) {
             spec = specs[spec.id];
@@ -350,6 +444,56 @@ function Jasmine2ScreenShotReporter(opts) {
       }
 
       return reasonsTemplate({ reasons: spec.failedExpectations });
+    }
+
+    function printTestSummary() {
+      var summary = {
+        "Total specs": opts.totalSpecsDefined,
+        "Failed specs": opts.failedSpecs
+      };
+
+      var cssClass = opts.failedSpecs > 0 ? statusCssClass["failed"] : statusCssClass["passed"];
+      var keys = Object.keys(summary);
+      
+      var summaryOutput = "";
+      _.each(keys, function(key) {
+        summaryOutput += objectToItemTemplate({"key": key, "value": summary[key]});
+      });
+
+      var quickLinks = opts.showQuickLinks ? printFailedSpecQuickLinks() : '';
+
+      return summaryTemplate({"summaryBody": summaryOutput, "cssClass": cssClass, "quickLinks": quickLinks});
+    }
+
+    function printFailedSpecQuickLinks() {
+      var quickLinksOutput = "";
+      _.each(failedSpecIds, function(id) {
+        quickLinksOutput += quickLinkListItemTemplate({specId: id});
+      });
+
+      return quickLinksTemplate({quickLinks: quickLinksOutput});
+    }
+    
+    function printTestConfiguration() {
+      var testConfiguration = {
+        "Jasmine version": jasmine.version,
+        "Browser name": opts.browserCaps.browserName,
+        "Browser version": opts.browserCaps.browserVersion,
+        "Platform": opts.browserCaps.platform,
+        "Javascript enabled": opts.browserCaps.javascriptEnabled,
+        "Css selectors enabled": opts.browserCaps.cssSelectorsEnabled
+      };
+
+      testConfiguration = _.assign(testConfiguration, opts.configurationStrings);
+
+      var keys = Object.keys(testConfiguration);
+      
+      var configOutput = "";
+      _.each(keys, function(key) {
+        configOutput += objectToItemTemplate({"key": key, "value": testConfiguration[key]});
+      });
+
+      return configurationTemplate({"configBody": configOutput});
     }
 
     return this;
