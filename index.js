@@ -232,13 +232,12 @@ function Jasmine2ScreenShotReporter(opts) {
     opts.userCss = Array.isArray(opts.userCss) ?  opts.userCss : opts.userCss ? [ opts.userCss ] : [];
     opts.totalSpecsDefined = null;
     opts.failedSpecs = 0;
-    opts.showSummary = opts.showSummary || true;
+    opts.showSummary = opts.hasOwnProperty('showSummary') ? opts.showSummary : true;
     opts.showQuickLinks = opts.showQuickLinks || false;
     opts.browserCaps = {};
     opts.configurationStrings = opts.configurationStrings || {};
-    opts.showConfiguration = opts.showConfiguration || true;
-    opts.reportTitle = opts.reportTitle || 'Report';
-
+    opts.showConfiguration = opts.hasOwnProperty('showConfiguration') ? opts.showConfiguration : true;
+    opts.reportTitle = opts.hasOwnProperty('reportTitle') ? opts.reportTitle : 'Report';
 
     this.jasmineStarted = function(suiteInfo) {
         opts.totalSpecsDefined = suiteInfo.totalSpecsDefined;
