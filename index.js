@@ -219,6 +219,20 @@ function Jasmine2ScreenShotReporter(opts) {
         return cssLinks;
     };
 
+    var cleanDestination = function() {
+        rimraf(opts.dest, function(err) {
+          if(err) {
+            throw new Error('Could not remove previous destination directory ' + opts.dest);
+          }
+
+          mkdirp(opts.dest, function(err) {
+            if(err) {
+              throw new Error('Could not create directory ' + opts.dest);
+            }
+          });
+        });
+    };
+
     // TODO: more options
     opts          = opts || {};
     opts.preserveDirectory = opts.preserveDirectory || false;
@@ -238,21 +252,14 @@ function Jasmine2ScreenShotReporter(opts) {
     opts.configurationStrings = opts.configurationStrings || {};
     opts.showConfiguration = opts.hasOwnProperty('showConfiguration') ? opts.showConfiguration : true;
     opts.reportTitle = opts.hasOwnProperty('reportTitle') ? opts.reportTitle : 'Report';
+    opts.cleanDestination = opts.hasOwnProperty('cleanDestination') ? opts.cleanDestination : true;
 
     this.jasmineStarted = function(suiteInfo) {
         opts.totalSpecsDefined = suiteInfo.totalSpecsDefined;
 
-        rimraf(opts.dest, function(err) {
-          if(err) {
-            throw new Error('Could not remove previous destination directory ' + opts.dest);
-          }
-
-          mkdirp(opts.dest, function(err) {
-            if(err) {
-              throw new Error('Could not create directory ' + opts.dest);
-            }
-          });
-        });
+        if (opts.cleanDestination) {
+            cleanDestination();
+        }
 
         browser.getCapabilities().then(function (capabilities) {
             opts.browserCaps.browserName = capabilities.get('browserName');
