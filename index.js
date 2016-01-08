@@ -73,6 +73,7 @@ function Jasmine2ScreenShotReporter(opts) {
 
     // write data into opts.dest as filename
     var writeScreenshot = function (data, filename) {
+    console.log('writing screenshot')
         var stream = fs.createWriteStream(opts.dest + filename);
         stream.write(new Buffer(data, 'base64'));
         stream.end();
@@ -235,40 +236,15 @@ function Jasmine2ScreenShotReporter(opts) {
           spec.skipPrinting = true;
           return;
         }
-
         file = opts.pathBuilder(spec, suites);
-        spec.filename =  opts.browserName+'_'+spec.fullName+'.png';
-
+        var cleanSpec = spec.fullName.replace(/[^a-zA-Z ]/g, "");
+        var maxChar = 250 - 50 - opts.dest.length;
+        spec.filename =  opts.browserName+'_'+cleanSpec.substring(0,maxChar)+'.png';
         browser.takeScreenshot().then(function (png) {
-            browser.getCapabilities().then(function (capabilities) {
-                var screenshotPath,
-                    metadataPath,
-                    metadata;
-
-                screenshotPath = path.join(opts.dest, spec.filename);
-                metadata       = opts.metadataBuilder(spec, suites, capabilities);
-
-                if (metadata) {
-                    metadataPath = path.join(opts.dest, file + '.json');
-                    mkdirp(path.dirname(metadataPath), function(err) {
-                        if(err) {
-                            throw new Error('Could not create directory for ' + metadataPath);
-                        }
-                        writeMetadata(metadata, metadataPath);
-                    });
-                }
-
-                mkdirp(path.dirname(screenshotPath), function(err) {
-                    if(err) {
-                        throw new Error('Could not create directory for ' + screenshotPath);
-                    }
-                    writeScreenshot(png, spec.filename);
-                });
+             writeScreenshot(png, spec.filename);
             });
-        });
-    };
-
-    this.jasmineDone = function() {
+        };
+      this.jasmineDone = function() {
       var output = '';
 
       if (runningSuite) {
@@ -357,3 +333,4 @@ function Jasmine2ScreenShotReporter(opts) {
 }
 
 module.exports = Jasmine2ScreenShotReporter;
+
