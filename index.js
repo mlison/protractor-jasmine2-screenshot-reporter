@@ -241,8 +241,20 @@ function Jasmine2ScreenShotReporter(opts) {
         var maxChar = 250 - 50 - opts.dest.length;
         spec.filename =  opts.browserName+'_'+cleanSpec.substring(0,maxChar)+'.png';
         browser.takeScreenshot().then(function (png) {
-             writeScreenshot(png, spec.filename);
-            });
+          browser.getCapabilities().then(function (capabilities) {
+		  var screenshotPath = path.join(opts.dest, spec.filename);
+
+				 mkdirp(path.dirname(screenshotPath), function(err) {
+                     if(err) {
+                       throw new Error('Could not create directory for ' + screenshotPath);
+                    }
+                    writeScreenshot(png, spec.filename);
+
+			     });
+          });
+        });
+
+
         };
       this.jasmineDone = function() {
       var output = '';
