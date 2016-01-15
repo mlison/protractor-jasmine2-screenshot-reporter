@@ -254,12 +254,14 @@ function Jasmine2ScreenShotReporter(opts) {
     opts.reportTitle = opts.hasOwnProperty('reportTitle') ? opts.reportTitle : 'Report';
     opts.cleanDestination = opts.hasOwnProperty('cleanDestination') ? opts.cleanDestination : true;
 
+    this.beforeLaunch = function() {
+        if (opts.cleanDestination) {
+          cleanDestination();
+        }
+    };
+
     this.jasmineStarted = function(suiteInfo) {
         opts.totalSpecsDefined = suiteInfo.totalSpecsDefined;
-
-        if (opts.cleanDestination) {
-            cleanDestination();
-        }
 
         browser.getCapabilities().then(function (capabilities) {
             opts.browserCaps.browserName = capabilities.get('browserName');

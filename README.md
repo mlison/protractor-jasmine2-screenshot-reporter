@@ -13,16 +13,20 @@ In your Protractor configuration file, register protractor-jasmine2-screenshot-r
 
 <pre><code>var HtmlScreenshotReporter = require('protractor-jasmine2-screenshot-reporter');
 
+var reporter = new HtmlScreenshotReporter({
+  dest: 'target/screenshots',
+  filename: 'my-report.html'
+});  
+
 exports.config = {
    // ...
 
+   beforeLaunch: function() {
+      reporter.beforeLaunch(); 
+   }
+
    onPrepare: function() {
-      jasmine.getEnv().addReporter(
-        new HtmlScreenshotReporter({
-          dest: 'target/screenshots',
-          filename: 'my-report.html'
-        })
-      );
+      jasmine.getEnv().addReporter(reporter);
    }
 }</code></pre>
 
