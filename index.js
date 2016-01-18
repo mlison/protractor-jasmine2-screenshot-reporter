@@ -265,13 +265,13 @@ function Jasmine2ScreenShotReporter(opts) {
     opts.reportTitle = opts.hasOwnProperty('reportTitle') ? opts.reportTitle : 'Report';
     opts.cleanDestination = opts.hasOwnProperty('cleanDestination') ? opts.cleanDestination : true;
 
-    this.beforeLaunch = function() {
+    this.beforeLaunch = function(callback) {
       var cssLinks = getCssLinks(opts.userCss);
       
       if (opts.cleanDestination) {
         cleanDestination(function(err) {
-          fs.appendFileSync(
             opts.dest + opts.filename,
+          fs.appendFile(
             openReportTemplate({ userCss: cssLinks}),
             { encoding: 'utf8' },
             function(err) {
@@ -279,29 +279,29 @@ function Jasmine2ScreenShotReporter(opts) {
                 console.error('Error writing to file:' + opts.dest + opts.filename);
                 throw err;
               }
+              if (opts.reportTitle) {
+                fs.appendFile(
+                  opts.dest + opts.filename,
+                  addReportTitle({ title: opts.reportTitle}),
+                  { encoding: 'utf8' },
+                  function(err) {
+                    if(err) {
+                      console.error('Error writing to file:' + opts.dest + opts.filename);
+                      throw err;
+                    }
+                    callback();
+                  }
+                );
+              }
             }
           );
-
-          if (opts.reportTitle) {
-            fs.appendFileSync(
-              opts.dest + opts.filename,
-              addReportTitle({ title: opts.reportTitle}),
-              { encoding: 'utf8' },
-              function(err) {
-                if(err) {
-                  console.error('Error writing to file:' + opts.dest + opts.filename);
-                  throw err;
-                }
-              }
-            );
-          }
         });
       }
     };
 
-    this.onComplete = function() {
+    this.afterLaunch = function(callback) {
 
-      fs.appendFileSync(
+      fs.appendFile(
         opts.dest + opts.filename,
         closeReportTemplate(),
         { encoding: 'utf8' },
@@ -310,6 +310,7 @@ function Jasmine2ScreenShotReporter(opts) {
             console.error('Error writing to file:' + opts.dest + opts.filename);
             throw err;
           }
+          callback();
         }
       );
     };
