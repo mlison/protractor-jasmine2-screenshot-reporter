@@ -290,6 +290,7 @@ function Jasmine2ScreenShotReporter(opts) {
                 console.error('Error writing to file:' + path.join(opts.dest, opts.filename));
                 throw err;
               }
+          
               if (opts.reportTitle) {
                 fs.appendFile(
                   path.join(opts.dest, opts.filename),
@@ -303,6 +304,8 @@ function Jasmine2ScreenShotReporter(opts) {
                     callback();
                   }
                 );
+              } else {
+                callback();
               }
             }
           );
