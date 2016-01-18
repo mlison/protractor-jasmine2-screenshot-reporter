@@ -5,6 +5,7 @@ var fs     = require('fs'),
     rimraf = require('rimraf'),
     _      = require('lodash'),
     path   = require('path'),
+    uuid   = require('uuid'),
     hat    = require('hat');
 
 require('string.prototype.startswith');
@@ -73,6 +74,12 @@ function Jasmine2ScreenShotReporter(opts) {
                     'span.pending { padding: 0 1em; color: orange; }' +
                 '</style>' +
                 '<%= userCss %>' +
+                '<script type="text/javascript">' +
+                  'function showhide(id) {' +
+                    'var e = document.getElementById(id);' +
+                    'e.style.display = (e.style.display == "block") ? "none" : "block";' +
+                  '}' +
+                '</script>' +
             '</head>' +
             '<body>'
     );
@@ -107,7 +114,10 @@ function Jasmine2ScreenShotReporter(opts) {
     );
 
     var configurationTemplate = _.template(
-      '<div id="config">' +
+      '<a href="javascript:showhide(\'<%= configId %>\')">' +
+        'Toggle Configuration' +
+      '</a>' +
+      '<div class="config" id="<%= configId %>" style="display: none">' +
         '<h4>Configuration</h4>' +
         '<%= configBody %>' +
       '</div>'
@@ -555,7 +565,8 @@ function Jasmine2ScreenShotReporter(opts) {
         configOutput += objectToItemTemplate({"key": key, "value": testConfiguration[key]});
       });
 
-      return configurationTemplate({"configBody": configOutput});
+      var configId = uuid.v1();
+      return configurationTemplate({"configBody": configOutput, "configId": configId});
     }
 
     return this;
