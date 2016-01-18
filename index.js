@@ -272,17 +272,22 @@ function Jasmine2ScreenShotReporter(opts) {
         output += printSpec(spec);
       });
 
-      fs.appendFileSync(
-        opts.dest + opts.filename,
-        reportTemplate({ report: output}),
-        { encoding: 'utf8' },
-        function(err) {
-            if(err) {
-              console.error('Error writing to file:' + opts.dest + opts.filename);
-              throw err;
+      mkdirp(path.dirname(opts.dest + opts.filename), function (err) {
+          if(err) {
+              throw new Error('Could not create directory: ' + err);
+          }
+          fs.appendFileSync(
+            opts.dest + opts.filename,
+            reportTemplate({ report: output}),
+            { encoding: 'utf8' },
+            function(err) {
+                if(err) {
+                  console.error('Error writing to file:' + opts.dest + opts.filename);
+                  throw err;
+                }
             }
-        }
-      );
+          );
+      });
     };
 
     function printSpec(spec) {
