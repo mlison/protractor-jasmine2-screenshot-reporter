@@ -266,27 +266,28 @@ function Jasmine2ScreenShotReporter(opts) {
     opts.cleanDestination = opts.hasOwnProperty('cleanDestination') ? opts.cleanDestination : true;
 
     this.beforeLaunch = function(callback) {
+      console.log('Report destination:  ', path.join(opts.dest, opts.filename));
       var cssLinks = getCssLinks(opts.userCss);
       
       if (opts.cleanDestination) {
         cleanDestination(function(err) {
-            opts.dest + opts.filename,
           fs.appendFile(
+            path.join(opts.dest, opts.filename),
             openReportTemplate({ userCss: cssLinks}),
             { encoding: 'utf8' },
             function(err) {
               if(err) {
-                console.error('Error writing to file:' + opts.dest + opts.filename);
+                console.error('Error writing to file:' + path.join(opts.dest, opts.filename));
                 throw err;
               }
               if (opts.reportTitle) {
                 fs.appendFile(
-                  opts.dest + opts.filename,
+                  path.join(opts.dest, opts.filename),
                   addReportTitle({ title: opts.reportTitle}),
                   { encoding: 'utf8' },
                   function(err) {
                     if(err) {
-                      console.error('Error writing to file:' + opts.dest + opts.filename);
+                      console.error('Error writing to file:' + path.join(opts.dest, opts.filename));
                       throw err;
                     }
                     callback();
@@ -300,14 +301,15 @@ function Jasmine2ScreenShotReporter(opts) {
     };
 
     this.afterLaunch = function(callback) {
+      console.log('Closing report');
 
       fs.appendFile(
-        opts.dest + opts.filename,
+        path.join(opts.dest, opts.filename),
         closeReportTemplate(),
         { encoding: 'utf8' },
         function(err) {
           if(err) {
-            console.error('Error writing to file:' + opts.dest + opts.filename);
+            console.error('Error writing to file:' + path.join(opts.dest, opts.filename));
             throw err;
           }
           callback();
@@ -436,12 +438,12 @@ function Jasmine2ScreenShotReporter(opts) {
 
 
       fs.appendFileSync(
-        opts.dest + opts.filename,
+        path.join(opts.dest, opts.filename),
         reportTemplate({ report: output }),
         { encoding: 'utf8' },
         function(err) {
             if(err) {
-              console.error('Error writing to file:' + opts.dest + opts.filename);
+              console.error('Error writing to file:' + path.join(opts.dest, opts.filename));
               throw err;
             }
         }
