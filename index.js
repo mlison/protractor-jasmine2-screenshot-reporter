@@ -79,13 +79,38 @@ function Jasmine2ScreenShotReporter(opts) {
                     'var e = document.getElementById(id);' +
                     'e.style.display = (e.style.display == "block") ? "none" : "block";' +
                   '}' +
+                  'function updatePassCount() {' +
+                    'var totalPassed = document.querySelectorAll("li.passed").length;' +
+                    'var totalFailed = document.querySelectorAll("li.failed").length;' +
+                    'var totalSpecs = totalFailed + totalPassed;' +
+                    'console.log("passed: %s, failed: %s, total: %s", totalPassed, totalFailed, totalSpecs);' +
+                    'document.getElementById("summaryTotalSpecs").textContent = ' +
+                    'document.getElementById("summaryTotalSpecs").textContent + totalSpecs;' +
+                    'document.getElementById("summaryTotalFailed").textContent = ' +
+                    'document.getElementById("summaryTotalFailed").textContent + totalFailed;' +
+                    'if (totalFailed) {' +
+                      'document.getElementById("summary").className = "failed";' +
+                    '}' +
+                  '}' +
+                  'window.onload = updatePassCount;' +
                 '</script>' +
             '</head>' +
             '<body>'
     );
 
     var addReportTitle = _.template(
-        '<h1><%= title %></h1>'
+      '<h1><%= title %></h1>'
+    );
+
+    var addReportSummary = _.template(
+      '<div id="summary" class="passed">' +
+        '<h4>Summary</h4>' +
+        '<ul>' +
+          '<li id="summaryTotalSpecs">Total specs: </li>' +
+          '<li id="summaryTotalFailed">Total failed: </li>' +
+        '</ul>' +
+        '<%= quickLinks %>' +
+      '</div>' 
     );
 
     var closeReportTemplate = _.template(
@@ -103,14 +128,6 @@ function Jasmine2ScreenShotReporter(opts) {
               '<li><%- reason.message %></li>' +
           '<% }); %>' +
       '</ul>'
-    );
-
-    var summaryTemplate = _.template(
-      '<div id="summary" class="<%= cssClass %>">' +
-        '<h4>Summary</h4>' +
-        '<%= summaryBody %>' +
-        '<%= quickLinks %>' +
-      '</div>'
     );
 
     var configurationTemplate = _.template(
@@ -277,40 +294,39 @@ function Jasmine2ScreenShotReporter(opts) {
 
     this.beforeLaunch = function(callback) {
       console.log('Report destination:  ', path.join(opts.dest, opts.filename));
-      var cssLinks = getCssLinks(opts.userCss);
-      
-      if (opts.cleanDestination) {
-        cleanDestination(function(err) {
-          fs.appendFile(
-            path.join(opts.dest, opts.filename),
-            openReportTemplate({ userCss: cssLinks}),
-            { encoding: 'utf8' },
-            function(err) {
-              if(err) {
-                console.error('Error writing to file:' + path.join(opts.dest, opts.filename));
-                throw err;
-              }
-          
-              if (opts.reportTitle) {
-                fs.appendFile(
-                  path.join(opts.dest, opts.filename),
-                  addReportTitle({ title: opts.reportTitle}),
-                  { encoding: 'utf8' },
-                  function(err) {
-                    if(err) {
-                      console.error('Error writing to file:' + path.join(opts.dest, opts.filename));
-                      throw err;
-                    }
-                    callback();
-                  }
-                );
-              } else {
-                callback();
-              }
-            }
-          );
-        });
+
+      // if we aren't removing the old report folder then simply return
+      if (!cleanDestination) {
+        callback();
+        return;
       }
+
+      var cssLinks = getCssLinks(opts.userCss);
+
+      // Now you'll need to build the replacement report text for the file.
+      var reportContent = openReportTemplate({ userCss: cssLinks});
+      reportContent += addReportTitle({ title: opts.reportTitle});
+      reportContent += addReportSummary({ quickLinks: ''});
+
+      // Now remove the existing stored content and replace it with the new report shell.
+      cleanDestination(function(err) {
+        if (err) {
+          throw err;
+        }
+
+        fs.appendFile(
+          path.join(opts.dest, opts.filename),
+          reportContent,
+          { encoding: 'utf8' },
+          function(err) {
+            if (err) {
+              console.error ('Error writing to file: ' + path.join(opts.dest, opts.filename));
+              throw err;
+            }
+            callback();
+          }
+        );
+      });
     };
 
     this.afterLaunch = function(callback) {
@@ -430,10 +446,6 @@ function Jasmine2ScreenShotReporter(opts) {
       if (runningSuite) {
           // focused spec (fit) -- suiteDone was never called
           self.suiteDone(fakeFocusedSuite);
-      }
-
-      if (opts.showSummary) {
-        output += printTestSummary();
       }
 
       _.each(suites, function(suite) {
