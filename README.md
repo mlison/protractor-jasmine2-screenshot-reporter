@@ -12,6 +12,7 @@ The <code>protractor-jasmine2-screenshot-reporter</code> is available via npm:
 In your Protractor configuration file, register protractor-jasmine2-screenshot-reporter in jasmine:
 
 <pre><code>var HtmlScreenshotReporter = require('protractor-jasmine2-screenshot-reporter');
+var protractor = require('protractor');        
 
 var reporter = new HtmlScreenshotReporter({
   dest: 'target/screenshots',
@@ -21,12 +22,29 @@ var reporter = new HtmlScreenshotReporter({
 exports.config = {
    // ...
 
+   // Setup the report before any tests start
    beforeLaunch: function() {
-      reporter.beforeLaunch(); 
-   }
+      var deferred = protractor.promise.defer();
+      reporter.beforeLaunch(function() {
+        deferred.fulfill();
+      }, 500); 
 
+      return deferred.promise;
+   },
+
+   // Assign the test reporter to each running instance
    onPrepare: function() {
       jasmine.getEnv().addReporter(reporter);
+   },
+
+   // Close the report after all tests finish
+   afterLaunch: function(exitCode) {
+      var deferred = protractor.promise.defer();
+      reporter.afterLaunch(function() {
+        deferred.fulfill(exitCode);
+      }, 500);
+
+      return deferred.promise;
    }
 }</code></pre>
 
