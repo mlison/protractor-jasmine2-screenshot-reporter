@@ -31,9 +31,6 @@ function Jasmine2ScreenShotReporter(opts) {
           passed:  'passed'
         },
 
-        // monitor failed specs for quick links
-        failedSpecIds = [],
-
         // when use use fit, jasmine never calls suiteStarted / suiteDone, so make a fake one to use
         fakeFocusedSuite = {
           id: 'focused',
@@ -42,7 +39,11 @@ function Jasmine2ScreenShotReporter(opts) {
         };
 
     var linkTemplate = _.template(
-        '<li id="<%= id %>" class="<%= cssClass %>">' +
+        '<li id="<%= id %>" ' +
+        'class="<%= cssClass %>" ' +
+        'data-spec="<%= specId %>" ' +
+        'data-name="<%= name %>" ' +
+        'data-browser="<%= browserName %>">' +
             '<%= mark %>' +
             '<a href="<%= filename %>"><%= name %></a> ' +
             '(<%= duration %> s)' +
@@ -51,7 +52,12 @@ function Jasmine2ScreenShotReporter(opts) {
     );
 
     var nonLinkTemplate = _.template(
-        '<li title="No screenshot was created for this test case." id="<%= id %>" class="<%= cssClass %>">' +
+        '<li title="No screenshot was created for this test case." ' +
+        'id="<%= id %>" ' +
+        'class="<%= cssClass %>" ' +
+        'data-spec="<%= specId %>" ' +
+        'data-name="<%= name %>" ' +
+        'data-browser="<%= browserName %>">' +
             '<%= mark %>' +
             '<%= name %> ' +
             '(<%= duration %> s)' +
@@ -76,6 +82,18 @@ function Jasmine2ScreenShotReporter(opts) {
                     'var e = document.getElementById(id);' +
                     'e.style.display = (e.style.display == "block") ? "none" : "block";' +
                   '}' +
+                  'function buildQuickLinks() {' +
+                    'var failedSpecs = document.querySelectorAll("li.failed");' +
+                    'var quickLinksContainer = document.getElementById("quickLinks");' +
+                    'for (var i = 0; i < failedSpecs.length; ++i) {' +
+                      'var li = document.createElement("li");' +
+                      'var a = document.createElement("a");' +
+                      'a.href = "#" + failedSpecs[i].id;' +
+                      'a.textContent = failedSpecs[i].dataset.name + "  (" + failedSpecs[i].dataset.browser + ")";' +
+                      'li.appendChild(a);' +
+                      'quickLinksContainer.appendChild(li);' +
+                    '}' +
+                  '}' +
                   'function updatePassCount() {' +
                     'var totalPassed = document.querySelectorAll("li.passed").length;' +
                     'var totalFailed = document.querySelectorAll("li.failed").length;' +
@@ -89,7 +107,11 @@ function Jasmine2ScreenShotReporter(opts) {
                       'document.getElementById("summary").className = "failed";' +
                     '}' +
                   '}' +
-                  'window.onload = updatePassCount;' +
+                  'function start() {' +
+                    'updatePassCount();' +
+                    'buildQuickLinks();' +
+                  '}' +
+                  'window.onload = start;' +
                 '</script>' +
             '</head>' +
             '<body>'
@@ -103,11 +125,15 @@ function Jasmine2ScreenShotReporter(opts) {
       '<div id="summary" class="passed">' +
         '<h4>Summary</h4>' +
         '<ul>' +
-          '<li id="summaryTotalSpecs">Total specs: </li>' +
+          '<li id="summaryTotalSpecs">Total specs tested: </li>' +
           '<li id="summaryTotalFailed">Total failed: </li>' +
         '</ul>' +
         '<%= quickLinks %>' +
-      '</div>' 
+      '</div>'
+    );
+
+    var addQuickLinks = _.template(
+      '<ul id="quickLinks"></ul>'
     );
 
     var closeReportTemplate = _.template(
@@ -143,16 +169,6 @@ function Jasmine2ScreenShotReporter(opts) {
       '</li>'
     );
 
-    var quickLinksTemplate = _.template(
-      '<ul id="quickLinks"><%= quickLinks %></ul>'
-    );
-
-    var quickLinkListItemTemplate = _.template(  
-      '<li>' +
-        '<a href="#<%= specId %>"><%= specId %></a>' +
-      '</li>'
-    );
-
     // write data into opts.dest as filename
     var writeScreenshot = function (data, filename) {
         var stream = fs.createWriteStream(opts.dest + filename);
@@ -170,7 +186,6 @@ function Jasmine2ScreenShotReporter(opts) {
         } catch(e) {
           console.error('Couldn\'t save metadata: ' + filename);
         }
-
     };
 
     // returns suite clone or creates one
@@ -280,7 +295,6 @@ function Jasmine2ScreenShotReporter(opts) {
     opts.metadataBuilder = opts.metadataBuilder || metadataBuilder;
     opts.userCss = Array.isArray(opts.userCss) ?  opts.userCss : opts.userCss ? [ opts.userCss ] : [];
     opts.totalSpecsDefined = null;
-    opts.failedSpecs = 0;
     opts.showSummary = opts.hasOwnProperty('showSummary') ? opts.showSummary : true;
     opts.showQuickLinks = opts.showQuickLinks || false;
     opts.browserCaps = {};
@@ -303,7 +317,7 @@ function Jasmine2ScreenShotReporter(opts) {
       // Now you'll need to build the replacement report text for the file.
       var reportContent = openReportTemplate({ userCss: cssLinks});
       reportContent += addReportTitle({ title: opts.reportTitle});
-      reportContent += addReportSummary({ quickLinks: ''});
+      reportContent += addReportSummary({ quickLinks: addQuickLinks()});
 
       // Now remove the existing stored content and replace it with the new report shell.
       cleanDestination(function(err) {
@@ -400,11 +414,6 @@ function Jasmine2ScreenShotReporter(opts) {
           return;
         }
 
-        if (spec.status === 'failed') {
-          opts.failedSpecs += 1;
-          failedSpecIds.push(spec.id);
-        }
-
         browser.takeScreenshot().then(function (png) {
             browser.getCapabilities().then(function (capabilities) {
                 var screenshotPath,
@@ -458,7 +467,6 @@ function Jasmine2ScreenShotReporter(opts) {
         output += printTestConfiguration();
       }
 
-
       fs.appendFileSync(
         path.join(opts.dest, opts.filename),
         reportTemplate({ report: output }),
@@ -483,13 +491,15 @@ function Jasmine2ScreenShotReporter(opts) {
       spec.isPrinted = true;
 
       return template({
-        mark:     marks[spec.status],
+        browserName: opts.browserCaps.browserName,
         cssClass: statusCssClass[spec.status],
-        id:       spec.id,
+        duration: getDuration(spec),
+        filename: encodeURI(spec.filename),
+        id:       uuid.v1(),
+        mark:     marks[spec.status],
         name:     spec.fullName.replace(suiteName, '').trim(),
         reason:   printReasonsForFailure(spec),
-        filename: encodeURI(spec.filename),
-        duration: getDuration(spec),
+        specId:   spec.id,
       });
     }
 
@@ -530,34 +540,6 @@ function Jasmine2ScreenShotReporter(opts) {
       return reasonsTemplate({ reasons: spec.failedExpectations });
     }
 
-    function printTestSummary() {
-      var summary = {
-        "Total specs": opts.totalSpecsDefined,
-        "Failed specs": opts.failedSpecs
-      };
-
-      var cssClass = opts.failedSpecs > 0 ? statusCssClass["failed"] : statusCssClass["passed"];
-      var keys = Object.keys(summary);
-      
-      var summaryOutput = "";
-      _.each(keys, function(key) {
-        summaryOutput += objectToItemTemplate({"key": key, "value": summary[key]});
-      });
-
-      var quickLinks = opts.showQuickLinks ? printFailedSpecQuickLinks() : '';
-
-      return summaryTemplate({"summaryBody": summaryOutput, "cssClass": cssClass, "quickLinks": quickLinks});
-    }
-
-    function printFailedSpecQuickLinks() {
-      var quickLinksOutput = "";
-      _.each(failedSpecIds, function(id) {
-        quickLinksOutput += quickLinkListItemTemplate({specId: id});
-      });
-
-      return quickLinksTemplate({quickLinks: quickLinksOutput});
-    }
-    
     function printTestConfiguration() {
       var testConfiguration = {
         "Jasmine version": jasmine.version,
