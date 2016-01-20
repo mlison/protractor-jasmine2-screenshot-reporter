@@ -313,11 +313,14 @@ function Jasmine2ScreenShotReporter(opts) {
       console.log('Report destination:  ', path.join(opts.dest, opts.filename));
 
       var cssLinks = getCssLinks(opts.userCss);
+      var summaryQuickLinks = opts.showQuickLinks ? addQuickLinks(): '';
+      var reportSummary = opts.showSummary ? addReportSummary({ quickLinks: summaryQuickLinks }) : '';
+
 
       // Now you'll need to build the replacement report text for the file.
       var reportContent = openReportTemplate({ userCss: cssLinks});
       reportContent += addReportTitle({ title: opts.reportTitle});
-      reportContent += addReportSummary({ quickLinks: addQuickLinks()});
+      reportContent += reportSummary;
 
       // Now remove the existing stored content and replace it with the new report shell.
       cleanDestination(function(err) {
