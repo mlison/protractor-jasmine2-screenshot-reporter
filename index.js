@@ -268,6 +268,12 @@ function Jasmine2ScreenShotReporter(opts) {
     };
 
     var cleanDestination = function(callback) {
+        // if we aren't removing the old report folder then simply return
+        if (!opts.cleanDestination) {
+          callback();
+          return;
+        }
+        
         rimraf(opts.dest, function(err) {
           if(err) {
             throw new Error('Could not remove previous destination directory ' + opts.dest);
@@ -305,12 +311,6 @@ function Jasmine2ScreenShotReporter(opts) {
 
     this.beforeLaunch = function(callback) {
       console.log('Report destination:  ', path.join(opts.dest, opts.filename));
-
-      // if we aren't removing the old report folder then simply return
-      if (!cleanDestination) {
-        callback();
-        return;
-      }
 
       var cssLinks = getCssLinks(opts.userCss);
 
