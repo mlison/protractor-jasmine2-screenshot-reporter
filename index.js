@@ -31,9 +31,6 @@ function Jasmine2ScreenShotReporter(opts) {
           passed:  'passed'
         },
 
-        // store extra css files.
-        cssLinks = [],
-
         // monitor failed specs for quick links
         failedSpecIds = [],
 
