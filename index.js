@@ -463,8 +463,17 @@ function Jasmine2ScreenShotReporter(opts) {
         output += printSpec(spec);
       });
 
+      // Add configuration information when requested and only if specs have been reported.
       if (opts.showConfiguration) {
-        output += printTestConfiguration();
+        var suiteHasSpecs = false;
+        
+        _.each(specs, function(spec) {
+          suiteHasSpecs = spec.isPrinted || suiteHasSpecs;
+        });
+
+        if (suiteHasSpecs) {
+          output += printTestConfiguration();
+        }
       }
 
       fs.appendFileSync(
