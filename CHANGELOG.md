@@ -2,6 +2,7 @@
 
 ## Features
 - support test sharding
+- added example configurations
 
 ## BRAKING CHANGES
 In order to support running multiple browser instances in parallel, there's a little more setup to be done in protractor configuration when adding the reporter. This affects also users who don't use sharding.
