@@ -24,12 +24,9 @@ exports.config = {
 
    // Setup the report before any tests start
    beforeLaunch: function() {
-      var deferred = protractor.promise.defer();
-      reporter.beforeLaunch(function() {
-        deferred.fulfill();
-      }, 500); 
-
-      return deferred.promise;
+      return new Promise(function(resolve){
+        reporter.beforeLaunch(resolve);
+      });
    },
 
    // Assign the test reporter to each running instance
@@ -39,12 +36,9 @@ exports.config = {
 
    // Close the report after all tests finish
    afterLaunch: function(exitCode) {
-      var deferred = protractor.promise.defer();
-      reporter.afterLaunch(function() {
-        deferred.fulfill(exitCode);
-      }, 500);
-
-      return deferred.promise;
+      return new Promise(function(resolve){
+        reporter.afterLaunch(resolve.bind(this, exitCode));
+      });
    }
 }</code></pre>
 
