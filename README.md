@@ -12,17 +12,39 @@ The <code>protractor-jasmine2-screenshot-reporter</code> is available via npm:
 In your Protractor configuration file, register protractor-jasmine2-screenshot-reporter in jasmine:
 
 <pre><code>var HtmlScreenshotReporter = require('protractor-jasmine2-screenshot-reporter');
+var protractor = require('protractor');        
+
+var reporter = new HtmlScreenshotReporter({
+  dest: 'target/screenshots',
+  filename: 'my-report.html'
+});  
 
 exports.config = {
    // ...
 
+   // Setup the report before any tests start
+   beforeLaunch: function() {
+      var deferred = protractor.promise.defer();
+      reporter.beforeLaunch(function() {
+        deferred.fulfill();
+      }, 500); 
+
+      return deferred.promise;
+   },
+
+   // Assign the test reporter to each running instance
    onPrepare: function() {
-      jasmine.getEnv().addReporter(
-        new HtmlScreenshotReporter({
-          dest: 'target/screenshots',
-          filename: 'my-report.html'
-        })
-      );
+      jasmine.getEnv().addReporter(reporter);
+   },
+
+   // Close the report after all tests finish
+   afterLaunch: function(exitCode) {
+      var deferred = protractor.promise.defer();
+      reporter.afterLaunch(function() {
+        deferred.fulfill(exitCode);
+      }, 500);
+
+      return deferred.promise;
    }
 }</code></pre>
 
@@ -36,6 +58,22 @@ If the directory doesn't exist, it will be created automatically or otherwise cl
 <pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
    dest: '/project/test/screenshots'
 }));</code></pre>
+
+### Clean destination directory (optional)
+
+This option is __enabled by default__. Toggle whether or not to remove and rebuild destination when jasmine starts.
+
+This is useful when you are running protractor tests in parallel, and wish all of the processes to report to the same directory.
+
+When cleanDestination is set to true, it is recommended that you disabled showSummary and showConfiguration, and set reportTitle to null. If you do not, the report will be pretty cluttered.
+
+<pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
+   cleanDestination: false,
+   showSummary: false,
+   showConfiguration: false,
+   reportTitle: null
+}));</code></pre>
+
 
 ### Filename (optional)
 
@@ -166,8 +204,7 @@ By default, the runner builder will not save any metadata except the actual html
 
 This option is __disabled by default__. When this option is enabled, than for each report will be
  created separate directory with unique name. Directory unique name will be generated randomly.
- 
+
 <pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
    preserveDirectory: true
 }));</code></pre>
- 
