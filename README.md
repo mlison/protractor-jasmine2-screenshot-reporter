@@ -12,12 +12,11 @@ The <code>protractor-jasmine2-screenshot-reporter</code> is available via npm:
 In your Protractor configuration file, register protractor-jasmine2-screenshot-reporter in jasmine:
 
 <pre><code>var HtmlScreenshotReporter = require('protractor-jasmine2-screenshot-reporter');
-var protractor = require('protractor');        
 
 var reporter = new HtmlScreenshotReporter({
   dest: 'target/screenshots',
   filename: 'my-report.html'
-});  
+});
 
 exports.config = {
    // ...
@@ -49,9 +48,9 @@ Output directory for created files. All screenshots and reports will be stored h
 
 If the directory doesn't exist, it will be created automatically or otherwise cleaned before running the test suite.
 
-<pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
+<pre><code>var reporter = new HtmlScreenshotReporter({
    dest: '/project/test/screenshots'
-}));</code></pre>
+});</code></pre>
 
 ### Clean destination directory (optional)
 
@@ -61,21 +60,21 @@ This is useful when you are running protractor tests in parallel, and wish all o
 
 When cleanDestination is set to true, it is recommended that you disabled showSummary and showConfiguration, and set reportTitle to null. If you do not, the report will be pretty cluttered.
 
-<pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
+<pre><code>var reporter = new HtmlScreenshotReporter({
    cleanDestination: false,
    showSummary: false,
    showConfiguration: false,
    reportTitle: null
-}));</code></pre>
+});</code></pre>
 
 
 ### Filename (optional)
 
 Filename for html report.
 
-<pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
+<pre><code>var reporter = new HtmlScreenshotReporter({
    filename: 'my-report.html'
-}));</code></pre>
+});</code></pre>
 
 Default is <code>report.html</code>
 
@@ -83,17 +82,17 @@ Default is <code>report.html</code>
 
 Array of filenames that specifies extra css files to include in the html report.
 
-<pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
+<pre><code>var reporter = new HtmlScreenshotReporter({
    userCss: 'my-report-styles.css'
-}));</code></pre>
+});</code></pre>
 
 ### Ignore pending specs (optional)
 
 When this option is enabled, reporter will not create screenshots for pending / disabled specs. Only executed specs will be captured.
 
-<pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
+<pre><code>var reporter = new HtmlScreenshotReporter({
    ignoreSkippedSpecs: true
-}));</code></pre>
+});</code></pre>
 
 Default is <code>false</code>
 
@@ -101,9 +100,9 @@ Default is <code>false</code>
 
 When this option is enabled, reporter will create screenshots only for specs that have failed their expectations.
 
-<pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
+<pre><code>var reporter = new HtmlScreenshotReporter({
    captureOnlyFailedSpecs: true
-}));</code></pre>
+});</code></pre>
 
 Default is <code>false</code>
 
@@ -111,18 +110,18 @@ Default is <code>false</code>
 
 This option is __enabled by default__ - in combination with <code>captureOnlyFailedSpecs</code>, it will capture and report screenshots only for failed specs. Turning this option off will cause the report to contain all specs, but screenshots will be captured only for failed specs.
 
-<pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
+<pre><code>var reporter = new HtmlScreenshotReporter({
    reportOnlyFailedSpecs: false,
    captureOnlyFailedSpecs: true
-}));</code></pre>
+});</code></pre>
 
 ### Display summary in report (optional)
 
 This option is __enabled by default__ - it will display the total number of specs and the number of failed specs in a short summary at the beginnning of the report.
 
-<pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
+<pre><code>var reporter = new HtmlScreenshotReporter({
    showSummary: true
-}));</code></pre>
+});</code></pre>
 
 Default is <code>true</code>
 
@@ -130,10 +129,10 @@ Default is <code>true</code>
 
 If this option is enabled with the report summary, it will display a link to each failed spec as a part of the short summary at the beginnning of the report.
 
-<pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
+<pre><code>var reporter = new HtmlScreenshotReporter({
    showSummary: true,
    showQuickLinks: true
-}));</code></pre>
+});</code></pre>
 
 Default is <code>false</code>
 
@@ -141,9 +140,9 @@ Default is <code>false</code>
 
 This option is __enabled by default__ - it will display a summary of the test configuration details at the end of the report.
 
-<pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
+<pre><code>var reporter = new HtmlScreenshotReporter({
    showConfiguration: true
-}));</code></pre>
+});</code></pre>
 
 Default is <code>true</code>
 
@@ -151,9 +150,9 @@ Default is <code>true</code>
 
 This option will add a title to the report.
 
-<pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
+<pre><code>var reporter = new HtmlScreenshotReporter({
    reportTitle: "Report Title"
-}));</code></pre>
+});</code></pre>
 
 Default is <code>'Report'</code>
 
@@ -161,23 +160,23 @@ Default is <code>'Report'</code>
 
 The user may specify a set of key/value pairs that are appended to the configuration report.
 
-<pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
+<pre><code>var reporter = new HtmlScreenshotReporter({
    configurationStrings: {
            "My 1st Param": firstParam,
            "My 2nd Param": secondParam
    }
-}));</code></pre>
+});</code></pre>
 
 ### Path Builder (optional)
 
 Function used to build custom paths for screenshots. For example:
 
-<pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
+<pre><code>var reporter = new HtmlScreenshotReporter({
    pathBuilder: function(currentSpec, suites, browserCapabilities) {
       // will return chrome/your-spec-name.png
       return browserCapabilities.get('browserName') + '/' + currentSpec.fullName;
    }
-}));</code></pre>
+});</code></pre>
 
 By default, the path builder will generate a random ID for each spec.
 
@@ -186,11 +185,11 @@ By default, the path builder will generate a random ID for each spec.
 Function used to build custom metadata objects for each spec. Files (json) will use the same filename and path as created by Path Builder.
 For example:
 
-<pre><code>jasmine.getEnv().addReporter(new ScreenShotReporter({
+<pre><code>var reporter = new ScreenShotReporter({
    metadataBuilder: function(currentSpec, suites, browserCapabilities) {
       return { id: currentSpec.id, os: browserCapabilities.get('browserName') };
    }
-}));</code></pre>
+});</code></pre>
 
 By default, the runner builder will not save any metadata except the actual html report.
 
@@ -199,6 +198,6 @@ By default, the runner builder will not save any metadata except the actual html
 This option is __disabled by default__. When this option is enabled, than for each report will be
  created separate directory with unique name. Directory unique name will be generated randomly.
 
-<pre><code>jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
+<pre><code>var reporter = new HtmlScreenshotReporter({
    preserveDirectory: true
-}));</code></pre>
+});</code></pre>
