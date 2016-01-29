@@ -1,3 +1,13 @@
+# 0.3.0
+
+## Features
+- support test sharding
+
+## BRAKING CHANGES
+In order to support running multiple browser instances in parallel, there's a little more setup to be done in protractor configuration when adding the reporter. This affects also users who don't use sharding.
+
+Please refer to setup instructions before upgrading: [Usage instructions](https://github.com/mlison/protractor-jasmine2-screenshot-reporter#usage).
+
 # 0.2.0
 
 ## Features
