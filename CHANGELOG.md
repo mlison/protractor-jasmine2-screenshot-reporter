@@ -2,7 +2,8 @@
 
 ## Features
 - support test sharding
-- added example configurations
+- added example configurations: [protractor.example.conf](https://github.com/mlison/protractor-jasmine2-screenshot-reporter/blob/master/protractor.example.conf) and [protractor.sharding-example.conf](https://github.com/mlison/protractor-jasmine2-screenshot-reporter/blob/master/protractor.sharding-example.conf)
+- added [cleanDestination](https://github.com/mlison/protractor-jasmine2-screenshot-reporter/blob/master/README.md#clean-destination-directory-optional) option
 
 ## BRAKING CHANGES
 In order to support running multiple browser instances in parallel, there's a little more setup to be done in protractor configuration when adding the reporter. This affects also users who don't use sharding.
