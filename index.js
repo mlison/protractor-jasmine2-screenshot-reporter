@@ -18,7 +18,7 @@ function Jasmine2ScreenShotReporter(opts) {
         specs        = {},   // tes spec clones
         runningSuite = null, // currently running suite
 
-        // report marks
+    // report marks
         marks = {
             pending:'<span class="pending">~</span>',
             failed: '<span class="failed">&#10007;</span>',
@@ -26,16 +26,16 @@ function Jasmine2ScreenShotReporter(opts) {
         },
 
         statusCssClass = {
-          pending: 'pending',
-          failed:  'failed',
-          passed:  'passed'
+            pending: 'pending',
+            failed:  'failed',
+            passed:  'passed'
         },
 
-        // when use use fit, jasmine never calls suiteStarted / suiteDone, so make a fake one to use
+    // when use use fit, jasmine never calls suiteStarted / suiteDone, so make a fake one to use
         fakeFocusedSuite = {
-          id: 'focused',
-          description: 'focused specs',
-          fullName: 'focused specs'
+            id: 'focused',
+            description: 'focused specs',
+            fullName: 'focused specs'
         };
 
     var linkTemplate = _.template(
@@ -44,10 +44,13 @@ function Jasmine2ScreenShotReporter(opts) {
         'data-spec="<%= specId %>" ' +
         'data-name="<%= name %>" ' +
         'data-browser="<%= browserName %>">' +
-            '<%= mark %>' +
-            '<a href="<%= filename %>"><%= name %></a> ' +
-            '(<%= duration %> s)' +
-            '<%= reason %>' +
+        '<%= mark %>' +
+        '<%= name %>' +
+        '<% _.forEach(filename, function (val, key) { %>' +
+        ' [<a href="<%= val %>"><%= key %></a>] ' +
+        '<% }) %>' +
+        '(<%= duration %> s)' +
+        '<%= reason %>' +
         '</li>'
     );
 
@@ -58,82 +61,82 @@ function Jasmine2ScreenShotReporter(opts) {
         'data-spec="<%= specId %>" ' +
         'data-name="<%= name %>" ' +
         'data-browser="<%= browserName %>">' +
-            '<%= mark %>' +
-            '<%= name %> ' +
-            '(<%= duration %> s)' +
-            '<%= reason %>' +
+        '<%= mark %>' +
+        '<%= name %> ' +
+        '(<%= duration %> s)' +
+        '<%= reason %>' +
         '</li>'
     );
 
     var openReportTemplate = _.template(
         '<html>' +
-            '<head>' +
-                '<meta charset="utf-8">' +
-                '<style>' +
-                    'body { font-family: Arial; }' +
-                    'ul { list-style-position: inside; }' +
-                    'span.passed { padding: 0 1em; color: green; }' +
-                    'span.failed { padding: 0 1em; color: red; }' +
-                    'span.pending { padding: 0 1em; color: orange; }' +
-                '</style>' +
-                '<%= userCss %>' +
-                '<script type="text/javascript">' +
-                  'function showhide(id) {' +
-                    'var e = document.getElementById(id);' +
-                    'e.style.display = (e.style.display == "block") ? "none" : "block";' +
-                  '}' +
-                  'function buildQuickLinks() {' +
-                    'var failedSpecs = document.querySelectorAll("li.failed");' +
-                    'var quickLinksContainer = document.getElementById("quickLinks");' +
-                    'for (var i = 0; i < failedSpecs.length; ++i) {' +
-                      'var li = document.createElement("li");' +
-                      'var a = document.createElement("a");' +
-                      'a.href = "#" + failedSpecs[i].id;' +
-                      'a.textContent = failedSpecs[i].dataset.name + "  (" + failedSpecs[i].dataset.browser + ")";' +
-                      'li.appendChild(a);' +
-                      'quickLinksContainer.appendChild(li);' +
-                    '}' +
-                  '}' +
-                  'function updatePassCount() {' +
-                    'var totalPassed = document.querySelectorAll("li.passed").length;' +
-                    'var totalFailed = document.querySelectorAll("li.failed").length;' +
-                    'var totalSpecs = totalFailed + totalPassed;' +
-                    'console.log("passed: %s, failed: %s, total: %s", totalPassed, totalFailed, totalSpecs);' +
-                    'document.getElementById("summaryTotalSpecs").textContent = ' +
-                    'document.getElementById("summaryTotalSpecs").textContent + totalSpecs;' +
-                    'document.getElementById("summaryTotalFailed").textContent = ' +
-                    'document.getElementById("summaryTotalFailed").textContent + totalFailed;' +
-                    'if (totalFailed) {' +
-                      'document.getElementById("summary").className = "failed";' +
-                    '}' +
-                  '}' +
-                  'function start() {' +
-                    'updatePassCount();' +
-                    'buildQuickLinks();' +
-                  '}' +
-                  'window.onload = start;' +
-                '</script>' +
-            '</head>' +
-            '<body>'
+        '<head>' +
+        '<meta charset="utf-8">' +
+        '<style>' +
+        'body { font-family: Arial; }' +
+        'ul { list-style-position: inside; }' +
+        'span.passed { padding: 0 1em; color: green; }' +
+        'span.failed { padding: 0 1em; color: red; }' +
+        'span.pending { padding: 0 1em; color: orange; }' +
+        '</style>' +
+        '<%= userCss %>' +
+        '<script type="text/javascript">' +
+        'function showhide(id) {' +
+        'var e = document.getElementById(id);' +
+        'e.style.display = (e.style.display == "block") ? "none" : "block";' +
+        '}' +
+        'function buildQuickLinks() {' +
+        'var failedSpecs = document.querySelectorAll("li.failed");' +
+        'var quickLinksContainer = document.getElementById("quickLinks");' +
+        'for (var i = 0; i < failedSpecs.length; ++i) {' +
+        'var li = document.createElement("li");' +
+        'var a = document.createElement("a");' +
+        'a.href = "#" + failedSpecs[i].id;' +
+        'a.textContent = failedSpecs[i].dataset.name + "  (" + failedSpecs[i].dataset.browser + ")";' +
+        'li.appendChild(a);' +
+        'quickLinksContainer.appendChild(li);' +
+        '}' +
+        '}' +
+        'function updatePassCount() {' +
+        'var totalPassed = document.querySelectorAll("li.passed").length;' +
+        'var totalFailed = document.querySelectorAll("li.failed").length;' +
+        'var totalSpecs = totalFailed + totalPassed;' +
+        'console.log("passed: %s, failed: %s, total: %s", totalPassed, totalFailed, totalSpecs);' +
+        'document.getElementById("summaryTotalSpecs").textContent = ' +
+        'document.getElementById("summaryTotalSpecs").textContent + totalSpecs;' +
+        'document.getElementById("summaryTotalFailed").textContent = ' +
+        'document.getElementById("summaryTotalFailed").textContent + totalFailed;' +
+        'if (totalFailed) {' +
+        'document.getElementById("summary").className = "failed";' +
+        '}' +
+        '}' +
+        'function start() {' +
+        'updatePassCount();' +
+        'buildQuickLinks();' +
+        '}' +
+        'window.onload = start;' +
+        '</script>' +
+        '</head>' +
+        '<body>'
     );
 
     var addReportTitle = _.template(
-      '<h1><%= title %></h1>'
+        '<h1><%= title %></h1>'
     );
 
     var addReportSummary = _.template(
-      '<div id="summary" class="passed">' +
+        '<div id="summary" class="passed">' +
         '<h4>Summary</h4>' +
         '<ul>' +
-          '<li id="summaryTotalSpecs">Total specs tested: </li>' +
-          '<li id="summaryTotalFailed">Total failed: </li>' +
+        '<li id="summaryTotalSpecs">Total specs tested: </li>' +
+        '<li id="summaryTotalFailed">Total failed: </li>' +
         '</ul>' +
         '<%= quickLinks %>' +
-      '</div>'
+        '</div>'
     );
 
     var addQuickLinks = _.template(
-      '<ul id="quickLinks"></ul>'
+        '<ul id="quickLinks"></ul>'
     );
 
     var closeReportTemplate = _.template(
@@ -142,31 +145,31 @@ function Jasmine2ScreenShotReporter(opts) {
     );
 
     var reportTemplate = _.template(
-      '<%= report %>'
+        '<%= report %>'
     );
 
     var reasonsTemplate = _.template(
-      '<ul>' +
-          '<% _.forEach(reasons, function(reason) { %>' +
-              '<li><%- reason.message %></li>' +
-          '<% }); %>' +
-      '</ul>'
+        '<ul>' +
+        '<% _.forEach(reasons, function(reason) { %>' +
+        '<li><%- reason.message %></li>' +
+        '<% }); %>' +
+        '</ul>'
     );
 
     var configurationTemplate = _.template(
-      '<a href="javascript:showhide(\'<%= configId %>\')">' +
+        '<a href="javascript:showhide(\'<%= configId %>\')">' +
         'Toggle Configuration' +
-      '</a>' +
-      '<div class="config" id="<%= configId %>" style="display: none">' +
+        '</a>' +
+        '<div class="config" id="<%= configId %>" style="display: none">' +
         '<h4>Configuration</h4>' +
         '<%= configBody %>' +
-      '</div>'
+        '</div>'
     );
 
     var objectToItemTemplate = _.template(
-      '<li>' +
+        '<li>' +
         '<%= key %>:  <%= value %>' +
-      '</li>'
+        '</li>'
     );
 
     // write data into opts.dest as filename
@@ -180,24 +183,24 @@ function Jasmine2ScreenShotReporter(opts) {
         var stream;
 
         try {
-          stream = fs.createWriteStream(filename);
-          stream.write(JSON.stringify(data, null, '\t'));
-          stream.end();
+            stream = fs.createWriteStream(filename);
+            stream.write(JSON.stringify(data, null, '\t'));
+            stream.end();
         } catch(e) {
-          console.error('Couldn\'t save metadata: ' + filename);
+            console.error('Couldn\'t save metadata: ' + filename);
         }
     };
 
     // returns suite clone or creates one
     var getSuiteClone = function(suite) {
-      suites[suite.id] = _.extend((suites[suite.id] || {}), suite);
-      return suites[suite.id];
+        suites[suite.id] = _.extend((suites[suite.id] || {}), suite);
+        return suites[suite.id];
     };
 
     // returns spec clone or creates one
     var getSpecClone = function(spec) {
-      specs[spec.id] = _.extend((specs[spec.id] || {}), spec);
-      return specs[spec.id];
+        specs[spec.id] = _.extend((specs[spec.id] || {}), spec);
+        return specs[spec.id];
     };
 
     // returns duration in seconds
@@ -210,43 +213,43 @@ function Jasmine2ScreenShotReporter(opts) {
     };
 
     var pathBuilder = function(spec, suites, capabilities) {
-      return hat();
+        return hat();
     };
 
     var metadataBuilder = function(spec, suites, capabilities) {
-      return false;
+        return false;
     };
 
     var isSpecValid = function(spec) {
-      // Don't screenshot skipped specs
-      var isSkipped = opts.ignoreSkippedSpecs && spec.status === 'pending';
-      // Screenshot only for failed specs
-      var isIgnored = opts.captureOnlyFailedSpecs && spec.status !== 'failed';
+        // Don't screenshot skipped specs
+        var isSkipped = opts.ignoreSkippedSpecs && spec.status === 'pending';
+        // Screenshot only for failed specs
+        var isIgnored = opts.captureOnlyFailedSpecs && spec.status !== 'failed';
 
-      return !isSkipped && !isIgnored;
+        return !isSkipped && !isIgnored;
     };
 
     var isSpecReportable = function(spec) {
-      return (opts.reportOnlyFailedSpecs && spec.status === 'failed') || !opts.reportOnlyFailedSpecs;
+        return (opts.reportOnlyFailedSpecs && spec.status === 'failed') || !opts.reportOnlyFailedSpecs;
     };
 
     var hasValidSpecs = function(suite) {
-      var validSuites = false;
-      var validSpecs = false;
+        var validSuites = false;
+        var validSpecs = false;
 
-      if (suite._suites.length) {
-        validSuites = _.any(suite._suites, function(s) {
-          return hasValidSpecs(s);
-        });
-      }
+        if (suite._suites.length) {
+            validSuites = _.any(suite._suites, function(s) {
+                return hasValidSpecs(s);
+            });
+        }
 
-      if (suite._specs.length) {
-        validSpecs = _.any(suite._specs, function(s) {
-          return isSpecValid(s) || isSpecReportable(s);
-        });
-      }
+        if (suite._specs.length) {
+            validSpecs = _.any(suite._specs, function(s) {
+                return isSpecValid(s) || isSpecReportable(s);
+            });
+        }
 
-      return validSuites || validSpecs;
+        return validSuites || validSpecs;
     };
 
     var getDestination = function(){
@@ -270,22 +273,22 @@ function Jasmine2ScreenShotReporter(opts) {
     var cleanDestination = function(callback) {
         // if we aren't removing the old report folder then simply return
         if (!opts.cleanDestination) {
-          callback();
-          return;
+            callback();
+            return;
         }
-        
-        rimraf(opts.dest, function(err) {
-          if(err) {
-            throw new Error('Could not remove previous destination directory ' + opts.dest);
-          }
 
-          mkdirp(opts.dest, function(err) {
+        rimraf(opts.dest, function(err) {
             if(err) {
-              throw new Error('Could not create directory ' + opts.dest);
+                throw new Error('Could not remove previous destination directory ' + opts.dest);
             }
 
-            callback(err);
-          });
+            mkdirp(opts.dest, function(err) {
+                if(err) {
+                    throw new Error('Could not create directory ' + opts.dest);
+                }
+
+                callback(err);
+            });
         });
     };
 
@@ -310,54 +313,54 @@ function Jasmine2ScreenShotReporter(opts) {
     opts.cleanDestination = opts.hasOwnProperty('cleanDestination') ? opts.cleanDestination : true;
 
     this.beforeLaunch = function(callback) {
-      console.log('Report destination:  ', path.join(opts.dest, opts.filename));
+        console.log('Report destination:  ', path.join(opts.dest, opts.filename));
 
-      var cssLinks = getCssLinks(opts.userCss);
-      var summaryQuickLinks = opts.showQuickLinks ? addQuickLinks(): '';
-      var reportSummary = opts.showSummary ? addReportSummary({ quickLinks: summaryQuickLinks }) : '';
+        var cssLinks = getCssLinks(opts.userCss);
+        var summaryQuickLinks = opts.showQuickLinks ? addQuickLinks(): '';
+        var reportSummary = opts.showSummary ? addReportSummary({ quickLinks: summaryQuickLinks }) : '';
 
 
-      // Now you'll need to build the replacement report text for the file.
-      var reportContent = openReportTemplate({ userCss: cssLinks});
-      reportContent += addReportTitle({ title: opts.reportTitle});
-      reportContent += reportSummary;
+        // Now you'll need to build the replacement report text for the file.
+        var reportContent = openReportTemplate({ userCss: cssLinks});
+        reportContent += addReportTitle({ title: opts.reportTitle});
+        reportContent += reportSummary;
 
-      // Now remove the existing stored content and replace it with the new report shell.
-      cleanDestination(function(err) {
-        if (err) {
-          throw err;
-        }
-
-        fs.appendFile(
-          path.join(opts.dest, opts.filename),
-          reportContent,
-          { encoding: 'utf8' },
-          function(err) {
+        // Now remove the existing stored content and replace it with the new report shell.
+        cleanDestination(function(err) {
             if (err) {
-              console.error ('Error writing to file: ' + path.join(opts.dest, opts.filename));
-              throw err;
+                throw err;
             }
-            callback();
-          }
-        );
-      });
+
+            fs.appendFile(
+                path.join(opts.dest, opts.filename),
+                reportContent,
+                { encoding: 'utf8' },
+                function(err) {
+                    if (err) {
+                        console.error ('Error writing to file: ' + path.join(opts.dest, opts.filename));
+                        throw err;
+                    }
+                    callback();
+                }
+            );
+        });
     };
 
     this.afterLaunch = function(callback) {
-      console.log('Closing report');
+        console.log('Closing report');
 
-      fs.appendFile(
-        path.join(opts.dest, opts.filename),
-        closeReportTemplate(),
-        { encoding: 'utf8' },
-        function(err) {
-          if(err) {
-            console.error('Error writing to file:' + path.join(opts.dest, opts.filename));
-            throw err;
-          }
-          callback();
-        }
-      );
+        fs.appendFile(
+            path.join(opts.dest, opts.filename),
+            closeReportTemplate(),
+            { encoding: 'utf8' },
+            function(err) {
+                if(err) {
+                    console.error('Error writing to file:' + path.join(opts.dest, opts.filename));
+                    throw err;
+                }
+                callback();
+            }
+        );
     };
 
     this.jasmineStarted = function(suiteInfo) {
@@ -398,8 +401,8 @@ function Jasmine2ScreenShotReporter(opts) {
 
     this.specStarted = function(spec) {
         if (!runningSuite) {
-          // focused spec (fit) -- suiteStarted was never called
-          self.suiteStarted(fakeFocusedSuite);
+            // focused spec (fit) -- suiteStarted was never called
+            self.suiteStarted(fakeFocusedSuite);
         }
         spec = getSpecClone(spec);
         spec._started = Date.now();
@@ -408,111 +411,121 @@ function Jasmine2ScreenShotReporter(opts) {
     };
 
     this.specDone = function(spec) {
-        var file;
+        var file, loopInstances;
         spec = getSpecClone(spec);
         spec._finished = Date.now();
 
         if (!isSpecValid(spec)) {
-          spec.skipPrinting = true;
-          return;
+            spec.skipPrinting = true;
+            return;
         }
 
-        browser.takeScreenshot().then(function (png) {
-            browser.getCapabilities().then(function (capabilities) {
-                var screenshotPath,
-                    metadataPath,
-                    metadata;
+        loopInstances = protractor.hasOwnProperty('myInstances') ? protractor.myInstances : { 'screenshot': browser };
+        spec.filename = {};
+        for (var key in loopInstances) {
+            (function(key) {
+                loopInstances[key].takeScreenshot().then(function (png) {
+                    loopInstances[key].getCapabilities().then(function (capabilities) {
+                        var screenshotPath,
+                            metadataPath,
+                            metadata;
 
-                file = opts.pathBuilder(spec, suites, capabilities);
-                spec.filename = file + '.png';
+                        file = opts.pathBuilder(spec, suites, capabilities);
+                        spec.filename[key] = file + '.png';
 
-                screenshotPath = path.join(opts.dest, spec.filename);
-                metadata       = opts.metadataBuilder(spec, suites, capabilities);
+                        screenshotPath = path.join(opts.dest, spec.filename[key]);
+                        metadata = opts.metadataBuilder(spec, suites, capabilities);
 
-                if (metadata) {
-                    metadataPath = path.join(opts.dest, file + '.json');
-                    mkdirp(path.dirname(metadataPath), function(err) {
-                        if(err) {
-                            throw new Error('Could not create directory for ' + metadataPath);
+                        if (metadata) {
+                            metadataPath = path.join(opts.dest, file + '.json');
+                            mkdirp(path.dirname(metadataPath), function (err) {
+                                if (err) {
+                                    throw new Error('Could not create directory for ' + metadataPath);
+                                }
+                                writeMetadata(metadata, metadataPath);
+                            });
                         }
-                        writeMetadata(metadata, metadataPath);
-                    });
-                }
 
-                mkdirp(path.dirname(screenshotPath), function(err) {
-                    if(err) {
-                        throw new Error('Could not create directory for ' + screenshotPath);
-                    }
-                    writeScreenshot(png, spec.filename);
+                        mkdirp(path.dirname(screenshotPath), function (err) {
+                            if (err) {
+                                throw new Error('Could not create directory for ' + screenshotPath);
+                            }
+                            writeScreenshot(png, spec.filename[key]);
+                        });
+                    });
                 });
-            });
-        });
+            })(key)
+        };
     };
 
     this.jasmineDone = function() {
-      var output = '';
+        var output = '';
 
-      if (runningSuite) {
-          // focused spec (fit) -- suiteDone was never called
-          self.suiteDone(fakeFocusedSuite);
-      }
+        if (runningSuite) {
+            // focused spec (fit) -- suiteDone was never called
+            self.suiteDone(fakeFocusedSuite);
+        }
 
-      _.each(suites, function(suite) {
-        output += printResults(suite);
-      });
-
-      // Ideally this shouldn't happen, but some versions of jasmine will allow it
-      _.each(specs, function(spec) {
-        output += printSpec(spec);
-      });
-
-      // Add configuration information when requested and only if specs have been reported.
-      if (opts.showConfiguration) {
-        var suiteHasSpecs = false;
-        
-        _.each(specs, function(spec) {
-          suiteHasSpecs = spec.isPrinted || suiteHasSpecs;
+        _.each(suites, function(suite) {
+            output += printResults(suite);
         });
 
-        if (suiteHasSpecs) {
-          output += printTestConfiguration();
-        }
-      }
+        // Ideally this shouldn't happen, but some versions of jasmine will allow it
+        _.each(specs, function(spec) {
+            output += printSpec(spec);
+        });
 
-      fs.appendFileSync(
-        path.join(opts.dest, opts.filename),
-        reportTemplate({ report: output }),
-        { encoding: 'utf8' },
-        function(err) {
-            if(err) {
-              console.error('Error writing to file:' + path.join(opts.dest, opts.filename));
-              throw err;
+        // Add configuration information when requested and only if specs have been reported.
+        if (opts.showConfiguration) {
+            var suiteHasSpecs = false;
+
+            _.each(specs, function(spec) {
+                suiteHasSpecs = spec.isPrinted || suiteHasSpecs;
+            });
+
+            if (suiteHasSpecs) {
+                output += printTestConfiguration();
             }
         }
-      );
+
+        fs.appendFileSync(
+            path.join(opts.dest, opts.filename),
+            reportTemplate({ report: output }),
+            { encoding: 'utf8' },
+            function(err) {
+                if(err) {
+                    console.error('Error writing to file:' + path.join(opts.dest, opts.filename));
+                    throw err;
+                }
+            }
+        );
     };
 
     function printSpec(spec) {
-      var suiteName = spec._suite ? spec._suite.fullName : '';
-      var template = spec.filename ? linkTemplate : nonLinkTemplate;
+        var suiteName = spec._suite ? spec._suite.fullName : '';
+        var template = _.isEmpty(spec.filename) ? nonLinkTemplate : linkTemplate;
 
-      if (spec.isPrinted || (spec.skipPrinting && !isSpecReportable(spec))) {
-        return '';
-      }
+        if (spec.isPrinted || (spec.skipPrinting && !isSpecReportable(spec))) {
+            return '';
+        }
 
-      spec.isPrinted = true;
+        spec.isPrinted = true;
 
-      return template({
-        browserName: opts.browserCaps.browserName,
-        cssClass: statusCssClass[spec.status],
-        duration: getDuration(spec),
-        filename: encodeURI(spec.filename),
-        id:       uuid.v1(),
-        mark:     marks[spec.status],
-        name:     spec.fullName.replace(suiteName, '').trim(),
-        reason:   printReasonsForFailure(spec),
-        specId:   spec.id,
-      });
+        for(var key in spec.filename) {
+            spec.filename[key] = encodeURI(spec.filename[key]);
+        }
+
+        return template({
+            browserName: opts.browserCaps.browserName,
+            cssClass: statusCssClass[spec.status],
+            duration: getDuration(spec),
+            filename: spec.filename,
+            id:       uuid.v1(),
+            mark:     marks[spec.status],
+            name:     spec.fullName.replace(suiteName, '').trim(),
+            reason:   printReasonsForFailure(spec),
+            specId:   spec.id,
+        });
     }
 
     // TODO: proper nesting -> no need for magic
@@ -520,7 +533,7 @@ function Jasmine2ScreenShotReporter(opts) {
         var output = '';
 
         if (suite.isPrinted || !hasValidSpecs(suite)) {
-          return '';
+            return '';
         }
 
         suite.isPrinted = true;
@@ -545,34 +558,34 @@ function Jasmine2ScreenShotReporter(opts) {
     }
 
     function printReasonsForFailure(spec) {
-      if (spec.status !== 'failed') {
-        return '';
-      }
+        if (spec.status !== 'failed') {
+            return '';
+        }
 
-      return reasonsTemplate({ reasons: spec.failedExpectations });
+        return reasonsTemplate({ reasons: spec.failedExpectations });
     }
 
     function printTestConfiguration() {
-      var testConfiguration = {
-        "Jasmine version": jasmine.version,
-        "Browser name": opts.browserCaps.browserName,
-        "Browser version": opts.browserCaps.browserVersion,
-        "Platform": opts.browserCaps.platform,
-        "Javascript enabled": opts.browserCaps.javascriptEnabled,
-        "Css selectors enabled": opts.browserCaps.cssSelectorsEnabled
-      };
+        var testConfiguration = {
+            "Jasmine version": jasmine.version,
+            "Browser name": opts.browserCaps.browserName,
+            "Browser version": opts.browserCaps.browserVersion,
+            "Platform": opts.browserCaps.platform,
+            "Javascript enabled": opts.browserCaps.javascriptEnabled,
+            "Css selectors enabled": opts.browserCaps.cssSelectorsEnabled
+        };
 
-      testConfiguration = _.assign(testConfiguration, opts.configurationStrings);
+        testConfiguration = _.assign(testConfiguration, opts.configurationStrings);
 
-      var keys = Object.keys(testConfiguration);
-      
-      var configOutput = "";
-      _.each(keys, function(key) {
-        configOutput += objectToItemTemplate({"key": key, "value": testConfiguration[key]});
-      });
+        var keys = Object.keys(testConfiguration);
 
-      var configId = uuid.v1();
-      return configurationTemplate({"configBody": configOutput, "configId": configId});
+        var configOutput = "";
+        _.each(keys, function(key) {
+            configOutput += objectToItemTemplate({"key": key, "value": testConfiguration[key]});
+        });
+
+        var configId = uuid.v1();
+        return configurationTemplate({"configBody": configOutput, "configId": configId});
     }
 
     return this;

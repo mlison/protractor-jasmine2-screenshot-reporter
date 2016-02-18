@@ -201,3 +201,30 @@ This option is __disabled by default__. When this option is enabled, than for ea
 <pre><code>var reporter = new HtmlScreenshotReporter({
    preserveDirectory: true
 });</code></pre>
+
+### Multi-browser (optional)
+
+This option is __disabled by default__. When this option is enabled, than for each forked browser
+instance we will generate a screenshot and attach it to the report. Only thing you need to do to
+enable this option is save all browsers to the global `protractor.myInstances` object. For example:
+
+<pre><code>protractor.myInstances = {};
+
+describe('Testing multiple browsers', function() {
+
+  beforeAll(function() {
+    protractor.myInstances['firstBrowser'] = browser;
+    protractor.myInstances['secondBrowser'] = browser.forkNewDriverInstance();
+  });
+  
+  it('should pass', function() {
+    expect(protractor.myInstances['firstBrowser'].getCurrentUrl()).not.toEqual('');
+    expect(protractor.myInstances['firstBrowser'].getCurrentUrl()).not.toEqual('');
+  });
+  
+  it('should fail', function() {
+    expect(protractor.myInstances['firstBrowser'].getCurrentUrl()).toEqual('');
+    expect(protractor.myInstances['firstBrowser'].getCurrentUrl()).toEqual('');
+  });
+  
+);</code></pre>
