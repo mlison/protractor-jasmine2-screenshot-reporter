@@ -78,6 +78,7 @@ function Jasmine2ScreenShotReporter(opts) {
         'span.passed { padding: 0 1em; color: green; }' +
         'span.failed { padding: 0 1em; color: red; }' +
         'span.pending { padding: 0 1em; color: orange; }' +
+        'span.stacktrace { white-space: pre; border: 1px solid rgb(0, 0, 0); font-size: 9pt; padding: 4px; background-color: rgb(204, 204, 204); }' +
         '</style>' +
         '<%= userCss %>' +
         '<script type="text/javascript">' +
@@ -150,8 +151,9 @@ function Jasmine2ScreenShotReporter(opts) {
 
     var reasonsTemplate = _.template(
         '<ul>' +
-        '<% _.forEach(reasons, function(reason) { %>' +
-        '<li><%- reason.message %></li>' +
+        '<% _.forEach(reasons, function(reason, key) { %>' +
+        '<li><%- reason.message %> [<a href="javascript:showhide(\'<%= id %><%= key %>\')">stack</a>]<br/>' +
+        '<span style="display: none" id="<%= id %><%= key %>" class="stacktrace"><%- reason.stack %></span></li>' +
         '<% }); %>' +
         '</ul>'
     );
@@ -562,7 +564,7 @@ function Jasmine2ScreenShotReporter(opts) {
             return '';
         }
 
-        return reasonsTemplate({ reasons: spec.failedExpectations });
+        return reasonsTemplate({ id: spec.id, reasons: spec.failedExpectations });
     }
 
     function printTestConfiguration() {
