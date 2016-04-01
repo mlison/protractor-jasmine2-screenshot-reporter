@@ -50,6 +50,11 @@
     {
       "name": "Andrew Finlay",
       "url": "https://github.com/AndrewFinlay"
+    },
+    {
+      "name": "Mark Veenstra",
+      "email": "mark@mobilea.nl",
+      "url": "https://github.com/mark-veenstra"
     }
   ],
   "scripts": {}
