@@ -213,6 +213,6 @@ All you need to do is just register the instance in the begining of your suite /
 
 Remember to unregister the instance once you're done with it:
 
-<pre><code>beforeAll(function () {
+<pre><code>afterAll(function () {
   browser.forkedInstances['secondBrowser'] = null;
 });</code></pre>
