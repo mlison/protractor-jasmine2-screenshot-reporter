@@ -3,7 +3,7 @@
 ## Features
 
 - 83d46e5 adding stack traces to the report [#46](https://github.com/mlison/protractor-jasmine2-screenshot-reporter/issues/44)
-- 64405b4 support for forked instances [#44](https://github.com/mlison/protractor-jasmine2-screenshot-reporter/issues/44)
+- 64405b4 [support for forked instances](https://github.com/mlison/protractor-jasmine2-screenshot-reporter/blob/master/README.md#forked-browser-instances) [#44](https://github.com/mlison/protractor-jasmine2-screenshot-reporter/issues/44)
 - 4a00de3 execute done from process.nextTick. dirtyfixing [#10](https://github.com/mlison/protractor-jasmine2-screenshot-reporter/issues/10)
 
 # 0.3.0
