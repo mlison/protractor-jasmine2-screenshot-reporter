@@ -273,7 +273,7 @@ function Jasmine2ScreenShotReporter(opts) {
           callback();
           return;
         }
-        
+
         rimraf(opts.dest, function(err) {
           if(err) {
             throw new Error('Could not remove previous destination directory ' + opts.dest);
@@ -362,6 +362,11 @@ function Jasmine2ScreenShotReporter(opts) {
 
     this.jasmineStarted = function(suiteInfo) {
         opts.totalSpecsDefined = suiteInfo.totalSpecsDefined;
+
+        /* Dirty fix to make sure last screenshot is always linked to the report
+         * TODO: remove once we're able to return a promise from specDone / suiteDone
+         */
+        afterAll(process.nextTick);
 
         browser.getCapabilities().then(function (capabilities) {
             opts.browserCaps.browserName = capabilities.get('browserName');
@@ -469,7 +474,7 @@ function Jasmine2ScreenShotReporter(opts) {
       // Add configuration information when requested and only if specs have been reported.
       if (opts.showConfiguration) {
         var suiteHasSpecs = false;
-        
+
         _.each(specs, function(spec) {
           suiteHasSpecs = spec.isPrinted || suiteHasSpecs;
         });
@@ -565,7 +570,7 @@ function Jasmine2ScreenShotReporter(opts) {
       testConfiguration = _.assign(testConfiguration, opts.configurationStrings);
 
       var keys = Object.keys(testConfiguration);
-      
+
       var configOutput = "";
       _.each(keys, function(key) {
         configOutput += objectToItemTemplate({"key": key, "value": testConfiguration[key]});
