@@ -45,7 +45,10 @@ function Jasmine2ScreenShotReporter(opts) {
         'data-name="<%= name %>" ' +
         'data-browser="<%= browserName %>">' +
             '<%= mark %>' +
-            '<a href="<%= filename %>"><%= name %></a> ' +
+            '<a href="<%= filename[\'main\'] %>"><%= name %></a>' +
+            '<% _.forEach(filename, function (val, key) { if (key != \'main\') { %>' +
+            ' [<a href="<%= val %>"><%= key %></a>] ' +
+            '<% } }) %>' +
             '(<%= duration %> s)' +
             '<%= reason %>' +
         '</li>'
@@ -368,6 +371,10 @@ function Jasmine2ScreenShotReporter(opts) {
          */
         afterAll(process.nextTick);
 
+        browser.forkedInstances = {
+          'main': browser
+        };
+
         browser.getCapabilities().then(function (capabilities) {
             opts.browserCaps.browserName = capabilities.get('browserName');
             opts.browserCaps.browserVersion = capabilities.get('version');
@@ -413,45 +420,48 @@ function Jasmine2ScreenShotReporter(opts) {
     };
 
     this.specDone = function(spec) {
-        var file;
-        spec = getSpecClone(spec);
-        spec._finished = Date.now();
+      spec.filename = {};
+      spec = getSpecClone(spec);
+      spec._finished = Date.now();
 
-        if (!isSpecValid(spec)) {
-          spec.skipPrinting = true;
-          return;
-        }
+      if (!isSpecValid(spec)) {
+        spec.skipPrinting = true;
+        return;
+      }
 
-        browser.takeScreenshot().then(function (png) {
-            browser.getCapabilities().then(function (capabilities) {
-                var screenshotPath,
-                    metadataPath,
-                    metadata;
+      _.each(browser.forkedInstances, function (browserInstance, key) {
+        if (!browserInstance) return;
+        browserInstance.takeScreenshot().then(function (png) {
+          browserInstance.getCapabilities().then(function (capabilities) {
+            var screenshotPath,
+                metadataPath,
+                metadata;
 
-                file = opts.pathBuilder(spec, suites, capabilities);
-                spec.filename = file + '.png';
+            var file = opts.pathBuilder(spec, suites, capabilities);
+            spec.filename[key] = file + '.png';
 
-                screenshotPath = path.join(opts.dest, spec.filename);
-                metadata       = opts.metadataBuilder(spec, suites, capabilities);
+            screenshotPath = path.join(opts.dest, spec.filename[key]);
+            metadata       = opts.metadataBuilder(spec, suites, capabilities);
 
-                if (metadata) {
-                    metadataPath = path.join(opts.dest, file + '.json');
-                    mkdirp(path.dirname(metadataPath), function(err) {
-                        if(err) {
-                            throw new Error('Could not create directory for ' + metadataPath);
-                        }
-                        writeMetadata(metadata, metadataPath);
-                    });
+            if (metadata) {
+              metadataPath = path.join(opts.dest, file + '.json');
+              mkdirp(path.dirname(metadataPath), function(err) {
+                if(err) {
+                  throw new Error('Could not create directory for ' + metadataPath);
                 }
+                writeMetadata(metadata, metadataPath);
+              });
+            }
 
-                mkdirp(path.dirname(screenshotPath), function(err) {
-                    if(err) {
-                        throw new Error('Could not create directory for ' + screenshotPath);
-                    }
-                    writeScreenshot(png, spec.filename);
-                });
+            mkdirp(path.dirname(screenshotPath), function(err) {
+              if(err) {
+                throw new Error('Could not create directory for ' + screenshotPath);
+              }
+              writeScreenshot(png, spec.filename[key]);
             });
+          });
         });
+      });
     };
 
     this.jasmineDone = function() {
@@ -499,7 +509,7 @@ function Jasmine2ScreenShotReporter(opts) {
 
     function printSpec(spec) {
       var suiteName = spec._suite ? spec._suite.fullName : '';
-      var template = spec.filename ? linkTemplate : nonLinkTemplate;
+      var template = !_.isEmpty(spec.filename) ? linkTemplate : nonLinkTemplate;
 
       if (spec.isPrinted || (spec.skipPrinting && !isSpecReportable(spec))) {
         return '';
@@ -511,7 +521,7 @@ function Jasmine2ScreenShotReporter(opts) {
         browserName: opts.browserCaps.browserName,
         cssClass: statusCssClass[spec.status],
         duration: getDuration(spec),
-        filename: encodeURI(spec.filename),
+        filename: spec.filename,
         id:       uuid.v1(),
         mark:     marks[spec.status],
         name:     spec.fullName.replace(suiteName, '').trim(),

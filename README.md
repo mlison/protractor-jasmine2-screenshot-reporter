@@ -201,3 +201,18 @@ This option is __disabled by default__. When this option is enabled, than for ea
 <pre><code>var reporter = new HtmlScreenshotReporter({
    preserveDirectory: true
 });</code></pre>
+
+## Forked browser instances
+
+The reporter can take screenshots also from instances forked off the main browser.
+All you need to do is just register the instance in the begining of your suite / spec, e.g. like so:
+
+<pre><code>beforeAll(function () {
+  browser.forkedInstances['secondBrowser'] = browser.forkNewDriverInstance();
+});</code></pre>
+
+Remember to unregister the instance once you're done with it:
+
+<pre><code>beforeAll(function () {
+  browser.forkedInstances['secondBrowser'] = null;
+});</code></pre>
