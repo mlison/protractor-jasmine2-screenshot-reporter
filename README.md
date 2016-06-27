@@ -19,26 +19,26 @@ var reporter = new HtmlScreenshotReporter({
 });
 
 exports.config = {
-   // ...
+  // ...
 
-   // Setup the report before any tests start
-   beforeLaunch: function() {
-      return new Promise(function(resolve){
-        reporter.beforeLaunch(resolve);
-      });
-   },
+  // Setup the report before any tests start
+  beforeLaunch: function() {
+    return new Promise(function(resolve){
+      reporter.beforeLaunch(resolve);
+    });
+  },
 
-   // Assign the test reporter to each running instance
-   onPrepare: function() {
-      jasmine.getEnv().addReporter(reporter);
-   },
+  // Assign the test reporter to each running instance
+  onPrepare: function() {
+    jasmine.getEnv().addReporter(reporter);
+  },
 
-   // Close the report after all tests finish
-   afterLaunch: function(exitCode) {
-      return new Promise(function(resolve){
-        reporter.afterLaunch(resolve.bind(this, exitCode));
-      });
-   }
+  // Close the report after all tests finish
+  afterLaunch: function(exitCode) {
+    return new Promise(function(resolve){
+      reporter.afterLaunch(resolve.bind(this, exitCode));
+    });
+  }
 }</code></pre>
 
 ## Options
@@ -49,7 +49,7 @@ Output directory for created files. All screenshots and reports will be stored h
 If the directory doesn't exist, it will be created automatically or otherwise cleaned before running the test suite.
 
 <pre><code>var reporter = new HtmlScreenshotReporter({
-   dest: '/project/test/screenshots'
+  dest: '/project/test/screenshots'
 });</code></pre>
 
 ### Clean destination directory (optional)
@@ -61,10 +61,10 @@ This is useful when you are running protractor tests in parallel, and wish all o
 When cleanDestination is set to true, it is recommended that you disabled showSummary and showConfiguration, and set reportTitle to null. If you do not, the report will be pretty cluttered.
 
 <pre><code>var reporter = new HtmlScreenshotReporter({
-   cleanDestination: false,
-   showSummary: false,
-   showConfiguration: false,
-   reportTitle: null
+  cleanDestination: false,
+  showSummary: false,
+  showConfiguration: false,
+  reportTitle: null
 });</code></pre>
 
 
@@ -73,7 +73,7 @@ When cleanDestination is set to true, it is recommended that you disabled showSu
 Filename for html report.
 
 <pre><code>var reporter = new HtmlScreenshotReporter({
-   filename: 'my-report.html'
+  filename: 'my-report.html'
 });</code></pre>
 
 Default is <code>report.html</code>
@@ -83,7 +83,7 @@ Default is <code>report.html</code>
 Array of filenames that specifies extra css files to include in the html report.
 
 <pre><code>var reporter = new HtmlScreenshotReporter({
-   userCss: 'my-report-styles.css'
+  userCss: 'my-report-styles.css'
 });</code></pre>
 
 ### Ignore pending specs (optional)
@@ -91,7 +91,7 @@ Array of filenames that specifies extra css files to include in the html report.
 When this option is enabled, reporter will not create screenshots for pending / disabled specs. Only executed specs will be captured.
 
 <pre><code>var reporter = new HtmlScreenshotReporter({
-   ignoreSkippedSpecs: true
+  ignoreSkippedSpecs: true
 });</code></pre>
 
 Default is <code>false</code>
@@ -101,7 +101,7 @@ Default is <code>false</code>
 When this option is enabled, reporter will create screenshots only for specs that have failed their expectations.
 
 <pre><code>var reporter = new HtmlScreenshotReporter({
-   captureOnlyFailedSpecs: true
+  captureOnlyFailedSpecs: true
 });</code></pre>
 
 Default is <code>false</code>
@@ -111,8 +111,8 @@ Default is <code>false</code>
 This option is __enabled by default__ - in combination with <code>captureOnlyFailedSpecs</code>, it will capture and report screenshots only for failed specs. Turning this option off will cause the report to contain all specs, but screenshots will be captured only for failed specs.
 
 <pre><code>var reporter = new HtmlScreenshotReporter({
-   reportOnlyFailedSpecs: false,
-   captureOnlyFailedSpecs: true
+  reportOnlyFailedSpecs: false,
+  captureOnlyFailedSpecs: true
 });</code></pre>
 
 ### Display summary in report (optional)
@@ -120,7 +120,7 @@ This option is __enabled by default__ - in combination with <code>captureOnlyFai
 This option is __enabled by default__ - it will display the total number of specs and the number of failed specs in a short summary at the beginnning of the report.
 
 <pre><code>var reporter = new HtmlScreenshotReporter({
-   showSummary: true
+  showSummary: true
 });</code></pre>
 
 Default is <code>true</code>
@@ -130,8 +130,8 @@ Default is <code>true</code>
 If this option is enabled with the report summary, it will display a link to each failed spec as a part of the short summary at the beginnning of the report.
 
 <pre><code>var reporter = new HtmlScreenshotReporter({
-   showSummary: true,
-   showQuickLinks: true
+  showSummary: true,
+  showQuickLinks: true
 });</code></pre>
 
 Default is <code>false</code>
@@ -141,7 +141,7 @@ Default is <code>false</code>
 This option is __enabled by default__ - it will display a summary of the test configuration details at the end of the report.
 
 <pre><code>var reporter = new HtmlScreenshotReporter({
-   showConfiguration: true
+  showConfiguration: true
 });</code></pre>
 
 Default is <code>true</code>
@@ -151,7 +151,7 @@ Default is <code>true</code>
 This option will add a title to the report.
 
 <pre><code>var reporter = new HtmlScreenshotReporter({
-   reportTitle: "Report Title"
+  reportTitle: "Report Title"
 });</code></pre>
 
 Default is <code>'Report'</code>
@@ -161,10 +161,10 @@ Default is <code>'Report'</code>
 The user may specify a set of key/value pairs that are appended to the configuration report.
 
 <pre><code>var reporter = new HtmlScreenshotReporter({
-   configurationStrings: {
-           "My 1st Param": firstParam,
-           "My 2nd Param": secondParam
-   }
+  configurationStrings: {
+    "My 1st Param": firstParam,
+    "My 2nd Param": secondParam
+  }
 });</code></pre>
 
 ### Path Builder (optional)
@@ -172,10 +172,10 @@ The user may specify a set of key/value pairs that are appended to the configura
 Function used to build custom paths for screenshots. For example:
 
 <pre><code>var reporter = new HtmlScreenshotReporter({
-   pathBuilder: function(currentSpec, suites, browserCapabilities) {
-      // will return chrome/your-spec-name.png
-      return browserCapabilities.get('browserName') + '/' + currentSpec.fullName;
-   }
+  pathBuilder: function(currentSpec, suites, browserCapabilities) {
+    // will return chrome/your-spec-name.png
+    return browserCapabilities.get('browserName') + '/' + currentSpec.fullName;
+  }
 });</code></pre>
 
 By default, the path builder will generate a random ID for each spec.
@@ -186,9 +186,9 @@ Function used to build custom metadata objects for each spec. Files (json) will 
 For example:
 
 <pre><code>var reporter = new ScreenShotReporter({
-   metadataBuilder: function(currentSpec, suites, browserCapabilities) {
-      return { id: currentSpec.id, os: browserCapabilities.get('browserName') };
-   }
+  metadataBuilder: function(currentSpec, suites, browserCapabilities) {
+    return { id: currentSpec.id, os: browserCapabilities.get('browserName') };
+  }
 });</code></pre>
 
 By default, the runner builder will not save any metadata except the actual html report.
@@ -199,7 +199,7 @@ This option is __disabled by default__. When this option is enabled, than for ea
  created separate directory with unique name. Directory unique name will be generated randomly.
 
 <pre><code>var reporter = new HtmlScreenshotReporter({
-   preserveDirectory: true
+  preserveDirectory: true
 });</code></pre>
 
 ## Forked browser instances
