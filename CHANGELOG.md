@@ -3,7 +3,7 @@
 ## Bugfixes
 
 - f9b3a85 dont try to create quicklinks if there's no container for them
-- 08e866b make stack trace IDs unique (spec id, browser variations) [#56](https://github.com/mlison/protractor-jasmine2-screenshot-reporter/issues/56) [#44](https://github.com/mlison/protractor-jasmine2-screenshot-reporter/issues/44)
+- 08e866b make stack trace IDs unique (spec id, browser variations) [#56](https://github.com/mlison/protractor-jasmine2-screenshot-reporter/issues/56)
 
 # 0.3.1
 
