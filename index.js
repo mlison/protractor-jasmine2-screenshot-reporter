@@ -89,6 +89,7 @@ function Jasmine2ScreenShotReporter(opts) {
                   'function buildQuickLinks() {' +
                     'var failedSpecs = document.querySelectorAll("li.failed");' +
                     'var quickLinksContainer = document.getElementById("quickLinks");' +
+                    'if (!quickLinksContainer) return;' +
                     'for (var i = 0; i < failedSpecs.length; ++i) {' +
                       'var li = document.createElement("li");' +
                       'var a = document.createElement("a");' +
