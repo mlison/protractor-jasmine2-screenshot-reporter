@@ -567,9 +567,18 @@ function Jasmine2ScreenShotReporter(opts) {
       }
 
       return reasonsTemplate({
-        id: spec.id,
+        id: getUniqueSpecId(spec),
         reasons: spec.failedExpectations
       });
+    }
+
+    function getUniqueSpecId(spec) {
+      return [
+        spec.id,
+        opts.browserCaps.platform,
+        opts.browserCaps.browserName,
+        opts.browserCaps.browserVersion
+      ].join('-').replace(/\ /g, '');
     }
 
     function printTestConfiguration() {
