@@ -3,11 +3,16 @@
 var assert = require('chai').assert,
  expect = require('chai').expect,
   chai = require('chai'),
+  sinon = require('sinon'),
   Jasmine2ScreenShotReporter = require('./../index.js'),
   rimraf = require('rimraf'),
   fs = require('fs'),
   destinationPath = 'test/testdirectory',
-  reportFileName = 'my-custom-report.html';
+  reportFileName = 'my-custom-report.html',
+  suiteInfo = {totalSpecsDefined : 2};
+
+
+
 
 
 describe('Jasmine2ScreenShotReporter tests', function(){
@@ -16,6 +21,24 @@ describe('Jasmine2ScreenShotReporter tests', function(){
 
     chai.use(require('chai-fs'));
     fs.mkdir(destinationPath, function(){done();});
+
+    //Jasmine afterAll global function
+    global.afterAll = function() {
+
+    };
+
+    //Jasmine browser global object
+    global.browser =  {
+      getCapabilities: function () {
+        var p = Promise.resolve(
+          {capabilities: {
+            get: function() {return 'mockValue'}
+          }}
+        );
+        return p;
+
+      }
+    };
 
   });
 
@@ -58,7 +81,28 @@ describe('Jasmine2ScreenShotReporter tests', function(){
       assert.equal(contents, '</body></html>');
       done();
     });
-    
+
+  });
+
+  it('jasmineStarted is calling browser getCapabilities', function(done){
+
+
+    var reporter = new Jasmine2ScreenShotReporter({
+      dest: destinationPath,
+      filename: reportFileName});
+
+
+    assert.equal(typeof reporter.jasmineStarted , 'function'); //Public method jasmineStarted should be defined
+
+    var save = sinon.spy(global.browser, 'getCapabilities');
+
+    fs.writeFileSync(destinationPath + '/' + reportFileName, ""); //create empty report file
+
+    reporter.jasmineStarted(suiteInfo);
+
+    sinon.assert.calledOnce(save);
+    done();
+
   });
 
 
