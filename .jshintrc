@@ -22,6 +22,8 @@
     "jasmine": false,
     "browser": false,
     "it": false,
-    "describe": false
+    "describe": false,
+    "afterEach": false,
+    "beforeEach": false
   }
 }

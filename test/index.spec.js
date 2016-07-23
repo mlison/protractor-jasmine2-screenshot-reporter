@@ -27,12 +27,16 @@ describe('Jasmine2ScreenShotReporter tests', function(){
 
     };
 
+    global.jasmine = {
+      version: 'mockJasmineVersion'
+    };
+
     //Jasmine browser global object
     global.browser =  {
       getCapabilities: function () {
         var p = Promise.resolve(
           {capabilities: {
-            get: function() {return 'mockValue'}
+            get: function() {return 'mockValue';}
           }}
         );
         return p;
@@ -73,7 +77,7 @@ describe('Jasmine2ScreenShotReporter tests', function(){
 
     assert.equal(typeof reporter.afterLaunch , 'function'); //Public method afterLaunch  should be defined
 
-    fs.writeFileSync(destinationPath + '/' + reportFileName, ""); //create empty file
+    fs.writeFileSync(destinationPath + '/' + reportFileName, ''); //create empty file
 
     reporter.afterLaunch (function() {
       var contents = fs.readFileSync(destinationPath + '/' + reportFileName, 'utf8');
@@ -96,7 +100,7 @@ describe('Jasmine2ScreenShotReporter tests', function(){
 
     var save = sinon.spy(global.browser, 'getCapabilities');
 
-    fs.writeFileSync(destinationPath + '/' + reportFileName, ""); //create empty report file
+    fs.writeFileSync(destinationPath + '/' + reportFileName, ''); //create empty report file
 
     reporter.jasmineStarted(suiteInfo);
 
@@ -105,12 +109,52 @@ describe('Jasmine2ScreenShotReporter tests', function(){
 
   });
 
+  it('report is being generated', function(done){
+
+    //@TODO: Need to elaborate this test.
+
+    var reporter = new Jasmine2ScreenShotReporter({
+      dest: destinationPath,
+      filename: reportFileName}),
+      contents;
+
+
+    assert.equal(typeof reporter.suiteStarted , 'function'); //Public method suiteStarted should be defined
+    assert.equal(typeof reporter.specStarted , 'function'); //Public method specStarted should be defined
+    assert.equal(typeof reporter.specDone , 'function'); //Public method specDone should be defined
+    assert.equal(typeof reporter.suiteDone , 'function'); //Public method suiteDone should be defined
+    assert.equal(typeof reporter.jasmineDone , 'function'); //Public method suiteDone should be defined
+
+    fs.writeFileSync(destinationPath + '/' + reportFileName, ''); //create empty report file
+
+    reporter.suiteStarted({description : 'mockSuiteDescription', fullName: 'mockSuiteFullName'});
+    reporter.specStarted({description : 'mockSpecDescription', fullName: 'mockSpecFullName'});
+    reporter.specDone({description : 'mockSpecDescription', fullName: 'mockSpecFullName',
+      failedExpectations: [{message: 'mockFailedMessage', stack: 'mockStackMessage'}],
+      passedExpectations: [{message: 'mockPassedMessage'}]
+    });
+
+    reporter.suiteDone({description : 'mockSuiteDescription', fullName: 'mockSuiteFullName'});
+    reporter.jasmineDone();
+
+
+    contents = fs.readFile(destinationPath + '/' + reportFileName, 'utf8', function(error, contents) {
+
+      expect(contents).to.contain('<h4>mockSuiteDescription');
+      expect(contents).to.contain('mockSpecFullName');
+      done();
+
+    });
+
+
+  });
+
 
   afterEach(function(done) {
     // clean folder
     rimraf(destinationPath, function(err) {
       if(err) {
-        console.error('Could not delete ' + destinationPath + 'directory')
+        console.error('Could not delete ' + destinationPath + 'directory');
       }
 
       done();
