@@ -1,7 +1,7 @@
 'use strict';
 
 var assert = require('chai').assert,
- expect = require('chai').expect,
+  expect = require('chai').expect,
   chai = require('chai'),
   sinon = require('sinon'),
   Jasmine2ScreenShotReporter = require('./../index.js'),
@@ -11,27 +11,21 @@ var assert = require('chai').assert,
   reportFileName = 'my-custom-report.html',
   suiteInfo = {totalSpecsDefined : 2};
 
-
-
-
-
 describe('Jasmine2ScreenShotReporter tests', function(){
 
   beforeEach(function(done) {
-
     chai.use(require('chai-fs'));
     fs.mkdir(destinationPath, function(){done();});
 
-    //Jasmine afterAll global function
-    global.afterAll = function() {
+    //Jasmine afterAll mock global function.
+    global.afterAll = function() {};
 
-    };
-
+    //Global version property.
     global.jasmine = {
       version: 'mockJasmineVersion'
     };
 
-    //Jasmine browser global object
+    //Jasmine browser global object.
     global.browser =  {
       getCapabilities: function () {
         var p = Promise.resolve(
@@ -40,10 +34,8 @@ describe('Jasmine2ScreenShotReporter tests', function(){
           }}
         );
         return p;
-
       }
     };
-
   });
 
   it('beforeLaunch should create initial report', function(done){
@@ -65,10 +57,7 @@ describe('Jasmine2ScreenShotReporter tests', function(){
         '</ul></div>');
       done();
     });
-
-
   });
-
 
   it('afterLaunch should close down report', function(done){
     var reporter = new Jasmine2ScreenShotReporter({
@@ -76,37 +65,28 @@ describe('Jasmine2ScreenShotReporter tests', function(){
       filename: reportFileName});
 
     assert.equal(typeof reporter.afterLaunch , 'function'); //Public method afterLaunch  should be defined
-
     fs.writeFileSync(destinationPath + '/' + reportFileName, ''); //create empty file
 
     reporter.afterLaunch (function() {
       var contents = fs.readFileSync(destinationPath + '/' + reportFileName, 'utf8');
-
       assert.equal(contents, '</body></html>');
       done();
     });
-
   });
 
   it('jasmineStarted is calling browser getCapabilities', function(done){
-
-
     var reporter = new Jasmine2ScreenShotReporter({
-      dest: destinationPath,
-      filename: reportFileName});
-
+        dest: destinationPath,
+        filename: reportFileName}),
+      save;
 
     assert.equal(typeof reporter.jasmineStarted , 'function'); //Public method jasmineStarted should be defined
-
-    var save = sinon.spy(global.browser, 'getCapabilities');
-
+    save = sinon.spy(global.browser, 'getCapabilities');
     fs.writeFileSync(destinationPath + '/' + reportFileName, ''); //create empty report file
-
     reporter.jasmineStarted(suiteInfo);
 
     sinon.assert.calledOnce(save);
     done();
-
   });
 
   it('report is being generated', function(done){
@@ -114,10 +94,8 @@ describe('Jasmine2ScreenShotReporter tests', function(){
     //@TODO: Need to elaborate this test.
 
     var reporter = new Jasmine2ScreenShotReporter({
-      dest: destinationPath,
-      filename: reportFileName}),
-      contents;
-
+        dest: destinationPath,
+        filename: reportFileName});
 
     assert.equal(typeof reporter.suiteStarted , 'function'); //Public method suiteStarted should be defined
     assert.equal(typeof reporter.specStarted , 'function'); //Public method specStarted should be defined
@@ -136,19 +114,13 @@ describe('Jasmine2ScreenShotReporter tests', function(){
 
     reporter.suiteDone({description : 'mockSuiteDescription', fullName: 'mockSuiteFullName'});
     reporter.jasmineDone();
-
-
-    contents = fs.readFile(destinationPath + '/' + reportFileName, 'utf8', function(error, contents) {
+    fs.readFile(destinationPath + '/' + reportFileName, 'utf8', function(error, contents) {
 
       expect(contents).to.contain('<h4>mockSuiteDescription');
       expect(contents).to.contain('mockSpecFullName');
       done();
-
     });
-
-
   });
-
 
   afterEach(function(done) {
     // clean folder
@@ -156,12 +128,9 @@ describe('Jasmine2ScreenShotReporter tests', function(){
       if(err) {
         console.error('Could not delete ' + destinationPath + 'directory');
       }
-
       done();
     });
-
   });
-
 
 });
 
