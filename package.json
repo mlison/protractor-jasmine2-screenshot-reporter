@@ -3,6 +3,9 @@
   "version": "0.3.2",
   "description": "Use the screenshot reporter to capture screenshots after each executed Protractor test case.",
   "main": "index.js",
+  "scripts": {
+    "test": "mocha test"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/mlison/protractor-jasmine2-screenshot-reporter"
@@ -57,5 +60,9 @@
       "url": "https://github.com/mark-veenstra"
     }
   ],
-  "scripts": {}
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "chai-fs": "^0.1.0",
+    "mocha": "^2.5.3"
+  }
 }
