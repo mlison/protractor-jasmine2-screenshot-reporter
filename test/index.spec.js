@@ -12,9 +12,10 @@ var assert = require('chai').assert,
 
 describe('Jasmine2ScreenShotReporter tests', function(){
 
-  before(function() {
+  beforeEach(function(done) {
 
     chai.use(require('chai-fs'));
+    fs.mkdir(destinationPath, function(){done();});
 
   });
 
@@ -42,8 +43,27 @@ describe('Jasmine2ScreenShotReporter tests', function(){
   });
 
 
-  after(function(done) {
-    // runs before all tests in this block
+  it('afterLaunch should close down report', function(done){
+    var reporter = new Jasmine2ScreenShotReporter({
+      dest: destinationPath,
+      filename: reportFileName});
+
+    assert.equal(typeof reporter.afterLaunch , 'function'); //Public method afterLaunch  should be defined
+
+    fs.writeFileSync(destinationPath + '/' + reportFileName, ""); //create empty file
+
+    reporter.afterLaunch (function() {
+      var contents = fs.readFileSync(destinationPath + '/' + reportFileName, 'utf8');
+
+      assert.equal(contents, '</body></html>');
+      done();
+    });
+    
+  });
+
+
+  afterEach(function(done) {
+    // clean folder
     rimraf(destinationPath, function(err) {
       if(err) {
         console.error('Could not delete ' + destinationPath + 'directory')
