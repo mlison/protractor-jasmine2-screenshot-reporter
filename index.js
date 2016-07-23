@@ -215,11 +215,11 @@ function Jasmine2ScreenShotReporter(opts) {
         return (duration < 1) ? duration : Math.round(duration);
     };
 
-    var pathBuilder = function(spec, suites, capabilities) {
+    var pathBuilder = function() {
       return hat();
     };
 
-    var metadataBuilder = function(spec, suites, capabilities) {
+    var metadataBuilder = function() {
       return false;
     };
 
@@ -433,7 +433,9 @@ function Jasmine2ScreenShotReporter(opts) {
       }
 
       _.each(browser.forkedInstances, function (browserInstance, key) {
-        if (!browserInstance) return;
+        if (!browserInstance) {
+          return;
+        }
         browserInstance.takeScreenshot().then(function (png) {
           browserInstance.getCapabilities().then(function (capabilities) {
             var screenshotPath,
@@ -584,25 +586,25 @@ function Jasmine2ScreenShotReporter(opts) {
 
     function printTestConfiguration() {
       var testConfiguration = {
-        "Jasmine version": jasmine.version,
-        "Browser name": opts.browserCaps.browserName,
-        "Browser version": opts.browserCaps.browserVersion,
-        "Platform": opts.browserCaps.platform,
-        "Javascript enabled": opts.browserCaps.javascriptEnabled,
-        "Css selectors enabled": opts.browserCaps.cssSelectorsEnabled
+        'Jasmine version': jasmine.version,
+        'Browser name': opts.browserCaps.browserName,
+        'Browser version': opts.browserCaps.browserVersion,
+        'Platform': opts.browserCaps.platform,
+        'Javascript enabled': opts.browserCaps.javascriptEnabled,
+        'Css selectors enabled': opts.browserCaps.cssSelectorsEnabled
       };
 
       testConfiguration = _.assign(testConfiguration, opts.configurationStrings);
 
       var keys = Object.keys(testConfiguration);
 
-      var configOutput = "";
+      var configOutput = '';
       _.each(keys, function(key) {
-        configOutput += objectToItemTemplate({"key": key, "value": testConfiguration[key]});
+        configOutput += objectToItemTemplate({'key': key, 'value': testConfiguration[key]});
       });
 
       var configId = uuid.v1();
-      return configurationTemplate({"configBody": configOutput, "configId": configId});
+      return configurationTemplate({'configBody': configOutput, 'configId': configId});
     }
 
     return this;
