@@ -1,12 +1,12 @@
 var DEFAULT_DESTINATION = 'target/screenshots';
 
 var fs     = require('fs'),
-  mkdirp = require('mkdirp'),
-  rimraf = require('rimraf'),
-  _      = require('lodash'),
-  path   = require('path'),
-  uuid   = require('uuid'),
-  hat    = require('hat');
+    mkdirp = require('mkdirp'),
+    rimraf = require('rimraf'),
+    _      = require('lodash'),
+    path   = require('path'),
+    uuid   = require('uuid'),
+    hat    = require('hat');
 
 require('string.prototype.startswith');
 
@@ -14,165 +14,165 @@ function Jasmine2ScreenShotReporter(opts) {
   'use strict';
 
   var self = this,
-    suites       = {},   // suite clones
-    specs        = {},   // tes spec clones
-    runningSuite = null, // currently running suite
+      suites       = {},   // suite clones
+      specs        = {},   // tes spec clones
+      runningSuite = null, // currently running suite
 
   // report marks
-    marks = {
-      pending:'<span class="pending">~</span>',
-      failed: '<span class="failed">&#10007;</span>',
-      passed: '<span class="passed">&#10003;</span>'
-    },
+      marks = {
+        pending:'<span class="pending">~</span>',
+        failed: '<span class="failed">&#10007;</span>',
+        passed: '<span class="passed">&#10003;</span>'
+      },
 
-    statusCssClass = {
-      pending: 'pending',
-      failed:  'failed',
-      passed:  'passed'
-    },
+      statusCssClass = {
+        pending: 'pending',
+        failed:  'failed',
+        passed:  'passed'
+      },
 
   // when use use fit, jasmine never calls suiteStarted / suiteDone, so make a fake one to use
-    fakeFocusedSuite = {
-      id: 'focused',
-      description: 'focused specs',
-      fullName: 'focused specs'
-    };
+      fakeFocusedSuite = {
+        id: 'focused',
+        description: 'focused specs',
+        fullName: 'focused specs'
+      };
 
   var linkTemplate = _.template(
-    '<li id="<%= id %>" ' +
-    'class="<%= cssClass %>" ' +
-    'data-spec="<%= specId %>" ' +
-    'data-name="<%= name %>" ' +
-    'data-browser="<%= browserName %>">' +
-    '<%= mark %>' +
-    '<a href="<%= filename[\'main\'] %>"><%= name %></a>' +
-    '<% _.forEach(filename, function (val, key) { if (key != \'main\') { %>' +
-    ' [<a href="<%= val %>"><%= key %></a>] ' +
-    '<% } }) %>' +
-    '(<%= duration %> s)' +
-    '<%= reason %>' +
-    '</li>'
+      '<li id="<%= id %>" ' +
+      'class="<%= cssClass %>" ' +
+      'data-spec="<%= specId %>" ' +
+      'data-name="<%= name %>" ' +
+      'data-browser="<%= browserName %>">' +
+      '<%= mark %>' +
+      '<a href="<%= filename[\'main\'] %>"><%= name %></a>' +
+      '<% _.forEach(filename, function (val, key) { if (key != \'main\') { %>' +
+      ' [<a href="<%= val %>"><%= key %></a>] ' +
+      '<% } }) %>' +
+      '(<%= duration %> s)' +
+      '<%= reason %>' +
+      '</li>'
   );
 
   var nonLinkTemplate = _.template(
-    '<li title="No screenshot was created for this test case." ' +
-    'id="<%= id %>" ' +
-    'class="<%= cssClass %>" ' +
-    'data-spec="<%= specId %>" ' +
-    'data-name="<%= name %>" ' +
-    'data-browser="<%= browserName %>">' +
-    '<%= mark %>' +
-    '<%= name %> ' +
-    '(<%= duration %> s)' +
-    '<%= reason %>' +
-    '</li>'
+      '<li title="No screenshot was created for this test case." ' +
+      'id="<%= id %>" ' +
+      'class="<%= cssClass %>" ' +
+      'data-spec="<%= specId %>" ' +
+      'data-name="<%= name %>" ' +
+      'data-browser="<%= browserName %>">' +
+      '<%= mark %>' +
+      '<%= name %> ' +
+      '(<%= duration %> s)' +
+      '<%= reason %>' +
+      '</li>'
   );
 
   var openReportTemplate = _.template(
-    '<html>' +
-    '<head>' +
-    '<meta charset="utf-8">' +
-    '<style>' +
-    'body { font-family: Arial; }' +
-    'ul { list-style-position: inside; }' +
-    'span.passed { padding: 0 1em; color: green; }' +
-    'span.failed { padding: 0 1em; color: red; }' +
-    'span.pending { padding: 0 1em; color: orange; }' +
-    'span.stacktrace { white-space: pre; border: 1px solid rgb(0, 0, 0); font-size: 9pt; padding: 4px; background-color: rgb(204, 204, 204); }' +
-    '</style>' +
-    '<%= userCss %>' +
-    '<script type="text/javascript">' +
-    'function showhide(id) {' +
-    'var e = document.getElementById(id);' +
-    'e.style.display = (e.style.display == "block") ? "none" : "block";' +
-    '}' +
-    'function buildQuickLinks() {' +
-    'var failedSpecs = document.querySelectorAll("li.failed");' +
-    'var quickLinksContainer = document.getElementById("quickLinks");' +
-    'if (!quickLinksContainer) return;' +
-    'for (var i = 0; i < failedSpecs.length; ++i) {' +
-    'var li = document.createElement("li");' +
-    'var a = document.createElement("a");' +
-    'a.href = "#" + failedSpecs[i].id;' +
-    'a.textContent = failedSpecs[i].dataset.name + "  (" + failedSpecs[i].dataset.browser + ")";' +
-    'li.appendChild(a);' +
-    'quickLinksContainer.appendChild(li);' +
-    '}' +
-    '}' +
-    'function updatePassCount() {' +
-    'var totalPassed = document.querySelectorAll("li.passed").length;' +
-    'var totalFailed = document.querySelectorAll("li.failed").length;' +
-    'var totalSpecs = totalFailed + totalPassed;' +
-    'console.log("passed: %s, failed: %s, total: %s", totalPassed, totalFailed, totalSpecs);' +
-    'document.getElementById("summaryTotalSpecs").textContent = ' +
-    'document.getElementById("summaryTotalSpecs").textContent + totalSpecs;' +
-    'document.getElementById("summaryTotalFailed").textContent = ' +
-    'document.getElementById("summaryTotalFailed").textContent + totalFailed;' +
-    'if (totalFailed) {' +
-    'document.getElementById("summary").className = "failed";' +
-    '}' +
-    '}' +
-    'function start() {' +
-    'updatePassCount();' +
-    'buildQuickLinks();' +
-    '}' +
-    'window.onload = start;' +
-    '</script>' +
-    '</head>' +
-    '<body>'
+      '<html>' +
+      '<head>' +
+      '<meta charset="utf-8">' +
+      '<style>' +
+      'body { font-family: Arial; }' +
+      'ul { list-style-position: inside; }' +
+      'span.passed { padding: 0 1em; color: green; }' +
+      'span.failed { padding: 0 1em; color: red; }' +
+      'span.pending { padding: 0 1em; color: orange; }' +
+      'span.stacktrace { white-space: pre; border: 1px solid rgb(0, 0, 0); font-size: 9pt; padding: 4px; background-color: rgb(204, 204, 204); }' +
+      '</style>' +
+      '<%= userCss %>' +
+      '<script type="text/javascript">' +
+      'function showhide(id) {' +
+      'var e = document.getElementById(id);' +
+      'e.style.display = (e.style.display == "block") ? "none" : "block";' +
+      '}' +
+      'function buildQuickLinks() {' +
+      'var failedSpecs = document.querySelectorAll("li.failed");' +
+      'var quickLinksContainer = document.getElementById("quickLinks");' +
+      'if (!quickLinksContainer) return;' +
+      'for (var i = 0; i < failedSpecs.length; ++i) {' +
+      'var li = document.createElement("li");' +
+      'var a = document.createElement("a");' +
+      'a.href = "#" + failedSpecs[i].id;' +
+      'a.textContent = failedSpecs[i].dataset.name + "  (" + failedSpecs[i].dataset.browser + ")";' +
+      'li.appendChild(a);' +
+      'quickLinksContainer.appendChild(li);' +
+      '}' +
+      '}' +
+      'function updatePassCount() {' +
+      'var totalPassed = document.querySelectorAll("li.passed").length;' +
+      'var totalFailed = document.querySelectorAll("li.failed").length;' +
+      'var totalSpecs = totalFailed + totalPassed;' +
+      'console.log("passed: %s, failed: %s, total: %s", totalPassed, totalFailed, totalSpecs);' +
+      'document.getElementById("summaryTotalSpecs").textContent = ' +
+      'document.getElementById("summaryTotalSpecs").textContent + totalSpecs;' +
+      'document.getElementById("summaryTotalFailed").textContent = ' +
+      'document.getElementById("summaryTotalFailed").textContent + totalFailed;' +
+      'if (totalFailed) {' +
+      'document.getElementById("summary").className = "failed";' +
+      '}' +
+      '}' +
+      'function start() {' +
+      'updatePassCount();' +
+      'buildQuickLinks();' +
+      '}' +
+      'window.onload = start;' +
+      '</script>' +
+      '</head>' +
+      '<body>'
   );
 
   var addReportTitle = _.template(
-    '<h1><%= title %></h1>'
+      '<h1><%= title %></h1>'
   );
 
   var addReportSummary = _.template(
-    '<div id="summary" class="passed">' +
-    '<h4>Summary</h4>' +
-    '<ul>' +
-    '<li id="summaryTotalSpecs">Total specs tested: </li>' +
-    '<li id="summaryTotalFailed">Total failed: </li>' +
-    '</ul>' +
-    '<%= quickLinks %>' +
-    '</div>'
+      '<div id="summary" class="passed">' +
+      '<h4>Summary</h4>' +
+      '<ul>' +
+      '<li id="summaryTotalSpecs">Total specs tested: </li>' +
+      '<li id="summaryTotalFailed">Total failed: </li>' +
+      '</ul>' +
+      '<%= quickLinks %>' +
+      '</div>'
   );
 
   var addQuickLinks = _.template(
-    '<ul id="quickLinks"></ul>'
+      '<ul id="quickLinks"></ul>'
   );
 
   var closeReportTemplate = _.template(
-    '</body>' +
-    '</html>'
+      '</body>' +
+      '</html>'
   );
 
   var reportTemplate = _.template(
-    '<%= report %>'
+      '<%= report %>'
   );
 
   var reasonsTemplate = _.template(
-    '<ul>' +
-    '<% _.forEach(reasons, function(reason, key) { %>' +
-    '<li><%- reason.message %> [<a href="javascript:showhide(\'<%= id %><%= key %>\')">stack</a>]<br/>' +
-    '<span style="display: none" id="<%= id %><%= key %>" class="stacktrace"><%- reason.stack %></span></li>' +
-    '<% }); %>' +
-    '</ul>'
+      '<ul>' +
+      '<% _.forEach(reasons, function(reason, key) { %>' +
+      '<li><%- reason.message %> [<a href="javascript:showhide(\'<%= id %><%= key %>\')">stack</a>]<br/>' +
+      '<span style="display: none" id="<%= id %><%= key %>" class="stacktrace"><%- reason.stack %></span></li>' +
+      '<% }); %>' +
+      '</ul>'
   );
 
   var configurationTemplate = _.template(
-    '<a href="javascript:showhide(\'<%= configId %>\')">' +
-    'Toggle Configuration' +
-    '</a>' +
-    '<div class="config" id="<%= configId %>" style="display: none">' +
-    '<h4>Configuration</h4>' +
-    '<%= configBody %>' +
-    '</div>'
+      '<a href="javascript:showhide(\'<%= configId %>\')">' +
+      'Toggle Configuration' +
+      '</a>' +
+      '<div class="config" id="<%= configId %>" style="display: none">' +
+      '<h4>Configuration</h4>' +
+      '<%= configBody %>' +
+      '</div>'
   );
 
   var objectToItemTemplate = _.template(
-    '<li>' +
-    '<%= key %>:  <%= value %>' +
-    '</li>'
+      '<li>' +
+      '<%= key %>:  <%= value %>' +
+      '</li>'
   );
 
   // write data into opts.dest as filename
@@ -431,16 +431,16 @@ function Jasmine2ScreenShotReporter(opts) {
       }
 
       fs.appendFile(
-        path.join(opts.dest, opts.filename),
-        reportContent,
-        { encoding: 'utf8' },
-        function(err) {
-          if (err) {
-            console.error ('Error writing to file: ' + path.join(opts.dest, opts.filename));
-            throw err;
+          path.join(opts.dest, opts.filename),
+          reportContent,
+          { encoding: 'utf8' },
+          function(err) {
+            if (err) {
+              console.error ('Error writing to file: ' + path.join(opts.dest, opts.filename));
+              throw err;
+            }
+            callback();
           }
-          callback();
-        }
       );
     });
   };
@@ -449,16 +449,16 @@ function Jasmine2ScreenShotReporter(opts) {
     console.log('Closing report');
 
     fs.appendFile(
-      path.join(opts.dest, opts.filename),
-      closeReportTemplate(),
-      { encoding: 'utf8' },
-      function(err) {
-        if(err) {
-          console.error('Error writing to file:' + path.join(opts.dest, opts.filename));
-          throw err;
+        path.join(opts.dest, opts.filename),
+        closeReportTemplate(),
+        { encoding: 'utf8' },
+        function(err) {
+          if(err) {
+            console.error('Error writing to file:' + path.join(opts.dest, opts.filename));
+            throw err;
+          }
+          callback();
         }
-        callback();
-      }
     );
   };
 
@@ -535,8 +535,8 @@ function Jasmine2ScreenShotReporter(opts) {
       browserInstance.takeScreenshot().then(function (png) {
         browserInstance.getCapabilities().then(function (capabilities) {
           var screenshotPath,
-            metadataPath,
-            metadata;
+              metadataPath,
+              metadata;
 
           var file = opts.pathBuilder(spec, suites, capabilities);
           spec.filename[key] = file + '.png';
@@ -596,15 +596,15 @@ function Jasmine2ScreenShotReporter(opts) {
     }
 
     fs.appendFileSync(
-      path.join(opts.dest, opts.filename),
-      reportTemplate({ report: output }),
-      { encoding: 'utf8' },
-      function(err) {
-        if(err) {
-          console.error('Error writing to file:' + path.join(opts.dest, opts.filename));
-          throw err;
+        path.join(opts.dest, opts.filename),
+        reportTemplate({ report: output }),
+        { encoding: 'utf8' },
+        function(err) {
+          if(err) {
+            console.error('Error writing to file:' + path.join(opts.dest, opts.filename));
+            throw err;
+          }
         }
-      }
     );
   };
 
