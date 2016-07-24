@@ -20,6 +20,10 @@
   "smarttabs": true,
   "globals": {
     "jasmine": false,
-    "browser": false
+    "browser": false,
+    "it": false,
+    "describe": false,
+    "afterEach": false,
+    "beforeEach": false
   }
 }
