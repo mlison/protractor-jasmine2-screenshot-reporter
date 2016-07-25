@@ -21,6 +21,7 @@
   "globals": {
     "jasmine": false,
     "browser": false,
+    "afterAll": false,
     "it": false,
     "describe": false,
     "afterEach": false,
