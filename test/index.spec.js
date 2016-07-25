@@ -29,8 +29,8 @@ describe('Jasmine2ScreenShotReporter tests', function(){
     global.browser =  {
       getCapabilities: function () {
         var p = Promise.resolve(
-          {capabilities: {
-            get: function() {return 'mockValue';}
+          { get: function(el) {
+              return el + 'mockValue';
           }}
         );
         return p;
