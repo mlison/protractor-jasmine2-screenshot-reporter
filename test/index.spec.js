@@ -63,6 +63,22 @@ describe('Jasmine2ScreenShotReporter tests', function(){
     });
   });
 
+  it('beforeLaunch should add custom CSS', function(done){
+    var reporter = new Jasmine2ScreenShotReporter({
+      dest: destinationPath,
+      filename: reportFileName,
+      userCss: 'myCSSFile.css'});
+
+    assert.equal(typeof reporter.beforeLaunch, 'function'); //Public method beforeLaunch should be defined
+
+    reporter.beforeLaunch(function() {
+      var contents = fs.readFileSync(destinationPath + '/' + reportFileName, 'utf8');
+      expect(contents).to.contain('<link type="text/css" rel="stylesheet" href="myCSSFile.css">');
+      done();
+    });
+  });
+
+
   it('afterLaunch should close down report', function(done){
     var reporter = new Jasmine2ScreenShotReporter({
       dest: destinationPath,
@@ -93,10 +109,9 @@ describe('Jasmine2ScreenShotReporter tests', function(){
     done();
   });
 
-  it('report is being generated', function(done){
+  it('report is being generated for failed', function(done){
 
     //@TODO: Need to elaborate this test.
-
     var reporter = new Jasmine2ScreenShotReporter({
         dest: destinationPath,
         filename: reportFileName});
@@ -114,9 +129,8 @@ describe('Jasmine2ScreenShotReporter tests', function(){
     setTimeout(function(){
       reporter.suiteStarted({description : 'mockSuiteDescription', fullName: 'mockSuiteFullName'});
       reporter.specStarted({description : 'mockSpecDescription', fullName: 'mockSpecFullName'});
-      reporter.specDone({description : 'mockSpecDescription', fullName: 'mockSpecFullName',
-        failedExpectations: [{message: 'mockFailedMessage', stack: 'mockStackMessage'}],
-        passedExpectations: [{message: 'mockPassedMessage'}]
+      reporter.specDone({description : 'mockSpecDescription', fullName: 'mockSpecFullName', status: 'failed',
+        failedExpectations: [{message: 'mockFailedMessage', stack: 'mockStackMessage'}]
       });
 
       reporter.suiteDone({description : 'mockSuiteDescription', fullName: 'mockSuiteFullName'});
@@ -129,6 +143,8 @@ describe('Jasmine2ScreenShotReporter tests', function(){
         expect(contents).to.contain('<li>Platform:  platformmockValue</li>');
         expect(contents).to.contain('<li>Javascript enabled:  javascriptEnabledmockValue</li>');
         expect(contents).to.contain('<li>Css selectors enabled:  cssSelectorsEnabledmockValue</li>');
+        expect(contents).to.contain('mockFailedMessage');
+        expect(contents).to.contain('mockStackMessage');
         done();
       });
 
@@ -144,7 +160,7 @@ describe('Jasmine2ScreenShotReporter tests', function(){
     rimraf(destinationPath, function(err) {
       if(err) {
         console.error('Could not delete ' + destinationPath + 'directory');
-      }
+     }
       done();
     });
   });
