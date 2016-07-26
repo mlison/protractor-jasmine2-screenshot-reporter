@@ -34,6 +34,10 @@ describe('Jasmine2ScreenShotReporter tests', function(){
           }}
         );
         return p;
+      },
+      takeScreenshot: function() {
+        var p = Promise.resolve('mockJPGImage');
+        return p;
       }
     };
   });
@@ -104,22 +108,35 @@ describe('Jasmine2ScreenShotReporter tests', function(){
     assert.equal(typeof reporter.jasmineDone , 'function'); //Public method suiteDone should be defined
 
     fs.writeFileSync(destinationPath + '/' + reportFileName, ''); //create empty report file
+    reporter.jasmineStarted(suiteInfo);
 
-    reporter.suiteStarted({description : 'mockSuiteDescription', fullName: 'mockSuiteFullName'});
-    reporter.specStarted({description : 'mockSpecDescription', fullName: 'mockSpecFullName'});
-    reporter.specDone({description : 'mockSpecDescription', fullName: 'mockSpecFullName',
-      failedExpectations: [{message: 'mockFailedMessage', stack: 'mockStackMessage'}],
-      passedExpectations: [{message: 'mockPassedMessage'}]
-    });
+    //setTimeout is needed because jasmineStarted contain promise that need to be fullfilled
+    setTimeout(function(){
+      reporter.suiteStarted({description : 'mockSuiteDescription', fullName: 'mockSuiteFullName'});
+      reporter.specStarted({description : 'mockSpecDescription', fullName: 'mockSpecFullName'});
+      reporter.specDone({description : 'mockSpecDescription', fullName: 'mockSpecFullName',
+        failedExpectations: [{message: 'mockFailedMessage', stack: 'mockStackMessage'}],
+        passedExpectations: [{message: 'mockPassedMessage'}]
+      });
 
-    reporter.suiteDone({description : 'mockSuiteDescription', fullName: 'mockSuiteFullName'});
-    reporter.jasmineDone();
-    fs.readFile(destinationPath + '/' + reportFileName, 'utf8', function(error, contents) {
+      reporter.suiteDone({description : 'mockSuiteDescription', fullName: 'mockSuiteFullName'});
+      reporter.jasmineDone();
+      fs.readFile(destinationPath + '/' + reportFileName, 'utf8', function(error, contents) {
+        expect(contents).to.contain('<h4>mockSuiteDescription');
+        expect(contents).to.contain('mockSpecFullName');
+        expect(contents).to.contain('<li>Jasmine version:  mockJasmineVersion</li>');
+        expect(contents).to.contain('<li>Browser name:  browserNamemockValue</li>');
+        expect(contents).to.contain('<li>Platform:  platformmockValue</li>');
+        expect(contents).to.contain('<li>Javascript enabled:  javascriptEnabledmockValue</li>');
+        expect(contents).to.contain('<li>Css selectors enabled:  cssSelectorsEnabledmockValue</li>');
+        done();
+      });
 
-      expect(contents).to.contain('<h4>mockSuiteDescription');
-      expect(contents).to.contain('mockSpecFullName');
-      done();
-    });
+
+    }, 1);
+
+
+
   });
 
   afterEach(function(done) {
