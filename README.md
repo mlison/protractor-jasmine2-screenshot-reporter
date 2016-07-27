@@ -220,7 +220,7 @@ Remember to unregister the instance once you're done with it:
 ## Tests
 
 Automated unit tests for Protractor screenshot reporter for Jasmine2 are run by Mocha (Yes, we know that it is funny).
-In order to run it, you can use either `npm test` or by gulp by using `gulp test`
+In order to run it, you can use either `npm test` or by gulp by using `gulp test`.
 
 ### Coverage report
 
