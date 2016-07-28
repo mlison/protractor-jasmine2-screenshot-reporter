@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha test",
-    "coverage": "istanbul cover ./node_modules/mocha/bin/_mocha -- -R spec"
+    "coverage": "istanbul cover ./node_modules/mocha/bin/_mocha -- -R spec",
+    "lint": "jshint --config .jshintrc index.js test"
   },
   "repository": {
     "type": "git",
@@ -64,7 +65,13 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "chai-fs": "^0.1.0",
+    "gulp": "^3.9.1",
+    "gulp-istanbul": "^1.0.0",
+    "gulp-jshint": "^2.0.1",
+    "gulp-mocha": "^2.2.0",
+    "guppy-pre-commit": "^0.3.0",
     "istanbul": "^0.4.4",
+    "jshint": "^2.9.2",
     "mocha": "^2.5.3",
     "sinon": "^1.17.4"
   }
