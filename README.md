@@ -80,7 +80,7 @@ Default is <code>report.html</code>
 
 ### Use External CSS (optional)
 
-Array of filenames that specifies extra css files to include in the html report.
+Array of filenames that specifies extra css files to include in the html report. You can find the classnames and element IDs used either from browsers dev tools or in [example stylesheet](https://github.com/mlison/protractor-jasmine2-screenshot-reporter/blob/master/docs/example-custom.css).
 
 <pre><code>var reporter = new HtmlScreenshotReporter({
   userCss: 'my-report-styles.css'

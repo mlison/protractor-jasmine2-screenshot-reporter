@@ -17,7 +17,7 @@
 
 ## Features
 - support test sharding
-- added example configurations: [protractor.example.conf](https://github.com/mlison/protractor-jasmine2-screenshot-reporter/blob/master/protractor.example.conf) and [protractor.sharding-example.conf](https://github.com/mlison/protractor-jasmine2-screenshot-reporter/blob/master/protractor.sharding-example.conf)
+- added example configurations: [protractor.example.conf](https://github.com/mlison/protractor-jasmine2-screenshot-reporter/blob/master/docs/protractor.example.conf) and [protractor.sharding-example.conf](https://github.com/mlison/protractor-jasmine2-screenshot-reporter/blob/master/docs/protractor.sharding-example.conf)
 - added [cleanDestination](https://github.com/mlison/protractor-jasmine2-screenshot-reporter/blob/master/README.md#clean-destination-directory-optional) option
 
 ## BRAKING CHANGES
