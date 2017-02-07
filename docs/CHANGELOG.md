@@ -1,3 +1,9 @@
+# 0.3.3
+
+## Bugfixes
+
+- 6073a5d encode HTML tags in spec names
+
 # 0.3.2
 
 ## Bugfixes
