@@ -337,8 +337,17 @@ function Jasmine2ScreenShotReporter(opts) {
     });
   }
 
+  function escapeInvalidXmlChars(str) {
+        return str.replace(/\&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/\>/g, "&gt;")
+            .replace(/\"/g, "&quot;")
+            .replace(/\'/g, "&apos;")
+            .replace(/[\x1b]/g, ""); //Remove control character 
+  }
+
   function printSpec(spec) {
-    var suiteName = spec._suite ? spec._suite.fullName : '';
+    var suiteName = escapeInvalidXmlChars(spec._suite ? spec._suite.fullName : '');
     var template = !_.isEmpty(spec.filename) ? linkTemplate : nonLinkTemplate;
 
     if (spec.isPrinted || (spec.skipPrinting && !isSpecReportable(spec))) {
