@@ -90,6 +90,9 @@ function Jasmine2ScreenShotReporter(opts) {
       'var failedSpecs = document.querySelectorAll("li.failed");' +
       'var quickLinksContainer = document.getElementById("quickLinks");' +
       'if (!quickLinksContainer) return;' +
+      'if (failedSpecs.length > 0) { ' +
+      'document.getElementById("quickLinksHeader").textContent = "Quicklink of Failure"' +
+      '}' +
       'for (var i = 0; i < failedSpecs.length; ++i) {' +
       'var li = document.createElement("li");' +
       'var a = document.createElement("a");' +
@@ -138,6 +141,7 @@ function Jasmine2ScreenShotReporter(opts) {
   );
 
   var addQuickLinks = _.template(
+      '<h4 id="quickLinksHeader"></h4>' +
       '<ul id="quickLinks"></ul>'
   );
 
