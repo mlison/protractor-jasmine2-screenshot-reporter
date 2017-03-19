@@ -351,7 +351,7 @@ function Jasmine2ScreenShotReporter(opts) {
   }
 
   function printSpec(spec) {
-    var suiteName = escapeInvalidXmlChars(spec._suite ? spec._suite.fullName : '');
+    var suiteName = spec._suite ? spec._suite.fullName : '';
     var template = !_.isEmpty(spec.filename) ? linkTemplate : nonLinkTemplate;
 
     if (spec.isPrinted || (spec.skipPrinting && !isSpecReportable(spec))) {
@@ -367,7 +367,7 @@ function Jasmine2ScreenShotReporter(opts) {
       filename: spec.filename,
       id:       uuid.v1(),
       mark:     marks[spec.status],
-      name:     spec.fullName.replace(suiteName, '').trim(),
+      name:     escapeInvalidXmlChars(spec.fullName.replace(suiteName, '').trim()),
       reason:   printReasonsForFailure(spec),
       specId:   spec.id
     });
