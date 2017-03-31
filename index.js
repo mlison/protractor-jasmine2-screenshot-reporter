@@ -86,7 +86,7 @@ function Jasmine2ScreenShotReporter(opts) {
       '<script type="text/javascript">' +
       'function showhide(id) {' +
       'var e = document.getElementById(id);' +
-      'e.style.display = (e.style.display == "block") ? "none" : "block";' +
+      'e.style.display = (e.style.display === "block") ? "none" : "block";' +
       '}' +
       'function buildQuickLinks() {' +
       'var failedSpecs = document.querySelectorAll("li.failed");' +
@@ -361,12 +361,12 @@ function Jasmine2ScreenShotReporter(opts) {
   }
 
   function escapeInvalidXmlChars(str) {
-        return str.replace(/\&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/\>/g, "&gt;")
-            .replace(/\"/g, "&quot;")
-            .replace(/\'/g, "&apos;")
-            .replace(/[\x1b]/g, ""); //Remove control character 
+        return str.replace(/\&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/\>/g, '&gt;')
+            .replace(/\"/g, '&quot;')
+            .replace(/\'/g, '&apos;')
+            .replace(/[\x1b]/g, ''); //Remove control character
   }
 
   function printSpec(spec) {
@@ -597,7 +597,7 @@ function Jasmine2ScreenShotReporter(opts) {
       });
 
       if(opts.reportFailedUrl) {
-        if(spec.status == 'failed') {
+        if(spec.status === 'failed') {
           browserInstance.getCurrentUrl().then(function(url) {
             spec.failedAtUrl = url;
           });
