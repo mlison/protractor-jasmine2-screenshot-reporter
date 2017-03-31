@@ -1,3 +1,11 @@
+# 0.3.4
+
+## Features
+
+- 2c5cf63 bumped lodash to version 4
+- 18e44f2 added option to report failure url in report [#92](https://github.com/mlison/protractor-jasmine2-screenshot-reporter/pull/92)
+- b6bf349 added header on the quicklink list [#91](https://github.com/mlison/protractor-jasmine2-screenshot-reporter/pull/91)
+
 # 0.3.3
 
 ## Bugfixes
