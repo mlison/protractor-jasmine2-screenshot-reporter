@@ -156,6 +156,16 @@ This option will add a title to the report.
 
 Default is <code>'Report'</code>
 
+### Report failedAt url (optional)
+
+When a spec fails, include the current url in the report.
+
+<pre><code>var reporter = new HtmlScreenshotReporter({
+  reportFailedUrl: true
+});</code></pre>
+
+Default is <code>false</code>
+
 ### Extra configuration summary items (optional)
 
 The user may specify a set of key/value pairs that are appended to the configuration report.
