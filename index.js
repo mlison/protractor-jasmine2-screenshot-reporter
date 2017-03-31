@@ -51,6 +51,7 @@ function Jasmine2ScreenShotReporter(opts) {
       '<% } }) %>' +
       '(<%= duration %> s)' +
       '<%= reason %>' +
+      '<%= failedUrl %>' +
       '</li>'
   );
 
@@ -65,6 +66,7 @@ function Jasmine2ScreenShotReporter(opts) {
       '<%= name %> ' +
       '(<%= duration %> s)' +
       '<%= reason %>' +
+      '<%= failedUrl %>' +
       '</li>'
   );
 
@@ -160,6 +162,12 @@ function Jasmine2ScreenShotReporter(opts) {
       '<li><%- reason.message %> [<a href="javascript:showhide(\'<%= id %><%= key %>\')">stack</a>]<br/>' +
       '<span style="display: none" id="<%= id %><%= key %>" class="stacktrace"><%- reason.stack %></span></li>' +
       '<% }); %>' +
+      '</ul>'
+  );
+
+  var failedUrlTemplate = _.template(
+      '<ul>' +
+      '<li>Failed at url: <a href="<%= failedUrl %>"><%= failedUrl %></a></li>' +
       '</ul>'
   );
 
@@ -318,6 +326,7 @@ function Jasmine2ScreenShotReporter(opts) {
   opts.showConfiguration = opts.hasOwnProperty('showConfiguration') ? opts.showConfiguration : true;
   opts.reportTitle = opts.hasOwnProperty('reportTitle') ? opts.reportTitle : 'Report';
   opts.cleanDestination = opts.hasOwnProperty('cleanDestination') ? opts.cleanDestination : true;
+  opts.reportFailedUrl = opts.reportFailedUrl || false;
 
   // TODO: proper nesting -> no need for magic
 
@@ -338,6 +347,16 @@ function Jasmine2ScreenShotReporter(opts) {
     return reasonsTemplate({
       id: getUniqueSpecId(spec),
       reasons: spec.failedExpectations
+    });
+  }
+
+  function printFailedUrl(spec) {
+    if (spec.status !== 'failed' || !opts.reportFailedUrl) {
+      return '';
+    }
+
+    return failedUrlTemplate({
+      failedUrl: spec.failedAtUrl
     });
   }
 
@@ -369,6 +388,7 @@ function Jasmine2ScreenShotReporter(opts) {
       mark:     marks[spec.status],
       name:     spec.fullName.replace(suiteName, '').trim(),
       reason:   printReasonsForFailure(spec),
+      failedUrl:  printFailedUrl(spec),
       specId:   spec.id
     });
   }
@@ -575,6 +595,14 @@ function Jasmine2ScreenShotReporter(opts) {
           });
         });
       });
+
+      if(opts.reportFailedUrl) {
+        if(spec.status == 'failed') {
+          browserInstance.getCurrentUrl().then(function(url) {
+            spec.failedAtUrl = url;
+          });
+        }
+      }
     });
   };
 
