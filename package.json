@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "hat": "0.0.3",
-    "lodash": "^3.0.0",
+    "lodash": ">=3 <5",
     "mkdirp": "^0.5.0",
     "rimraf": "^2.4.3",
     "string.prototype.startswith": "^0.2.0",
