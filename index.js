@@ -253,13 +253,13 @@ function Jasmine2ScreenShotReporter(opts) {
     var validSpecs = false;
 
     if (suite._suites.length) {
-      validSuites = _.any(suite._suites, function(s) {
+      validSuites = _.some(suite._suites, function(s) {
         return hasValidSpecs(s);
       });
     }
 
     if (suite._specs.length) {
-      validSpecs = _.any(suite._specs, function(s) {
+      validSpecs = _.some(suite._specs, function(s) {
         return isSpecValid(s) || isSpecReportable(s);
       });
     }
