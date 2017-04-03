@@ -1,3 +1,9 @@
+# Next version
+
+## Bugfixes
+
+- #93 illegalchars on specs correct patch
+
 # 0.3.4
 
 ## Features
