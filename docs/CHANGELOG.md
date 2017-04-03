@@ -2,7 +2,7 @@
 
 ## Bugfixes
 
-- #93 illegalchars on specs correct patch
+- [#93](https://github.com/mlison/protractor-jasmine2-screenshot-reporter/pull/93) illegalchars on specs correct patch
 
 # 0.3.4
 
