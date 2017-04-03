@@ -147,21 +147,44 @@ describe('Jasmine2ScreenShotReporter tests', function(){
         expect(contents).to.contain('mockStackMessage');
         done();
       });
-
-
     }, 1);
+  });
+  
+  it('report is being generated for failed with illegal chars', function(done){
 
+    var reporter = new Jasmine2ScreenShotReporter({
+        dest: destinationPath,
+        filename: 'illegalchars-' + reportFileName });
 
+    fs.writeFileSync(destinationPath + '/' + 'illegalchars-' + reportFileName ,  ''); //create empty report file
+    reporter.jasmineStarted(suiteInfo);
 
+    //setTimeout is needed because jasmineStarted contain promise that need to be fullfilled
+    setTimeout(function(){
+      reporter.suiteStarted({description : 'mockSuiteDescriptionWithIllegalChars', fullName: 'mockSuiteFullNameWithIllegalChars'});
+      reporter.specStarted({description : 'mockSpecDescriptionWithIllegalChars & < > " \' | : \\ /', fullName: 'mockSpecFullNameWithIllegalChars & < > " \' | : \\ /'});
+      reporter.specDone({description : 'mockSpecDescriptionWithIllegalChars & < > " \' | : \\ /', fullName: 'mockSpecFullNameWithIllegalChars & < > " \' | : \\ /', status: 'failed',
+        failedExpectations: [{message: 'mockFailedMessage', stack: 'mockStackMessage'}]
+      });
+      reporter.suiteDone({description : 'mockSuiteDescriptionWithIllegalChars', fullName: 'mockSuiteFullNameWithIllegalChars'});
+      reporter.jasmineDone();
+      fs.readFile(destinationPath + '/' + 'illegalchars-' + reportFileName, 'utf8', function(error, contents) {
+        expect(contents).to.contain('<h4>mockSuiteDescriptionWithIllegalChars');
+        expect(contents).to.contain('mockSpecFullNameWithIllegalChars &amp; &lt; &gt; &quot; &apos; | : \\ /"');
+        expect(contents).to.contain('mockFailedMessage');
+        expect(contents).to.contain('mockStackMessage');
+        done();
+      });
+    }, 1);
   });
 
   afterEach(function(done) {
     // clean folder
     rimraf(destinationPath, function(err) {
-      if(err) {
-        console.error('Could not delete ' + destinationPath + 'directory');
-     }
-      done();
+        if(err) {
+           console.error('Could not delete ' + destinationPath + 'directory');
+        }
+     done();
     });
   });
 
