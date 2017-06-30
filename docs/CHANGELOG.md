@@ -1,3 +1,13 @@
+# 0.4.0
+
+## Features
+
+- [#96](https://github.com/mlison/protractor-jasmine2-screenshot-reporter/pull/96) Add support for optional inline images in report
+
+## Bugfixes
+
+- [#101](https://github.com/mlison/protractor-jasmine2-screenshot-reporter/pull/101) Ensure directory is created before trying to write report file
+
 # 0.3.5
 
 ## Bugfixes
@@ -29,7 +39,7 @@
 
 ## Features
 
-- 83d46e5 adding stack traces to the report [#46](https://github.com/mlison/protractor-jasmine2-screenshot-reporter/issues/44)
+- 83d46e5 adding stack traces to the report [#46](https://github.com/mlison/protractor-jasmine2-screenshot-reporter/issues/46)
 - 64405b4 [support for forked instances](https://github.com/mlison/protractor-jasmine2-screenshot-reporter/blob/master/README.md#forked-browser-instances) [#44](https://github.com/mlison/protractor-jasmine2-screenshot-reporter/issues/44)
 - 4a00de3 execute done from process.nextTick. dirtyfixing [#10](https://github.com/mlison/protractor-jasmine2-screenshot-reporter/issues/10)
 
