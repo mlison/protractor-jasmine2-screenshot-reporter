@@ -635,18 +635,23 @@ function Jasmine2ScreenShotReporter(opts) {
         output += printTestConfiguration();
       }
     }
-
-    fs.appendFileSync(
-        path.join(opts.dest, opts.filename),
-        reportTemplate({ report: output }),
-        { encoding: 'utf8' },
-        function(err) {
-          if(err) {
-            console.error('Error writing to file:' + path.join(opts.dest, opts.filename));
-            throw err;
+    mkdirp(path.dirname(opts.dest + opts.filename), function (err) {
+      if (err) {
+        console.log('Error creating screenshot directory');
+        throw err;
+      }
+      fs.appendFileSync(
+          path.join(opts.dest, opts.filename),
+          reportTemplate({ report: output }),
+          { encoding: 'utf8' },
+          function(err) {
+            if(err) {
+              console.error('Error writing to file:' + path.join(opts.dest, opts.filename));
+              throw err;
+            }
           }
-        }
-    );
+      );
+    });
   };
 
   return this;
