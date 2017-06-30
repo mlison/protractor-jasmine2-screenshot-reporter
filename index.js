@@ -94,6 +94,7 @@ function Jasmine2ScreenShotReporter(opts) {
       '<style>' +
       'body { font-family: Arial; }' +
       'ul { list-style-position: inside; }' +
+      'li img { max-width: 100%; }' +
       'span.passed { padding: 0 1em; color: green; }' +
       'span.failed { padding: 0 1em; color: red; }' +
       'span.pending { padding: 0 1em; color: orange; }' +
