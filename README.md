@@ -212,6 +212,16 @@ This option is __disabled by default__. When this option is enabled, than for ea
   preserveDirectory: true
 });</code></pre>
 
+### Inline Images (optional)
+
+Produce images inline in the report instead of links.
+
+<pre><code>var reporter = new HtmlScreenshotReporter({
+  inlineImages: true
+});</code></pre>
+
+Default is <code>false</code>
+
 ## Forked browser instances
 
 The reporter can take screenshots also from instances forked off the main browser.

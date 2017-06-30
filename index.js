@@ -55,6 +55,23 @@ function Jasmine2ScreenShotReporter(opts) {
       '</li>'
   );
 
+  var inlineTemplate = _.template(
+      '<li id="<%= id %>" ' +
+      'class="<%= cssClass %>" ' +
+      'data-spec="<%= specId %>" ' +
+      'data-name="<%= name %>" ' +
+      'data-browser="<%= browserName %>">' +
+      '<%= mark %>' +
+      '<img src="<%= filename[\'main\'] %>"><%= name %></img>' +
+      '<% _.forEach(filename, function (val, key) { if (key != \'main\') { %>' +
+      ' [<img src="<%= val %>"><%= key %></img>] ' +
+      '<% } }) %>' +
+      '(<%= duration %> s)' +
+      '<%= reason %>' +
+      '<%= failedUrl %>' +
+      '</li>'
+  );
+
   var nonLinkTemplate = _.template(
       '<li title="No screenshot was created for this test case." ' +
       'id="<%= id %>" ' +
@@ -327,6 +344,7 @@ function Jasmine2ScreenShotReporter(opts) {
   opts.reportTitle = opts.hasOwnProperty('reportTitle') ? opts.reportTitle : 'Report';
   opts.cleanDestination = opts.hasOwnProperty('cleanDestination') ? opts.cleanDestination : true;
   opts.reportFailedUrl = opts.reportFailedUrl || false;
+  opts.inlineImages = opts.inlineImages || false;
 
   // TODO: proper nesting -> no need for magic
 
@@ -371,7 +389,7 @@ function Jasmine2ScreenShotReporter(opts) {
 
   function printSpec(spec) {
     var suiteName = spec._suite ? spec._suite.fullName : '';
-    var template = !_.isEmpty(spec.filename) ? linkTemplate : nonLinkTemplate;
+    var template = !_.isEmpty(spec.filename) ? (opts.inlineImages ? inlineTemplate : linkTemplate) : nonLinkTemplate;
 
     if (spec.isPrinted || (spec.skipPrinting && !isSpecReportable(spec))) {
       return '';
