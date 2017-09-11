@@ -1,3 +1,9 @@
+# 0.4.1
+
+## Bugfixes
+
+- [#106](https://github.com/mlison/protractor-jasmine2-screenshot-reporter/pull/106) Include disabled specs as skipped
+
 # 0.4.0
 
 ## Features
