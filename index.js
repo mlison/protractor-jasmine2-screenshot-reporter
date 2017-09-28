@@ -38,6 +38,8 @@ function Jasmine2ScreenShotReporter(opts) {
         fullName: 'focused specs'
       };
 
+  var specDonePromises = [];
+
   var linkTemplate = _.template(
       '<li id="<%= id %>" ' +
       'class="<%= cssClass %>" ' +
@@ -584,8 +586,8 @@ function Jasmine2ScreenShotReporter(opts) {
       if (!browserInstance) {
         return;
       }
-      browserInstance.takeScreenshot().then(function (png) {
-        browserInstance.getCapabilities().then(function (capabilities) {
+      var screenShotPromise = browserInstance.takeScreenshot().then(function (png) {
+        return browserInstance.getCapabilities().then(function (capabilities) {
           var screenshotPath,
               metadataPath,
               metadata;
@@ -615,6 +617,8 @@ function Jasmine2ScreenShotReporter(opts) {
         });
       });
 
+      specDonePromises.push(screenShotPromise);
+
       if(opts.reportFailedUrl) {
         if(spec.status === 'failed') {
           browserInstance.getCurrentUrl().then(function(url) {
@@ -627,49 +631,50 @@ function Jasmine2ScreenShotReporter(opts) {
 
   this.jasmineDone = function() {
     var output = '';
-
-    if (runningSuite) {
-      // focused spec (fit) -- suiteDone was never called
-      self.suiteDone(fakeFocusedSuite);
-    }
-
-    _.each(suites, function(suite) {
-      output += printResults(suite);
-    });
-
-    // Ideally this shouldn't happen, but some versions of jasmine will allow it
-    _.each(specs, function(spec) {
-      output += printSpec(spec);
-    });
-
-    // Add configuration information when requested and only if specs have been reported.
-    if (opts.showConfiguration) {
-      var suiteHasSpecs = false;
-
-      _.each(specs, function(spec) {
-        suiteHasSpecs = spec.isPrinted || suiteHasSpecs;
+    protractor.promise.all(specDonePromises).then(()=>{
+      if (runningSuite) {
+        // focused spec (fit) -- suiteDone was never called
+        self.suiteDone(fakeFocusedSuite);
+      }
+  
+      _.each(suites, function(suite) {
+        output += printResults(suite);
       });
-
-      if (suiteHasSpecs) {
-        output += printTestConfiguration();
+  
+      // Ideally this shouldn't happen, but some versions of jasmine will allow it
+      _.each(specs, function(spec) {
+        output += printSpec(spec);
+      });
+  
+      // Add configuration information when requested and only if specs have been reported.
+      if (opts.showConfiguration) {
+        var suiteHasSpecs = false;
+  
+        _.each(specs, function(spec) {
+          suiteHasSpecs = spec.isPrinted || suiteHasSpecs;
+        });
+  
+        if (suiteHasSpecs) {
+          output += printTestConfiguration();
+        }
       }
-    }
-    mkdirp(path.dirname(opts.dest + opts.filename), function (err) {
-      if (err) {
-        console.log('Error creating screenshot directory');
-        throw err;
-      }
-      fs.appendFileSync(
-          path.join(opts.dest, opts.filename),
-          reportTemplate({ report: output }),
-          { encoding: 'utf8' },
-          function(err) {
-            if(err) {
-              console.error('Error writing to file:' + path.join(opts.dest, opts.filename));
-              throw err;
+      mkdirp(path.dirname(opts.dest + opts.filename), function (err) {
+        if (err) {
+          console.log('Error creating screenshot directory');
+          throw err;
+        }
+        fs.appendFileSync(
+            path.join(opts.dest, opts.filename),
+            reportTemplate({ report: output }),
+            { encoding: 'utf8' },
+            function(err) {
+              if(err) {
+                console.error('Error writing to file:' + path.join(opts.dest, opts.filename));
+                throw err;
+              }
             }
-          }
-      );
+        );
+      });
     });
   };
 

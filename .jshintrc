@@ -25,6 +25,7 @@
     "it": false,
     "describe": false,
     "afterEach": false,
-    "beforeEach": false
+    "beforeEach": false,
+    "protractor": false
   }
 }
