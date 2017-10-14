@@ -86,6 +86,17 @@ Array of filenames that specifies extra css files to include in the html report.
   userCss: 'my-report-styles.css'
 });</code></pre>
 
+### Use External JS (optional)
+
+A string or an array of javascript filenames that should be loaded in the html test report.
+
+<pre><code>var reporter = new HtmlScreenshotReporter({
+  userJs: [ 'script.js', 'other-script.js' ]
+  // Or
+  userJs: 'script.js
+});</code></pre>
+
+
 ### Ignore pending specs (optional)
 
 When this option is enabled, reporter will not create screenshots for pending / disabled specs. Only executed specs will be captured.

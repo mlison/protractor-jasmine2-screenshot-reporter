@@ -78,6 +78,22 @@ describe('Jasmine2ScreenShotReporter tests', function(){
     });
   });
 
+  it('beforeLaunch should add custom JS', function(done){
+    var reporter = new Jasmine2ScreenShotReporter({
+      dest: destinationPath,
+      filename: reportFileName,
+      userJs: ['myJSFile.js', 'myJSFile2.js']});
+
+    assert.equal(typeof reporter.beforeLaunch, 'function'); //Public method beforeLaunch should be defined
+
+    reporter.beforeLaunch(function() {
+      var contents = fs.readFileSync(destinationPath + '/' + reportFileName, 'utf8');
+      expect(contents).to.contain('<script src="myJSFile.js"></script>');
+      expect(contents).to.contain('<script src="myJSFile2.js"></script>');
+      done();
+    });
+  });
+
 
   it('afterLaunch should close down report', function(done){
     var reporter = new Jasmine2ScreenShotReporter({
