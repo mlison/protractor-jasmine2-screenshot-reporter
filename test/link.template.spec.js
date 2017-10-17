@@ -3,19 +3,8 @@
 const expect = require('chai').expect;
 const linkTemplate = require('../modules/link.template')
 
-describe('link template', function() {
-  it('basic info', function() {
-    expect(linkTemplate({ id: 123 })).to.contain('id="123"')
-    expect(linkTemplate({ cssClass: 123 })).to.contain('class="123"')
-    expect(linkTemplate({ specId: 123 })).to.contain('data-spec="123"')
-    expect(linkTemplate({ name: 123 })).to.contain('data-name="123"')
-    expect(linkTemplate({ browserName: 123 })).to.contain('data-browser="123"')
-    expect(linkTemplate({ duration: 123 })).to.contain('(123 s)')
-    expect(linkTemplate({ reason: 123 })).to.contain('123')
-    expect(linkTemplate({ failedUrl: 123 })).to.contain('123')
-  });
-
-  it('file links', function() {
+describe('link template', () => {
+  it('file links', () => {
     expect(linkTemplate({
       filename: {
         main: 'link'
@@ -31,4 +20,8 @@ describe('link template', function() {
       name: 'meh'
     })).to.contain('[<a href="extra-link">extra</a>]')
   });
+
+  it('should not throw when filenames are missing', () => {
+    expect(linkTemplate.bind(null, {})).not.to.throw()
+  })
 });

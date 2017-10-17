@@ -1,6 +1,7 @@
 'use strict';
 
 const _ = require('lodash')
+const baseLink = require('./base-item.template')
 
 module.exports = (opts) => {
   opts.filename = opts.filename || {}
@@ -10,18 +11,10 @@ module.exports = (opts) => {
     .map((val, key) => `[<a href="${val}">${key}</a>] `)
     .join('')
 
-  return `
-    <li id="${opts.id}"
-      class="${opts.cssClass}"
-      data-spec="${opts.specId}"
-      data-name="${opts.name}"
-      data-browser="${opts.browserName}">
-      ${opts.mark}
-      <a href="${opts.filename.main}">${opts.name}</a>
-      ${extraFiles}
-      (${opts.duration} s)
-      ${opts.reason}
-      ${opts.failedUrl}
-    </li>
+  const itemBody = `
+    <a href="${opts.filename.main}">${opts.name}</a>
+    ${extraFiles}
   `
+
+  return baseLink(itemBody, opts)
 }
