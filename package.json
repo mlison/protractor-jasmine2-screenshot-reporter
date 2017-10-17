@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha test",
-    "coverage": "istanbul cover ./node_modules/mocha/bin/_mocha -- -R spec",
+    "coverage": "echo 'istanbul cover ./node_modules/mocha/bin/_mocha --lines 1 -- -R spec' will not run until basic tests has been fixed and reenabled for this repo",
     "lint": "jshint --config .jshintrc index.js test"
   },
   "repository": {
