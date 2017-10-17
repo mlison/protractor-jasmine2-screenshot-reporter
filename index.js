@@ -8,8 +8,6 @@ var fs     = require('fs'),
     uuid   = require('uuid'),
     hat    = require('hat');
 
-require('string.prototype.startswith');
-
 function Jasmine2ScreenShotReporter(opts) {
   'use strict';
 
