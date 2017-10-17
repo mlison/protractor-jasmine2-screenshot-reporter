@@ -1,3 +1,9 @@
+# 0.5.0
+
+## Features
+
+- [#113](https://github.com/mlison/protractor-jasmine2-screenshot-reporter/issues/113) [#114](https://github.com/mlison/protractor-jasmine2-screenshot-reporter/pull/114) Allow user to include javascript files via 'userJs'
+
 # 0.4.1
 
 ## Bugfixes
