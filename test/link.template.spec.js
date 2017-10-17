@@ -1,10 +1,6 @@
 'use strict';
 
-var assert = require('chai').assert,
-  expect = require('chai').expect,
-  chai = require('chai'),
-  sinon = require('sinon');
-
+const expect = require('chai').expect;
 const linkTemplate = require('../modules/link.template')
 
 describe('link template', function() {

@@ -18,6 +18,7 @@
   "strict": true,
   "trailing": true,
   "smarttabs": true,
+  "asi": true,
   "globals": {
     "jasmine": false,
     "browser": false,
