@@ -6,7 +6,7 @@ var gulp = require('gulp'),
   istanbul = require('gulp-istanbul');
 
 gulp.task('lint', function () {
-  return gulp.src(['**/*.js','!node_modules/**','!coverage/**'])
+  return gulp.src(['**/*.js','!node_modules/**','!test/runner/**','!coverage/**'])
     .pipe(jshint())
     .pipe(jshint.reporter('default'));
 });
