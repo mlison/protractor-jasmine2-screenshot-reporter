@@ -3,5 +3,7 @@ npm-debug.log
 *.iml
 .idea
 test/testdirectory
+test/runner
+target/
 coverage
 .DS_Store
