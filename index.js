@@ -8,6 +8,8 @@ var fs     = require('fs'),
     uuid   = require('uuid'),
     hat    = require('hat');
 
+const linkTemplate = require('./modules/link.template')
+
 function Jasmine2ScreenShotReporter(opts) {
   'use strict';
 
@@ -35,23 +37,6 @@ function Jasmine2ScreenShotReporter(opts) {
         description: 'focused specs',
         fullName: 'focused specs'
       };
-
-  var linkTemplate = _.template(
-      '<li id="<%= id %>" ' +
-      'class="<%= cssClass %>" ' +
-      'data-spec="<%= specId %>" ' +
-      'data-name="<%= name %>" ' +
-      'data-browser="<%= browserName %>">' +
-      '<%= mark %>' +
-      '<a href="<%= filename[\'main\'] %>"><%= name %></a>' +
-      '<% _.forEach(filename, function (val, key) { if (key != \'main\') { %>' +
-      ' [<a href="<%= val %>"><%= key %></a>] ' +
-      '<% } }) %>' +
-      '(<%= duration %> s)' +
-      '<%= reason %>' +
-      '<%= failedUrl %>' +
-      '</li>'
-  );
 
   var inlineTemplate = _.template(
       '<li id="<%= id %>" ' +
