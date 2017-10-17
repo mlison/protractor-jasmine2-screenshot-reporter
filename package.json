@@ -8,6 +8,9 @@
     "coverage": "istanbul cover ./node_modules/mocha/bin/_mocha -- -R spec",
     "lint": "jshint --config .jshintrc index.js test"
   },
+  "engines": {
+    "node" : ">=6.4.0"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/mlison/protractor-jasmine2-screenshot-reporter"
