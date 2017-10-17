@@ -101,6 +101,7 @@ function Jasmine2ScreenShotReporter(opts) {
       'span.stacktrace { white-space: pre; border: 1px solid rgb(0, 0, 0); font-size: 9pt; padding: 4px; background-color: rgb(204, 204, 204); }' +
       '</style>' +
       '<%= userCss %>' +
+      '<%= userJs %>' +
       '<script type="text/javascript">' +
       'function showhide(id) {' +
       'var e = document.getElementById(id);' +
@@ -303,6 +304,16 @@ function Jasmine2ScreenShotReporter(opts) {
     return cssLinks;
   };
 
+  var getJsScripts = function(jsFiles) {
+    var jsScripts = '';
+
+    _.each(jsFiles, function(file) {
+      jsScripts +='<script src="' + file + '"></script>';
+    });
+
+    return jsScripts;
+  };
+
   var cleanDestination = function(callback) {
     // if we aren't removing the old report folder then simply return
     if (!opts.cleanDestination) {
@@ -336,6 +347,7 @@ function Jasmine2ScreenShotReporter(opts) {
   opts.pathBuilder = opts.pathBuilder || pathBuilder;
   opts.metadataBuilder = opts.metadataBuilder || metadataBuilder;
   opts.userCss = Array.isArray(opts.userCss) ?  opts.userCss : opts.userCss ? [ opts.userCss ] : [];
+  opts.userJs = Array.isArray(opts.userJs) ?  opts.userJs : opts.userJs ? [ opts.userJs ] : [];
   opts.totalSpecsDefined = null;
   opts.showSummary = opts.hasOwnProperty('showSummary') ? opts.showSummary : true;
   opts.showQuickLinks = opts.showQuickLinks || false;
@@ -467,12 +479,13 @@ function Jasmine2ScreenShotReporter(opts) {
     console.log('Report destination:  ', path.join(opts.dest, opts.filename));
 
     var cssLinks = getCssLinks(opts.userCss);
+    var jsScripts = getJsScripts(opts.userJs);
     var summaryQuickLinks = opts.showQuickLinks ? addQuickLinks(): '';
     var reportSummary = opts.showSummary ? addReportSummary({ quickLinks: summaryQuickLinks }) : '';
 
 
     // Now you'll need to build the replacement report text for the file.
-    var reportContent = openReportTemplate({ userCss: cssLinks});
+    var reportContent = openReportTemplate({ userCss: cssLinks, userJs: jsScripts });
     reportContent += addReportTitle({ title: opts.reportTitle});
     reportContent += reportSummary;
 
