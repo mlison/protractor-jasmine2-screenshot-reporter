@@ -9,6 +9,7 @@ var fs     = require('fs'),
     hat    = require('hat');
 
 const linkTemplate = require('./modules/link.template')
+const inlineTemplate = require('./modules/inline.template')
 
 function Jasmine2ScreenShotReporter(opts) {
   'use strict';
@@ -37,23 +38,6 @@ function Jasmine2ScreenShotReporter(opts) {
         description: 'focused specs',
         fullName: 'focused specs'
       };
-
-  var inlineTemplate = _.template(
-      '<li id="<%= id %>" ' +
-      'class="<%= cssClass %>" ' +
-      'data-spec="<%= specId %>" ' +
-      'data-name="<%= name %>" ' +
-      'data-browser="<%= browserName %>">' +
-      '<%= mark %>' +
-      '<img src="<%= filename[\'main\'] %>"><%= name %></img>' +
-      '<% _.forEach(filename, function (val, key) { if (key != \'main\') { %>' +
-      ' [<img src="<%= val %>"><%= key %></img>] ' +
-      '<% } }) %>' +
-      '(<%= duration %> s)' +
-      '<%= reason %>' +
-      '<%= failedUrl %>' +
-      '</li>'
-  );
 
   var nonLinkTemplate = _.template(
       '<li title="No screenshot was created for this test case." ' +
